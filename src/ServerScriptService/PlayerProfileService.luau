@@ -83,6 +83,10 @@ local pendingLoads = setmetatable({}, { __mode = "k" }) -- Player -> BindableEve
 -- valeurs par defaut. Aucune sauvegarde pour eux, et ils sont kick.
 local loadFailed = setmetatable({}, { __mode = "k" })
 local fieldGetters = {} -- nom de champ -> function(player): any (rempli par RegisterField)
+-- Appeles a la deconnexion, APRES la photo du profil : un service peut alors
+-- remettre a zero ce qui appartenait au joueur (sa base) sans risquer de
+-- vider les donnees avant qu'elles soient lues pour la sauvegarde.
+local releaseCallbacks: { (Player) -> () } = {}
 
 -- Sauvegarde periodique : sans ca, un crash/arret brutal du serveur faisait
 -- perdre TOUTE la session du joueur (rien n'etait ecrit entre le join et la
@@ -211,6 +215,19 @@ end
 -- moment de sauvegarder. Aucun require croise necessaire : chaque service
 -- proprietaire d'un champ (money, generators, inventory, rebirths, force,
 -- speed, bagTier, baseLevel) s'enregistre lui-meme au demarrage.
+-- true si le profil est charge ET sauvegardable (pas en echec de chargement).
+function PlayerProfileService.IsLoaded(player: Player): boolean
+	return profiles[player] ~= nil and not loadFailed[player]
+end
+
+-- `callback(player)` est appele a la deconnexion, une fois les donnees du
+-- joueur lues pour la sauvegarde finale (ou tout de suite s'il n'y a rien
+-- a sauvegarder). C'est ici, et non dans un PlayerRemoving, qu'on libere
+-- et nettoie ce que le joueur possedait.
+function PlayerProfileService.OnPlayerReleased(callback: (Player) -> ())
+	table.insert(releaseCallbacks, callback)
+end
+
 function PlayerProfileService.RegisterField(fieldName: string, getter: (Player) -> any)
 	fieldGetters[fieldName] = getter
 end
@@ -230,6 +247,8 @@ local function collectProfile(player: Player): { [string]: any }
 	return data
 end
 
+local writeProfile: (Player, { [string]: any }) -> ()
+
 -- Sauvegarde immediate du profil COMPLET (tous les champs enregistres),
 -- en UN SEUL SetAsync. A utiliser pour un "force une sauvegarde tout de
 -- suite" ponctuel (ex: apres un gros achat) - la sauvegarde normale a la
@@ -241,7 +260,10 @@ function PlayerProfileService.Save(player: Player)
 	if loadFailed[player] then
 		return -- chargement echoue : sauvegarder ecraserait la vraie progression
 	end
-	local data = collectProfile(player)
+	writeProfile(player, collectProfile(player))
+end
+
+writeProfile = function(player: Player, data: { [string]: any })
 	local dsKey = "Player_" .. player.UserId
 	lastSaveAt[player] = os.clock()
 	-- UpdateAsync plutot que SetAsync : si deux serveurs ecrivent la meme cle
@@ -256,7 +278,14 @@ function PlayerProfileService.Save(player: Player)
 end
 
 Players.PlayerRemoving:Connect(function(player: Player)
-	PlayerProfileService.Save(player)
+	-- Photo prise tout de suite (sans yield), AVANT de liberer la base.
+	local data = if PlayerProfileService.IsLoaded(player) then collectProfile(player) else nil
+	for _, callback in ipairs(releaseCallbacks) do
+		task.spawn(callback, player)
+	end
+	if data then
+		writeProfile(player, data)
+	end
 end)
 
 -- Boucle d'autosave (voir AUTOSAVE_INTERVAL). Chaque joueur est sauvegarde

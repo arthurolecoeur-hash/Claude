@@ -14,10 +14,52 @@
       "PlayerProfileService": {
         "$path": "src/ServerScriptService/PlayerProfileService.luau"
       },
+      "Base": {
+        "$className": "Folder",
+        "AssignationBaseScript": {
+          "$path": "src/ServerScriptService/Base/AssignationBaseScript.server.luau"
+        },
+        "BaseLevelService": {
+          "$path": "src/ServerScriptService/Base/BaseLevelService.server.luau"
+        }
+      },
       "Money": {
         "$className": "Folder",
         "MoneyService": {
           "$path": "src/ServerScriptService/Money/MoneyService.luau"
+        }
+      },
+      "Generators": {
+        "$className": "Folder",
+        "GeneratorSaveService": {
+          "$path": "src/ServerScriptService/Generators/GeneratorSaveService.server.luau"
+        },
+        "PickupService": {
+          "$path": "src/ServerScriptService/Generators/PickupService.luau"
+        }
+      },
+      "Purchases": {
+        "$className": "Folder",
+        "PurchaseRouter": {
+          "$path": "src/ServerScriptService/Purchases/PurchaseRouter.luau"
+        }
+      },
+      "Training": {
+        "$className": "Folder",
+        "SpeedRobuxHandler": {
+          "$path": "src/ServerScriptService/Training/SpeedRobuxHandler.server.luau"
+        },
+        "SpeedService": {
+          "$path": "src/ServerScriptService/Training/SpeedService.luau"
+        }
+      },
+      "SpinWheel": {
+        "$className": "Folder",
+        "SpinHandler": {
+          "$path": "src/ServerScriptService/SpinWheel/SpinHandler.server.luau"
+        },
+        "SpinService": {
+          "$path": "src/ServerScriptService/SpinWheel/SpinService.luau"
         }
       }
     },
