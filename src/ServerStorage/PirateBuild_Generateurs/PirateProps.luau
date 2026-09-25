@@ -1077,11 +1077,20 @@ function P.detail(model, rng)
 			local parent = part.Parent
 			local kind = near(col, WOODS) and "bois" or near(col, METALS) and "metal" or near(col, STONES) and "pierre" or near(col, CLOTHS) and "tissu" or nil
 			if kind then
-				for _, f in FACES do
+				for fi, f in FACES do
+					if L.REALISTE and fi > 2 then break end
 					local n, ua, va = f[1], f[2], f[3]
 					local U, Vd = dim(part, ua), dim(part, va)
 					if U * Vd >= 1.5 then
-						if kind == "bois" then
+						if kind == "bois" and L.REALISTE then
+							if U * Vd >= 5 then
+								for _, cu in { -1, 1 } do
+									for _, cv in { -1, 1 } do
+										stud(parent, part, n, ua, va, cu * (U / 2 - 0.25), cv * (Vd / 2 - 0.25), 0.14, C.ironD)
+									end
+								end
+							end
+						elseif kind == "bois" then
 							local along = U >= Vd and "U" or "V"
 							local long, short = math.max(U, Vd), math.min(U, Vd)
 							local lines = math.clamp(math.floor(short / 0.7), 1, 4)
@@ -1107,14 +1116,14 @@ function P.detail(model, rng)
 								stud(parent, part, n, ua, va, rng:NextNumber(-0.3, 0.3) * U, rng:NextNumber(-0.3, 0.3) * Vd, 0.3, col:Lerp(C.black, 0.4))
 							end
 						elseif kind == "metal" then
-							local step = 0.9
+							local step = L.REALISTE and 1.6 or 0.9
 							local nu = math.max(1, math.floor(U / step))
 							for i = 0, nu do
 								local u = -U / 2 + 0.2 + (U - 0.4) * i / math.max(nu, 1)
 								stud(parent, part, n, ua, va, u, Vd / 2 - 0.2, 0.18, col:Lerp(C.white, 0.35), SHINY)
 								stud(parent, part, n, ua, va, u, -Vd / 2 + 0.2, 0.18, col:Lerp(C.white, 0.35), SHINY)
 							end
-						elseif kind == "pierre" then
+						elseif kind == "pierre" and not L.REALISTE then
 							local c = faceFrame(part, n)
 							local dark = col:Lerp(C.black, 0.35)
 							for _ = 1, 2 do

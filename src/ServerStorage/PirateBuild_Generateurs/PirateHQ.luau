@@ -90,20 +90,18 @@ end
 function H.Barrel(parent, cf, rng, s)
 	s = s or 1
 	local m = L.model("Barrel", parent, cf)
-	local ws = { 2.4, 2.8, 3, 2.8, 2.4 }
+	local ws = { 2.5, 2.8, 3, 3.05, 3, 2.8, 2.5 }
 	for i, w in ws do
-		L.part(m, "Douve", V(w, 0.9, w) * s, cf * CF(0, (0.45 + (i - 1) * 0.9) * s, 0), (i % 2 == 0) and C.wood or C.woodL)
+		L.vcyl(m, "Douve", 0.66 * s, w * s, cf * CF(0, (0.33 + (i - 1) * 0.66) * s, 0), (i % 2 == 0) and C.wood or C.woodD)
 	end
-	for _, y in { 0.55, 2.25, 3.95 } do
-		local w = (y == 2.25) and 3.1 or 2.7
-		L.part(m, "Cercle", V(w, 0.25, w) * s, cf * CF(0, y * s, 0), C.iron)
+	for _, y in { 0.45, 1.5, 3.1, 4.15 } do
+		local w = (y == 1.5 or y == 3.1) and 3.15 or 2.7
+		L.vcyl(m, "Cercle", 0.22 * s, w * s, cf * CF(0, y * s, 0), C.iron)
 	end
-	L.part(m, "Couvercle", V(2.2, 0.2, 2.2) * s, cf * CF(0, 4.55 * s, 0), C.woodD)
-	for _, x in { -0.5, 0.5 } do
-		L.part(m, "Planche", V(0.1, 0.22, 2.2) * s, cf * CF(x * s, 4.56 * s, 0), C.woodD:Lerp(C.black, 0.2))
-	end
-	L.part(m, "Robinet", V(0.4, 0.4, 0.6) * s, cf * CF(0, 1.1 * s, -1.6 * s), C.gold, SHINY)
-	L.part(m, "Marque", V(0.9, 0.7, 0.05) * s, cf * CF(0, 2.3 * s, -1.53 * s), C.black)
+	L.vcyl(m, "Couvercle", 0.12 * s, 2.35 * s, cf * CF(0, 4.62 * s, 0), C.woodL)
+	L.part(m, "Bonde", V(0.4, 0.15, 0.4) * s, cf * CF(0.5 * s, 4.7 * s, 0.3 * s), C.woodD)
+	L.cyl(m, "Robinet", 0.6 * s, 0.35 * s, cf * CF(0, 1.1 * s, -1.6 * s) * ANG(0, rad(90), 0), C.gold, SHINY)
+	L.part(m, "RobinetCle", V(0.5, 0.12, 0.12) * s, cf * CF(0, 1.3 * s, -1.85 * s), C.gold, SHINY)
 	return m
 end
 

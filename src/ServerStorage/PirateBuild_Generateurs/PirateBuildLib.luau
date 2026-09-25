@@ -19,13 +19,37 @@ L.C = {
 }
 L.GLOWS = { L.C.gold, L.C.orange, L.C.yellow }
 
+-- Style realiste : chaque piece prend un vrai materiau selon sa couleur
+-- (bois, pierre, metal, tissu, sable...). Mettre a false pour revenir aux
+-- blocs a picots de la map.
+L.REALISTE = true
+
+local FAMILIES
+local function familyOf(col)
+	local best, bestD = nil, 0.16
+	for _, f in FAMILIES do
+		for _, c in f.cols do
+			local d = math.abs(col.R - c.R) + math.abs(col.G - c.G) + math.abs(col.B - c.B)
+			if d < bestD then best, bestD = f, d end
+		end
+	end
+	return best
+end
+
 local function finish(p, parent, props)
 	p.Anchored = true
-	p.Material = Enum.Material.Plastic
-	p.MaterialVariant = L.MV
 	p.TopSurface = Enum.SurfaceType.Smooth
 	p.BottomSurface = Enum.SurfaceType.Smooth
 	p.CanTouch = false
+	if L.REALISTE then
+		local f = familyOf(p.Color)
+		p.Material = f and f.mat or Enum.Material.SmoothPlastic
+		p.MaterialVariant = ""
+		if f and f.refl then p.Reflectance = f.refl end
+	else
+		p.Material = Enum.Material.Plastic
+		p.MaterialVariant = L.MV
+	end
 	local s = p.Size
 	if math.min(s.X, s.Y, s.Z) < 0.8 or s.Magnitude < 3 then p.CanCollide = false; p.CanQuery = false end
 	if props then for k, v in pairs(props) do p[k] = v end end
@@ -158,5 +182,17 @@ function L.label(part, face, text, color, font)
 	s.Parent = t
 	return g
 end
+
+FAMILIES = {
+	{ mat = Enum.Material.WoodPlanks, cols = { L.C.plank, L.C.woodL } },
+	{ mat = Enum.Material.Wood, cols = { L.C.wood, L.C.woodD } },
+	{ mat = Enum.Material.Slate, cols = { L.C.stone, L.C.rock, L.C.rockD, L.C.rockL } },
+	{ mat = Enum.Material.Metal, cols = { L.C.iron, L.C.ironD, L.C.metal, L.C.metalD, L.C.metalL } },
+	{ mat = Enum.Material.Metal, refl = 0.2, cols = { L.C.gold, L.C.goldD } },
+	{ mat = Enum.Material.Fabric, cols = { L.C.sail, L.C.sailD, L.C.rope, L.C.coat, L.C.navy, L.C.bandana, L.C.shirtW, L.C.paper } },
+	{ mat = Enum.Material.Sand, cols = { L.C.sand } },
+	{ mat = Enum.Material.Grass, cols = { Color3.fromRGB(60, 190, 70), Color3.fromRGB(40, 150, 60), Color3.fromRGB(110, 220, 90), Color3.fromRGB(90, 160, 70) } },
+	{ mat = Enum.Material.Marble, cols = { L.C.white } },
+}
 
 return L
