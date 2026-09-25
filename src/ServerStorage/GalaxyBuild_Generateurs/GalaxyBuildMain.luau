@@ -236,6 +236,47 @@ function M.run()
 	return ("DecoGalaxy : %d pieces"):format(n)
 end
 
+-- Decor (sol + ciel) expose sur une 2e plateforme (Workspace > DecorGalaxie).
+function M.kitDecor()
+	local old = workspace:FindFirstChild("DecorGalaxie")
+	if old then old:Destroy() end
+	local root = Instance.new("Folder"); root.Name = "DecorGalaxie"; root.Parent = workspace
+	local rng = Random.new(5)
+	local origin = CF(CX, 360, -1753)
+	local items = {
+		{ 10, function(cf) return P.crystal(root, cf, rng, C.cyan, 1.2) end },
+		{ 8, function(cf) return P.boulder(root, cf, rng, 3) end },
+		{ 6, function(cf) return P.lamp(root, cf, rng, C.purple) end },
+		{ 18, function(cf) return P.observatory(root, cf, rng) end },
+		{ 6, function(cf) return P.flag(root, cf, rng) end },
+		{ 8, function(cf) return P.nest(root, cf, rng) end },
+		{ 9, function(cf) return P.holoSign(root, cf, rng, "ZONE GALAXIE") end },
+		{ 22, function(cf) return P.satellite(root, cf * CF(0, 4, 0), rng) end },
+		{ 28, function(cf) return P.wormhole(root, cf * CF(0, 13, 0), rng, 12) end },
+		{ 10, function(cf) return P.asteroid(root, cf * CF(0, 4, 0), rng, 5) end },
+		{ 50, function(cf) return P.planet(root, cf * CF(0, 30, 0), rng, { d = 24, color = C.orange, ringColor = C.gold, bands = 5, moons = 1 }) end },
+		{ 40, function(cf) return P.blackHole(root, cf * CF(0, 25, 0), rng, 10) end },
+		{ 30, function(cf) return P.comet(root, CFrame.lookAt((cf * CF(0, 12, 0)).Position, (cf * CF(-10, 10, 0)).Position), rng, 20) end },
+		{ 50, function(cf) return P.galaxy(root, cf * CF(0, 30, 0) * ANG(rad(90), 0, 0), rng, 22) end },
+		{ 40, function(cf) return P.nebula(root, cf * CF(0, 20, 0), rng, 12) end },
+		{ 130, function(cf) return P.portal(root, cf, rng, 126, 34, "COSMOS") end },
+	}
+	local total = 0
+	for _, it in items do total += it[1] end
+	L.part(root, "Plateforme", V(total + 20, 2, 60), origin * CF(0, -1, 0), C.dark)
+	local x = -total / 2
+	for _, it in items do
+		x += it[1] / 2
+		it[2](origin * CF(x, 0, 0))
+		x += it[1] / 2
+	end
+	local n = 0
+	for _, d in root:GetDescendants() do
+		if d:IsA("BasePart") then n += 1 end
+	end
+	return ("DecorGalaxie : %d pieces (Y=360 au-dessus de la Cosmos Map)"):format(n)
+end
+
 -- Expose chaque modele sur une plateforme au-dessus de la Cosmos Map, pour
 -- les copier/deplacer a la main. Tout est dans Workspace > ModelesGalaxie.
 function M.kit()

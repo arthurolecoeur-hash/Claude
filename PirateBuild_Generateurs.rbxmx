@@ -1,4 +1,4 @@
-<roblox version="4"><Item class="Folder" referent="RBX0024423246884445A03C3A412C40D544"><Properties><string name="Name">PirateBuild_Generateurs</string></Properties><Item class="ModuleScript" referent="RBX6AE04CE369134155A1B28A38451262A3"><Properties><string name="Name">PirateBuildLib</string><ProtectedString name="Source"><![CDATA[local L = {}
+<roblox version="4"><Item class="Folder" referent="RBXDDDED1545125471C9027F3C0C73F79D3"><Properties><string name="Name">PirateBuild_Generateurs</string></Properties><Item class="ModuleScript" referent="RBXDCD2F10D36A2455C86FD5DF7349B23DC"><Properties><string name="Name">PirateBuildLib</string><ProtectedString name="Source"><![CDATA[local L = {}
 L.MV = "Studs"
 local C = Color3.fromRGB
 L.C = {
@@ -160,7 +160,7 @@ function L.label(part, face, text, color, font)
 end
 
 return L
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX3E04407D84CB4D5A9ED3A2C2465C796F"><Properties><string name="Name">PirateBuildMain</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBXBD6638470E83469E854D40B7170EBBB9"><Properties><string name="Name">PirateBuildMain</string><ProtectedString name="Source"><![CDATA[--[[
 	PirateBuildMain
 	---------------
 	Nouveaux modeles pirates (style blocs de la map). Depuis la Command Bar :
@@ -440,7 +440,7 @@ function M.run()
 end
 
 return M
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBXC9A6B1DC4C24499CB4D2DB67FF0A8DF0"><Properties><string name="Name">PirateHQ</string><ProtectedString name="Source"><![CDATA[-- Versions haute qualite des modeles d'origine de la Pirate Map.
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBXCEF58662EA5E4180840BDE29F453F13E"><Properties><string name="Name">PirateHQ</string><ProtectedString name="Source"><![CDATA[-- Versions haute qualite des modeles d'origine de la Pirate Map.
 -- Chaque fonction : (parent, cf au sol, rng, s = echelle) -> Model, face vers -Z.
 local L = require(script.Parent.PirateBuildLib)
 local C = L.C
@@ -889,7 +889,7 @@ function H.Rock(parent, cf, rng, s)
 end
 
 return H
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBXB33D6AAFEEF34189A8385CD9E0C74F2E"><Properties><string name="Name">PirateProps</string><ProtectedString name="Source"><![CDATA[local L = require(script.Parent.PirateBuildLib)
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX3383929759094BAB9642D7FF52BEE9FA"><Properties><string name="Name">PirateProps</string><ProtectedString name="Source"><![CDATA[local L = require(script.Parent.PirateBuildLib)
 local C = L.C
 local V = Vector3.new
 local CF = CFrame.new
