@@ -69,6 +69,11 @@
           "$path": "src/client"
         }
       }
+    },
+    "ServerStorage": {
+      "GalaxyBuild_Generateurs": {
+        "$path": "src/ServerStorage/GalaxyBuild_Generateurs"
+      }
     }
   }
 }
