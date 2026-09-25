@@ -1,4 +1,4 @@
-<roblox version="4"><Item class="Folder" referent="RBXA783752100DD4F7BB8D3D359897B8E54"><Properties><string name="Name">GalaxyBuild_Generateurs</string></Properties><Item class="ModuleScript" referent="RBX9E4CDEF0C84C4C7090F2E4707A08FE97"><Properties><string name="Name">GalaxyBuildLib</string><ProtectedString name="Source"><![CDATA[local L = {}
+<roblox version="4"><Item class="Folder" referent="RBX736314CCD70E4E8990E70256E66C0B7A"><Properties><string name="Name">GalaxyBuild_Generateurs</string></Properties><Item class="ModuleScript" referent="RBX6DFF24CC06D444C095BE728AD1C3AA91"><Properties><string name="Name">GalaxyBuildLib</string><ProtectedString name="Source"><![CDATA[local L = {}
 L.MV = "Studs"
 local C = Color3.fromRGB
 L.C = {
@@ -154,7 +154,7 @@ function L.label(part, face, text, color, font)
 end
 
 return L
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX7D1985B99C374CB888323CB17CDFB55E"><Properties><string name="Name">GalaxyBuildMain</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX9B982AB560F34D57A4CCF94D6343A139"><Properties><string name="Name">GalaxyBuildMain</string><ProtectedString name="Source"><![CDATA[--[[
 	GalaxyBuildMain
 	---------------
 	Decor "galaxie" de la Cosmos Map. A lancer une fois depuis la Command Bar
@@ -484,7 +484,7 @@ function M.kit()
 end
 
 return M
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBXE2A6866E366945CBAD6425798DD21972"><Properties><string name="Name">GalaxyProps</string><ProtectedString name="Source"><![CDATA[local L = require(script.Parent.GalaxyBuildLib)
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX12B5E347852548B0A997A88E31336D0C"><Properties><string name="Name">GalaxyProps</string><ProtectedString name="Source"><![CDATA[local L = require(script.Parent.GalaxyBuildLib)
 local C = L.C
 local V = Vector3.new
 local C3 = Color3.fromRGB
