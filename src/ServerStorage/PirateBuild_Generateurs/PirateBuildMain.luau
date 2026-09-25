@@ -12,11 +12,17 @@
 	lancement, ne touche pas PirateDecor / PirateHeroes) :
 
 		local f = game.ServerStorage.PirateBuild_Generateurs:Clone() f.Parent = game.ServerStorage print(require(f.PirateBuildMain).run()) f:Destroy()
+
+	Versions haute qualite des modeles d'origine (crabes, palmiers...) :
+	  .kitHQ()   -> exposes sur une plateforme (Workspace > ModelesPirateHQ)
+	  .upgrade() -> remplace ceux de PirateDecor / PirateHeroes au meme endroit,
+	                les anciens sont ranges dans ServerStorage > PirateDecor_Ancien
 ]]
 
 local G = script.Parent
 local L = require(G.PirateBuildLib)
 local P = require(G.PirateProps)
+local H = require(G.PirateHQ)
 local C = L.C
 local V = Vector3.new
 local CF = CFrame.new
@@ -96,6 +102,64 @@ function M.kit()
 		x += it[1] / 2
 	end
 	return ("ModelesPirate : %d pieces (au-dessus de la Pirate Map, Y=300)"):format(count(root))
+end
+
+local HQ_ORDER = { "Crab", "Palm", "TikiHut", "Bonfire", "Cannon", "Chest", "Skeleton", "Crate", "Barrel", "FlagPole", "ShipWheel", "Anchor", "Rowboat", "Seagull", "Rock" }
+-- Hauteur de reference de chaque modele HQ a l'echelle 1 (sert a caler la
+-- taille sur celle de l'ancien modele).
+local HQ_HEIGHT = { Crab = 3.2, Palm = 14, TikiHut = 12, Bonfire = 4, Cannon = 4, Chest = 4.5, Skeleton = 9.3, Crate = 3.2, Barrel = 4.6, FlagPole = 17, ShipWheel = 9, Anchor = 9, Rowboat = 2.5, Seagull = 1.5, Rock = 3 }
+local HQ_WIDTH = { Crab = 8, Palm = 12, TikiHut = 12, Bonfire = 10, Cannon = 6, Chest = 7, Skeleton = 4, Crate = 3.2, Barrel = 3, FlagPole = 7, ShipWheel = 7, Anchor = 6, Rowboat = 10, Seagull = 7, Rock = 4 }
+
+function M.kitHQ()
+	local old = workspace:FindFirstChild("ModelesPirateHQ")
+	if old then old:Destroy() end
+	local root = Instance.new("Folder"); root.Name = "ModelesPirateHQ"; root.Parent = workspace
+	local rng = Random.new(11)
+	local origin = CF(CX, 330, CZ)
+	local total = 0
+	for _, k in HQ_ORDER do total += HQ_WIDTH[k] + 3 end
+	L.part(root, "Plateforme", V(total + 10, 2, 30), origin * CF(0, -1, 0), C.sand)
+	local x = -total / 2
+	for _, k in HQ_ORDER do
+		x += (HQ_WIDTH[k] + 3) / 2
+		H[k](root, origin * CF(x, 0, 0), rng, 1)
+		x += (HQ_WIDTH[k] + 3) / 2
+	end
+	return ("ModelesPirateHQ : %d pieces (Y=330 au-dessus de la Pirate Map)"):format(count(root))
+end
+
+function M.upgrade()
+	local map = workspace.Build.Maps["Pirate Map"]
+	local backup = game:GetService("ServerStorage"):FindFirstChild("PirateDecor_Ancien")
+	if not backup then
+		backup = Instance.new("Folder"); backup.Name = "PirateDecor_Ancien"; backup.Parent = game:GetService("ServerStorage")
+	end
+	local rng = Random.new(99)
+	local replaced = 0
+	for _, folderName in { "PirateDecor", "PirateHeroes" } do
+		local folder = map:FindFirstChild(folderName)
+		if folder then
+			for _, model in folder:GetChildren() do
+				local build = model:IsA("Model") and H[model.Name]
+				if build and not model:GetAttribute("HQ") then
+					local bcf, size = model:GetBoundingBox()
+					local look = bcf.LookVector
+					local yaw = math.atan2(-look.X, -look.Z)
+					local base = CF(bcf.Position.X, bcf.Position.Y - size.Y / 2, bcf.Position.Z) * ANG(0, yaw, 0)
+					local s = math.clamp(size.Y / HQ_HEIGHT[model.Name], 0.5, 2)
+					if model.Name == "Seagull" or model.Name == "Rowboat" or model.Name == "Rock" then
+						s = math.clamp(math.max(size.X, size.Z) / HQ_WIDTH[model.Name], 0.5, 2)
+					end
+					local new = build(folder, base, rng, s)
+					new.Name = model.Name
+					new:SetAttribute("HQ", true)
+					model.Parent = backup
+					replaced += 1
+				end
+			end
+		end
+	end
+	return ("%d modeles remplaces (anciens dans ServerStorage > PirateDecor_Ancien)"):format(replaced)
 end
 
 function M.run()
