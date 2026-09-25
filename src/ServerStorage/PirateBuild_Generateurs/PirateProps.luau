@@ -1,0 +1,416 @@
+local L = require(script.Parent.PirateBuildLib)
+local C = L.C
+local V = Vector3.new
+local CF = CFrame.new
+local ANG = CFrame.Angles
+local rad = math.rad
+local TAU = math.pi * 2
+
+local P = {}
+
+local function pick(rng, t)
+	return t[rng:NextInteger(1, #t)]
+end
+
+local SHINY = { Material = Enum.Material.Metal, MaterialVariant = "", Reflectance = 0.25 }
+
+--== PERSONNAGES ==--
+
+-- o = { capitaine = bool, shirt, pants, bandana, pegLeg, hook, beard, sword, pose }
+function P.pirate(parent, cf, rng, o)
+	o = o or {}
+	local m = L.model(o.capitaine and "Capitaine" or "Pirate", parent, cf)
+	local shirt = o.shirt or C.shirtW
+	local pants = o.pants or C.navy
+	for _, s in { -1, 1 } do
+		if o.pegLeg and s == 1 then
+			L.part(m, "JambeBois", V(0.5, 2.2, 0.5), cf * CF(s * 0.7, 1.1, 0), C.woodL)
+			L.part(m, "Cuisse", V(1.2, 1, 1.2), cf * CF(s * 0.7, 2.5, 0), pants)
+		else
+			L.part(m, "Botte", V(1.3, 1.1, 1.6), cf * CF(s * 0.7, 0.55, -0.15), C.black)
+			L.part(m, "Revers", V(1.4, 0.3, 1.4), cf * CF(s * 0.7, 1.2, 0), C.dark)
+			L.part(m, "Jambe", V(1.2, 1.8, 1.2), cf * CF(s * 0.7, 2.1, 0), pants)
+		end
+	end
+	L.part(m, "Ceinture", V(3.1, 0.5, 1.9), cf * CF(0, 3.2, 0), C.dark)
+	L.part(m, "Boucle", V(0.7, 0.6, 0.1), cf * CF(0, 3.2, -0.97), C.gold, SHINY)
+	local torsoCol = o.capitaine and C.coat or shirt
+	L.part(m, "Torse", V(3, 2.8, 1.8), cf * CF(0, 4.8, 0), torsoCol)
+	if not o.capitaine then
+		for i = 0, 2 do
+			L.part(m, "Rayure", V(3.05, 0.35, 1.85), cf * CF(0, 3.9 + i * 0.9, 0), C.red)
+		end
+	else
+		L.part(m, "Chemise", V(1, 2.6, 0.1), cf * CF(0, 4.9, -0.92), C.shirtW)
+		for _, s in { -1, 1 } do
+			L.part(m, "Revers", V(0.3, 2.6, 0.12), cf * CF(s * 0.65, 4.9, -0.93), C.gold)
+			L.part(m, "Epaulette", V(1.1, 0.35, 1.9), cf * CF(s * 1.3, 6.3, 0), C.gold, SHINY)
+		end
+		L.part(m, "Pan", V(3, 1.4, 0.3), cf * CF(0, 3, 0.85), C.coat)
+	end
+	for _, s in { -1, 1 } do
+		local armCol = o.capitaine and C.coat or shirt
+		local up = o.pose == "salut" and s == -1
+		if up then
+			L.part(m, "Bras", V(0.9, 2.5, 0.9), cf * CF(s * 1.95, 7, 0) * ANG(0, 0, s * rad(-20)), armCol)
+			L.part(m, "Main", V(0.8, 0.8, 0.8), cf * CF(s * 2.35, 8.4, 0), C.skin)
+		else
+			L.part(m, "Bras", V(0.9, 2.5, 0.9), cf * CF(s * 1.95, 5, 0), armCol)
+			if o.hook and s == 1 then
+				L.part(m, "Manche", V(0.5, 0.5, 0.5), cf * CF(s * 1.95, 3.5, 0), C.iron)
+				L.part(m, "Crochet", V(0.2, 0.9, 0.2), cf * CF(s * 1.95, 2.9, 0), C.metalL, SHINY)
+				L.part(m, "Crochet", V(0.2, 0.2, 0.6), cf * CF(s * 1.95, 2.5, -0.2), C.metalL, SHINY)
+			else
+				L.part(m, "Main", V(0.8, 0.8, 0.8), cf * CF(s * 1.95, 3.4, 0), C.skin)
+			end
+		end
+	end
+	if o.sword then
+		local h = cf * CF(-1.95, 3.4, -0.6)
+		L.part(m, "Garde", V(0.9, 0.2, 0.3), h, C.gold, SHINY)
+		L.part(m, "Lame", V(0.2, 0.2, 3), h * CF(0, 0, -1.6), C.metalL, SHINY)
+	end
+	local head = cf * CF(0, 7.7, 0)
+	L.part(m, "Tete", V(2.6, 2.6, 2.4), head, C.skin)
+	L.part(m, "Oeil", V(0.4, 0.5, 0.1), head * CF(0.55, 0.2, -1.22), C.black)
+	L.part(m, "Bandeau", V(0.7, 0.7, 0.1), head * CF(-0.55, 0.2, -1.23), C.black)
+	L.part(m, "Lanière", V(2.7, 0.15, 2.5), head * CF(0, 0.45, 0) * ANG(0, 0, rad(-20)), C.black)
+	L.part(m, "Nez", V(0.4, 0.5, 0.3), head * CF(0, -0.15, -1.3), C.skinD)
+	if o.beard ~= false then
+		local bc = o.beard or C.beard
+		L.part(m, "Barbe", V(2.6, 1.1, 0.4), head * CF(0, -0.95, -1.1), bc)
+		L.part(m, "BarbePointe", V(1.2, 0.8, 0.4), head * CF(0, -1.8, -1.1), bc)
+		L.part(m, "Moustache", V(1.8, 0.3, 0.2), head * CF(0, -0.45, -1.3), bc)
+	else
+		L.part(m, "Bouche", V(0.9, 0.15, 0.1), head * CF(0, -0.6, -1.22), C.dark)
+	end
+	if o.capitaine then
+		L.part(m, "Chapeau", V(3.6, 0.4, 3.2), head * CF(0, 1.45, 0), C.black)
+		L.part(m, "ChapeauHaut", V(2.6, 1.3, 2.4), head * CF(0, 2.2, 0), C.black)
+		for _, s in { -1, 1 } do
+			L.wedge(m, "Corne", V(0.4, 1, 1.8), head * CF(s * 1.7, 1.9, 0) * ANG(0, s * rad(90), 0), C.black)
+		end
+		L.part(m, "Galon", V(3.7, 0.15, 3.3), head * CF(0, 1.7, 0), C.gold, SHINY)
+		L.part(m, "Crane", V(0.8, 0.8, 0.1), head * CF(0, 2.2, -1.22), C.white)
+		L.part(m, "CraneOs", V(1.2, 0.2, 0.1), head * CF(0, 1.75, -1.22) * ANG(0, 0, rad(30)), C.white)
+	else
+		local bcol = o.bandana or C.bandana
+		L.part(m, "Bandana", V(2.7, 0.9, 2.5), head * CF(0, 1, 0), bcol)
+		L.part(m, "Noeud", V(0.5, 0.5, 0.8), head * CF(0, 1, 1.5), bcol)
+		L.part(m, "Pois", V(0.3, 0.3, 0.05), head * CF(0.6, 1.05, -1.26), C.white)
+		L.part(m, "Pois", V(0.3, 0.3, 0.05), head * CF(-0.5, 0.9, -1.26), C.white)
+		L.part(m, "Boucle", V(0.3, 0.4, 0.1), head * CF(1.35, -0.3, 0), C.gold, SHINY)
+	end
+	return m
+end
+
+function P.parrot(parent, cf, rng, cols)
+	cols = cols or { C.parrotR, C.parrotB, C.parrotY }
+	local m = L.model("Perroquet", parent, cf)
+	L.part(m, "Perchoir", V(0.3, 4, 0.3), cf * CF(0, 2, 0), C.woodD)
+	L.part(m, "Barre", V(2.2, 0.3, 0.3), cf * CF(0, 4, 0), C.woodL)
+	L.part(m, "Socle", V(1.6, 0.3, 1.6), cf * CF(0, 0.15, 0), C.woodD)
+	local b = cf * CF(0, 4.9, 0)
+	L.part(m, "Corps", V(1, 1.4, 1), b, cols[1])
+	L.part(m, "Ventre", V(0.8, 0.9, 0.1), b * CF(0, -0.1, -0.52), cols[3])
+	L.part(m, "Tete", V(0.9, 0.9, 0.9), b * CF(0, 1, -0.1), cols[1])
+	L.part(m, "Joue", V(0.92, 0.4, 0.5), b * CF(0, 0.9, -0.2), C.white)
+	L.part(m, "Bec", V(0.4, 0.4, 0.5), b * CF(0, 0.85, -0.7), C.dark)
+	for _, s in { -1, 1 } do
+		L.part(m, "Oeil", V(0.1, 0.2, 0.2), b * CF(s * 0.46, 1.1, -0.2), C.black)
+		L.part(m, "Aile", V(0.2, 1.2, 0.9), b * CF(s * 0.6, -0.1, 0.1), cols[2])
+		L.part(m, "Patte", V(0.2, 0.4, 0.2), b * CF(s * 0.25, -0.85, 0), C.parrotY)
+	end
+	L.part(m, "Queue", V(0.6, 1.4, 0.2), b * CF(0, -1.1, 0.5) * ANG(rad(25), 0, 0), cols[2])
+	L.part(m, "QueueBout", V(0.5, 0.8, 0.2), b * CF(0, -1.9, 0.85) * ANG(rad(25), 0, 0), cols[3])
+	return m
+end
+
+--== TRESORS ==--
+
+function P.treasure(parent, cf, rng, s)
+	s = s or 1
+	local m = L.model("TasDeTresor", parent, cf)
+	L.part(m, "Tas", V(5, 0.8, 4) * s, cf * CF(0, 0.4 * s, 0), C.gold, SHINY)
+	L.part(m, "Tas", V(3.6, 0.8, 2.8) * s, cf * CF(0.2 * s, 1.1 * s, 0.1 * s), C.gold, SHINY)
+	L.part(m, "Tas", V(2, 0.7, 1.6) * s, cf * CF(-0.1 * s, 1.8 * s, 0), C.gold, SHINY)
+	for _ = 1, 14 do
+		local a = rng:NextNumber(0, TAU)
+		local r = rng:NextNumber(2, 3.4) * s
+		L.cyl(m, "Piece", 0.15 * s, 0.7 * s, cf * CF(math.cos(a) * r, 0.1 * s, math.sin(a) * r) * ANG(0, a, rad(90)), C.gold, SHINY)
+	end
+	for _ = 1, 3 do
+		local x, z = rng:NextNumber(-1.8, 1.8) * s, rng:NextNumber(-1.2, 1.2) * s
+		for k = 0, rng:NextInteger(2, 5) do
+			L.cyl(m, "Pile", 0.15 * s, 0.7 * s, cf * CF(x, (0.9 + k * 0.16) * s, z) * ANG(0, 0, rad(90)), C.gold, SHINY)
+		end
+	end
+	for _, g in { C.ruby, C.emerald, C.sapphire, C.ruby } do
+		L.part(m, "Gemme", V(0.5, 0.5, 0.5) * s, cf * CF(rng:NextNumber(-1.8, 1.8) * s, rng:NextNumber(0.9, 2.2) * s, rng:NextNumber(-1.2, 1.2) * s) * ANG(0.6, 0.7, 0), g, L.glow())
+	end
+	local cup = cf * CF(1.2 * s, 2.1 * s, -0.4 * s)
+	L.part(m, "CoupePied", V(0.6, 0.15, 0.6) * s, cup, C.goldD, SHINY)
+	L.part(m, "CoupeTige", V(0.2, 0.6, 0.2) * s, cup * CF(0, 0.35 * s, 0), C.goldD, SHINY)
+	L.part(m, "Coupe", V(0.8, 0.6, 0.8) * s, cup * CF(0, 0.9 * s, 0), C.goldD, SHINY)
+	local crown = cf * CF(-1 * s, 2.3 * s, 0.2 * s)
+	L.part(m, "Couronne", V(1.2, 0.5, 1.2) * s, crown, C.gold, SHINY)
+	for i = 0, 3 do
+		local a = i * math.pi / 2
+		L.part(m, "Pointe", V(0.25, 0.4, 0.25) * s, crown * CF(math.cos(a) * 0.45 * s, 0.4 * s, math.sin(a) * 0.45 * s), C.gold, SHINY)
+	end
+	L.part(m, "Rubis", V(0.3, 0.3, 0.1) * s, crown * CF(0, 0, -0.62 * s), C.ruby, L.glow())
+	local glowP = L.anchor(m, "Eclat", cf * CF(0, 2 * s, 0))
+	L.light(glowP, C.yellow, 12 * s, 1.2)
+	L.sparkles(glowP, C.yellow, 4, 0.5 * s)
+	return m
+end
+
+function P.wanted(parent, cf, rng, text)
+	local m = L.model("AvisDeRecherche", parent, cf)
+	for _, s in { -1, 1 } do
+		L.part(m, "Poteau", V(0.6, 7, 0.6), cf * CF(s * 2.2, 3.5, 0), C.woodD)
+	end
+	L.part(m, "Planche", V(5.4, 4.2, 0.4), cf * CF(0, 4.6, 0), C.wood)
+	local paper = L.part(m, "Affiche", V(3.4, 3.6, 0.1), cf * CF(0, 4.6, -0.25) * ANG(0, 0, rad(rng:NextNumber(-4, 4))), C.paper)
+	L.label(paper, Enum.NormalId.Front, text or "WANTED", C.dark, Enum.Font.Fantasy)
+	L.part(m, "Clou", V(0.2, 0.2, 0.2), cf * CF(0, 6.3, -0.35), C.iron)
+	L.part(m, "Toit", V(6, 0.4, 1.4), cf * CF(0, 7.1, -0.2), C.woodD)
+	return m
+end
+
+function P.cannonballs(parent, cf, rng)
+	local m = L.model("Boulets", parent, cf)
+	L.part(m, "Socle", V(3.6, 0.3, 3.6), cf * CF(0, 0.15, 0), C.woodD)
+	local d = 0.9
+	for layer = 0, 2 do
+		local n = 3 - layer
+		for i = 0, n - 1 do
+			for j = 0, n - 1 do
+				local x = (i - (n - 1) / 2) * d
+				local z = (j - (n - 1) / 2) * d
+				L.ball(m, "Boulet", d, cf * CF(x, 0.3 + d / 2 + layer * d * 0.75, z), C.ironD, { Material = Enum.Material.Metal, MaterialVariant = "" })
+			end
+		end
+	end
+	return m
+end
+
+--== DECOR ==--
+
+function P.lantern(parent, cf, rng)
+	local m = L.model("Lanterne", parent, cf)
+	L.part(m, "Pied", V(1.4, 0.4, 1.4), cf * CF(0, 0.2, 0), C.woodD)
+	L.part(m, "Mat", V(0.5, 8, 0.5), cf * CF(0, 4.2, 0), C.wood)
+	L.part(m, "Bras", V(0.35, 0.35, 2), cf * CF(0, 8, -0.9), C.wood)
+	L.part(m, "Chaine", V(0.12, 0.8, 0.12), cf * CF(0, 7.5, -1.7), C.iron)
+	local lamp = cf * CF(0, 6.5, -1.7)
+	L.part(m, "Toit", V(1.2, 0.3, 1.2), lamp * CF(0, 0.75, 0), C.ironD)
+	L.part(m, "Verre", V(0.9, 1.1, 0.9), lamp, C.orange, L.glow({ Transparency = 0.2 }))
+	L.part(m, "Base", V(1.1, 0.2, 1.1), lamp * CF(0, -0.6, 0), C.ironD)
+	for _, x in { -0.5, 0.5 } do
+		for _, z in { -0.5, 0.5 } do
+			L.part(m, "Montant", V(0.12, 1.2, 0.12), lamp * CF(x, 0, z), C.ironD)
+		end
+	end
+	L.light(L.anchor(m, "Flamme", lamp), C.orange, 16, 1.6)
+	return m
+end
+
+function P.dock(parent, cf, rng, len)
+	len = len or 16
+	local m = L.model("Ponton", parent, cf)
+	local n = math.floor(len / 1.2)
+	for i = 0, n - 1 do
+		L.part(m, "Planche", V(5, 0.35, 1.1), cf * CF(0, 1.3 + rng:NextNumber(-0.05, 0.05), -i * 1.2) * ANG(0, rad(rng:NextNumber(-2, 2)), 0), (i % 3 == 0) and C.woodL or C.plank)
+	end
+	for i = 0, math.floor(n / 4) do
+		for _, s in { -1, 1 } do
+			local pc = cf * CF(s * 2.6, 0, -i * 4.8)
+			L.part(m, "Pilier", V(0.8, 2.8, 0.8), pc * CF(0, 1.4, 0), C.woodD)
+			L.part(m, "Corde", V(0.9, 0.25, 0.9), pc * CF(0, 1.9, 0), C.rope)
+		end
+	end
+	for _, s in { -1, 1 } do
+		L.part(m, "Rambarde", V(0.2, 0.2, len), cf * CF(s * 2.6, 2.6, -len / 2 + 0.6), C.rope)
+	end
+	L.part(m, "Eau", V(9, 0.3, len + 3), cf * CF(0, 0.2, -len / 2 + 0.6), C.water, { Material = Enum.Material.Glass, MaterialVariant = "", Transparency = 0.35, CanCollide = false })
+	return m
+end
+
+function P.wreck(parent, cf, rng)
+	local m = L.model("Epave", parent, cf)
+	local tilt = cf * ANG(rad(-6), 0, rad(14))
+	L.part(m, "Sable", V(16, 0.4, 12), cf * CF(0, 0.2, 0), C.sand)
+	for i = 0, 4 do
+		local y = 0.8 + i * 0.9
+		local w = 6 - math.abs(i - 1.5) * 0.3
+		L.part(m, "Bordage", V(0.5, 0.85, 10 - i * 0.4), tilt * CF(-w / 2, y, 0), (i % 2 == 0) and C.wood or C.woodD)
+		if i < 3 then
+			L.part(m, "Bordage", V(0.5, 0.85, 7 - i), tilt * CF(w / 2, y, 1.5), (i % 2 == 0) and C.wood or C.woodD)
+		end
+	end
+	L.part(m, "Fond", V(6, 0.5, 10), tilt * CF(0, 0.6, 0), C.woodD)
+	L.wedge(m, "Proue", V(6, 4, 3), tilt * CF(0, 2.6, -6.4), C.wood)
+	for i = -1, 1 do
+		L.part(m, "Couple", V(6.4, 0.4, 0.4), tilt * CF(0, 3.8, i * 3), C.woodD)
+	end
+	L.part(m, "MatCasse", V(0.9, 7, 0.9), tilt * CF(0, 4.5, -1) * ANG(rad(-20), 0, rad(10)), C.woodL)
+	L.part(m, "Voile", V(0.1, 3, 4), tilt * CF(0.6, 6, -1.2) * ANG(rad(-20), 0, rad(10)), C.sailD)
+	for _ = 1, 4 do
+		L.part(m, "Debris", V(rng:NextNumber(1, 3), 0.3, rng:NextNumber(0.5, 1)), cf * CF(rng:NextNumber(-7, 7), 0.5, rng:NextNumber(-5, 5)) * ANG(0, rng:NextNumber(0, TAU), 0), C.woodL)
+	end
+	return m
+end
+
+function P.mapTable(parent, cf, rng)
+	local m = L.model("TableDesCartes", parent, cf)
+	L.part(m, "Plateau", V(6, 0.4, 4), cf * CF(0, 3, 0), C.wood)
+	for _, x in { -2.6, 2.6 } do
+		for _, z in { -1.6, 1.6 } do
+			L.part(m, "Pied", V(0.5, 2.8, 0.5), cf * CF(x, 1.4, z), C.woodD)
+		end
+	end
+	local map = L.part(m, "Carte", V(4, 0.1, 2.8), cf * CF(0, 3.25, 0) * ANG(0, rad(5), 0), C.paper)
+	L.part(m, "X", V(0.8, 0.12, 0.15), map.CFrame * CF(1, 0.02, 0.4) * ANG(0, rad(45), 0), C.red)
+	L.part(m, "X", V(0.8, 0.12, 0.15), map.CFrame * CF(1, 0.02, 0.4) * ANG(0, rad(-45), 0), C.red)
+	for i = 0, 4 do
+		L.part(m, "Chemin", V(0.35, 0.12, 0.12), map.CFrame * CF(-1.4 + i * 0.5, 0.02, -0.6 + i * 0.22), C.dark)
+	end
+	L.part(m, "Rouleau", V(0.3, 0.3, 2.8), map.CFrame * CF(-2.1, 0.1, 0), C.paper)
+	local candle = cf * CF(-2.2, 3.2, -1.3)
+	L.part(m, "Bougeoir", V(0.6, 0.2, 0.6), candle, C.gold, SHINY)
+	L.part(m, "Bougie", V(0.3, 0.9, 0.3), candle * CF(0, 0.55, 0), C.white)
+	local flame = L.part(m, "Flamme", V(0.2, 0.35, 0.2), candle * CF(0, 1.15, 0), C.orange, L.glow())
+	L.light(flame, C.orange, 12, 1.4)
+	local comp = cf * CF(2.3, 3.25, -1.3)
+	L.cyl(m, "Boussole", 0.2, 0.9, comp * ANG(0, 0, rad(90)), C.gold, SHINY)
+	L.part(m, "Aiguille", V(0.1, 0.1, 0.6), comp * CF(0, 0.12, 0) * ANG(0, rad(30), 0), C.red)
+	L.part(m, "Tabouret", V(1.4, 0.3, 1.4), cf * CF(0, 1.8, 3), C.woodL)
+	L.part(m, "TabouretPied", V(0.4, 1.7, 0.4), cf * CF(0, 0.85, 3), C.woodD)
+	return m
+end
+
+function P.kraken(parent, cf, rng, n)
+	n = n or 4
+	local m = L.model("Kraken", parent, cf)
+	L.part(m, "Flaque", V(12, 0.3, 12), cf * CF(0, 0.15, 0), C.water, { Material = Enum.Material.Glass, MaterialVariant = "", Transparency = 0.3 })
+	for i = 1, n do
+		local a = i / n * TAU + rng:NextNumber(-0.3, 0.3)
+		local base = cf * CF(math.cos(a) * 3.2, 0, math.sin(a) * 3.2) * ANG(0, -a, 0)
+		local segs = 7
+		local p = base
+		for k = 1, segs do
+			local t = k / segs
+			local w = 1.5 * (1 - t * 0.7)
+			p = p * CF(0, 1.3, 0) * ANG(0, 0, rad(12 + t * 16))
+			L.part(m, "Tentacule", V(w, 1.5, w), p, C.kraken)
+			if k % 2 == 0 then
+				L.part(m, "Ventouse", V(0.1, w * 0.5, w * 0.5), p * CF(-w / 2 - 0.02, 0, 0), C.pink)
+			end
+		end
+	end
+	for _ = 1, 5 do
+		L.part(m, "Eclaboussure", V(0.5, 0.5, 0.5), cf * CF(rng:NextNumber(-5, 5), rng:NextNumber(0.5, 2), rng:NextNumber(-5, 5)), C.white, { Transparency = 0.3, CanCollide = false })
+	end
+	return m
+end
+
+function P.mast(parent, cf, rng)
+	local m = L.model("MatVoile", parent, cf)
+	L.part(m, "Socle", V(3, 0.6, 3), cf * CF(0, 0.3, 0), C.woodD)
+	L.part(m, "Mat", V(1, 20, 1), cf * CF(0, 10.5, 0), C.woodL)
+	L.part(m, "Vergue", V(10, 0.6, 0.6), cf * CF(0, 16, 0), C.wood)
+	L.part(m, "Vergue", V(8, 0.5, 0.5), cf * CF(0, 8, 0), C.wood)
+	local sail = L.part(m, "Voile", V(9.4, 7.6, 0.25), cf * CF(0, 12, -0.5), C.sail)
+	L.part(m, "Crane", V(2.4, 2.2, 0.1), sail.CFrame * CF(0, 0.6, -0.15), C.black)
+	L.part(m, "Os", V(4, 0.5, 0.1), sail.CFrame * CF(0, -1, -0.15) * ANG(0, 0, rad(30)), C.black)
+	L.part(m, "Os", V(4, 0.5, 0.1), sail.CFrame * CF(0, -1, -0.15) * ANG(0, 0, rad(-30)), C.black)
+	for _, x in { -0.45, 0.45 } do
+		L.part(m, "Orbite", V(0.5, 0.5, 0.1), sail.CFrame * CF(x, 0.8, -0.2), C.sail)
+	end
+	L.part(m, "Nid", V(3, 1.2, 3), cf * CF(0, 18.5, 0), C.wood)
+	L.part(m, "NidBord", V(3.2, 0.3, 3.2), cf * CF(0, 19.2, 0), C.woodD)
+	L.part(m, "Drapeau", V(2.4, 1.6, 0.1), cf * CF(1.2, 21.5, 0), C.black)
+	L.part(m, "DrapeauCrane", V(0.6, 0.6, 0.12), cf * CF(1.2, 21.6, 0), C.white)
+	for _, s in { -1, 1 } do
+		L.bar(m, "Hauban", (cf * CF(s * 5, 16, 0)).Position, (cf * CF(s * 4, 0.6, 2)).Position, 0.15, C.rope)
+		L.bar(m, "Hauban", (cf * CF(s * 0.5, 18, 0)).Position, (cf * CF(s * 4, 0.6, -2)).Position, 0.15, C.rope)
+		L.part(m, "Taquet", V(0.8, 0.8, 0.8), cf * CF(s * 4, 0.4, 2), C.iron)
+		L.part(m, "Taquet", V(0.8, 0.8, 0.8), cf * CF(s * 4, 0.4, -2), C.iron)
+	end
+	return m
+end
+
+function P.cage(parent, cf, rng)
+	local m = L.model("Cage", parent, cf)
+	L.part(m, "Sol", V(5, 0.5, 5), cf * CF(0, 0.25, 0), C.woodD)
+	L.part(m, "Toit", V(5.4, 0.5, 5.4), cf * CF(0, 6.25, 0), C.ironD)
+	for i = 0, 5 do
+		local t = -2.2 + i * 0.88
+		for _, s in { -1, 1 } do
+			L.part(m, "Barreau", V(0.25, 5.8, 0.25), cf * CF(t, 3.25, s * 2.3), C.iron)
+			L.part(m, "Barreau", V(0.25, 5.8, 0.25), cf * CF(s * 2.3, 3.25, t), C.iron)
+		end
+	end
+	L.part(m, "Anneau", V(0.3, 1.2, 1.2), cf * CF(0, 7.1, 0), C.iron)
+	L.part(m, "Cadenas", V(0.7, 0.8, 0.3), cf * CF(0.8, 3, -2.5), C.gold, SHINY)
+	local sk = cf * CF(0, 0.5, 0.6)
+	L.part(m, "Crane", V(1.1, 1, 1), sk * CF(0, 0.5, 0), C.white)
+	for _, x in { -0.25, 0.25 } do
+		L.part(m, "Orbite", V(0.3, 0.3, 0.05), sk * CF(x, 0.6, -0.5), C.black)
+	end
+	L.part(m, "Os", V(1.8, 0.25, 0.25), sk * CF(0, 0.15, -0.6) * ANG(0, rad(30), 0), C.white)
+	L.part(m, "Os", V(1.8, 0.25, 0.25), sk * CF(0, 0.15, -0.6) * ANG(0, rad(-30), 0), C.white)
+	return m
+end
+
+function P.sloop(parent, cf, rng, hullCol)
+	hullCol = hullCol or C.wood
+	local m = L.model("Sloop", parent, cf)
+	L.part(m, "Eau", V(14, 0.3, 22), cf * CF(0, 0.15, 0), C.water, { Material = Enum.Material.Glass, MaterialVariant = "", Transparency = 0.3, CanCollide = false })
+	L.part(m, "Coque", V(6, 2.4, 12), cf * CF(0, 1.4, 0), hullCol)
+	L.part(m, "Quille", V(4, 1, 11), cf * CF(0, 0.5, 0), hullCol:Lerp(C.black, 0.25))
+	L.wedge(m, "Proue", V(6, 2.4, 3.5), cf * CF(0, 1.4, -7.75), hullCol)
+	L.part(m, "Pont", V(5.6, 0.3, 11.6), cf * CF(0, 2.65, 0), C.plank)
+	L.part(m, "Liseré", V(6.1, 0.35, 12.1), cf * CF(0, 2.2, 0), C.gold)
+	L.part(m, "Poupe", V(6, 2, 3), cf * CF(0, 3.8, 4.5), hullCol)
+	L.part(m, "PoupeToit", V(6.2, 0.3, 3.2), cf * CF(0, 4.9, 4.5), C.woodD)
+	for _, x in { -1.8, 0, 1.8 } do
+		L.part(m, "Fenetre", V(0.9, 0.7, 0.1), cf * CF(x, 3.9, 6.02), C.orange, L.glow())
+	end
+	for _, s in { -1, 1 } do
+		for _, z in { -3, 0 } do
+			L.cyl(m, "Canon", 1.4, 0.6, cf * CF(s * 3.3, 1.9, z), C.ironD)
+		end
+	end
+	L.part(m, "Mat", V(0.7, 13, 0.7), cf * CF(0, 9, -1), C.woodL)
+	L.part(m, "Vergue", V(7, 0.4, 0.4), cf * CF(0, 13, -1), C.wood)
+	L.part(m, "Voile", V(6.6, 5.5, 0.2), cf * CF(0, 10.2, -1.4), C.sail)
+	L.part(m, "VoileRayure", V(6.65, 0.8, 0.22), cf * CF(0, 10.2, -1.4), C.red)
+	L.part(m, "Drapeau", V(2, 1.2, 0.1), cf * CF(1, 15, -1), C.black)
+	L.part(m, "DrapeauCrane", V(0.5, 0.5, 0.12), cf * CF(1, 15.1, -1), C.white)
+	L.bar(m, "Beaupre", (cf * CF(0, 2.8, -8)).Position, (cf * CF(0, 4.2, -11.5)).Position, 0.35, C.woodL)
+	L.bar(m, "Foc", (cf * CF(0, 14, -1)).Position, (cf * CF(0, 4.2, -11.4)).Position, 0.12, C.rope)
+	return m
+end
+
+function P.sign(parent, cf, rng, text)
+	local m = L.model("EnseignePirate", parent, cf)
+	for _, s in { -1, 1 } do
+		L.part(m, "Poteau", V(1, 12, 1), cf * CF(s * 6, 6, 0), C.woodD)
+		L.part(m, "Crane", V(1.4, 1.3, 1.3), cf * CF(s * 6, 12.7, 0), C.white)
+		L.part(m, "Orbite", V(0.35, 0.35, 0.05), cf * CF(s * 6 - 0.3, 12.8, -0.66), C.black)
+		L.part(m, "Orbite", V(0.35, 0.35, 0.05), cf * CF(s * 6 + 0.3, 12.8, -0.66), C.black)
+	end
+	local board = L.part(m, "Planche", V(11, 3.4, 0.5), cf * CF(0, 9, 0) * ANG(0, 0, rad(-3)), C.wood)
+	L.part(m, "Bord", V(11.4, 0.4, 0.6), board.CFrame * CF(0, 1.7, 0), C.woodD)
+	L.part(m, "Bord", V(11.4, 0.4, 0.6), board.CFrame * CF(0, -1.7, 0), C.woodD)
+	L.label(board, Enum.NormalId.Front, text or "PIRATES", C.gold, Enum.Font.Fantasy)
+	L.label(board, Enum.NormalId.Back, text or "PIRATES", C.gold, Enum.Font.Fantasy)
+	for _, s in { -1, 1 } do
+		L.part(m, "Sabre", V(0.25, 0.2, 4), cf * CF(s * 3, 5.5, -0.6) * ANG(0, rad(90), s * rad(40)), C.metalL, SHINY)
+	end
+	return m
+end
+
+return P

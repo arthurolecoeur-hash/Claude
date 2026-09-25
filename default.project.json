@@ -73,6 +73,9 @@
     "ServerStorage": {
       "GalaxyBuild_Generateurs": {
         "$path": "src/ServerStorage/GalaxyBuild_Generateurs"
+      },
+      "PirateBuild_Generateurs": {
+        "$path": "src/ServerStorage/PirateBuild_Generateurs"
       }
     }
   }
