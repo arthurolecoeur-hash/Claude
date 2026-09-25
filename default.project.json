@@ -10,6 +10,15 @@
     "ServerScriptService": {
       "Server": {
         "$path": "src/server"
+      },
+      "PlayerProfileService": {
+        "$path": "src/ServerScriptService/PlayerProfileService.luau"
+      },
+      "Money": {
+        "$className": "Folder",
+        "MoneyService": {
+          "$path": "src/ServerScriptService/Money/MoneyService.luau"
+        }
       }
     },
     "StarterPlayer": {
