@@ -22,7 +22,7 @@ L.GLOWS = { L.C.gold, L.C.orange, L.C.yellow }
 -- Style realiste : chaque piece prend un vrai materiau selon sa couleur
 -- (bois, pierre, metal, tissu, sable...). Mettre a false pour revenir aux
 -- blocs a picots de la map.
-L.REALISTE = true
+L.REALISTE = false
 
 local FAMILIES
 local function familyOf(col)
