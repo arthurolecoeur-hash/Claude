@@ -8,7 +8,7 @@ L.C = {
 	gold = C(255, 196, 60), goldD = C(206, 142, 30), white = C(248, 248, 255), red = C(236, 60, 76), orange = C(255, 140, 40),
 	panel = C(40, 80, 190), panelD = C(24, 44, 120),
 	cyan = C(70, 236, 255), blue = C(70, 120, 255), purple = C(170, 90, 255), pink = C(255, 90, 210), magenta = C(230, 60, 255),
-	green = C(110, 255, 150), lime = C(190, 255, 80), yellow = C(255, 230, 90), teal = C(40, 200, 190),
+	green = C(110, 255, 150), alienGrey = C(170, 190, 180), lime = C(190, 255, 80), yellow = C(255, 230, 90), teal = C(40, 200, 190),
 	stem = C(70, 50, 110), stemL = C(110, 80, 160), soil = C(54, 44, 74), soilL = C(78, 64, 104),
 }
 L.GLOWS = { L.C.cyan, L.C.purple, L.C.pink, L.C.green, L.C.blue, L.C.magenta, L.C.yellow }

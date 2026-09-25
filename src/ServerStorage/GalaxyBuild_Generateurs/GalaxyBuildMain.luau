@@ -118,10 +118,15 @@ function M.run()
 	end
 
 	--== Personnages et engins ==--
-	local alienCols = { C.green, C.purple, C.blue, C.pink }
+	local alienLooks = {
+		{ eyes = 2 },
+		{ skin = Color3.fromRGB(160, 220, 255), suit = C.pink, eyes = 3, gear = "pistolet", tip = C.yellow },
+		{ skin = Color3.fromRGB(255, 190, 240), suit = C.teal, eyes = 1, gear = "casque", trim = C.yellow },
+		{ skin = Color3.fromRGB(200, 170, 255), suit = C.red, eyes = 2, gear = "cape", pose = "salut", tip = C.cyan },
+	}
 	for i, z in { -1612, -1700, -1790, -1880 } do
 		local side = i % 2 + 1
-		place(function(cf) return P.alien(ground, cf, rng, alienCols[i], (i % 3) + 1) end, stripPos(side, z))
+		place(function(cf) return P.alien(ground, cf, rng, alienLooks[i]) end, stripPos(side, z))
 	end
 	for i, z in { -1650, -1760, -1860 } do
 		local side = (i + 1) % 2 + 1
@@ -243,10 +248,11 @@ function M.kit()
 	L.part(root, "PlateformeNeon", V(171, 0.4, 71), origin * CF(0, -0.3, 0), C.purple, L.glow())
 
 	local items = {
-		{ 6, function(cf) return P.alien(root, cf, rng, C.green, 1) end },
-		{ 6, function(cf) return P.alien(root, cf, rng, C.purple, 2) end },
-		{ 6, function(cf) return P.alien(root, cf, rng, C.blue, 3) end },
-		{ 6, function(cf) return P.alien(root, cf, rng, C.pink, 1) end },
+		{ 6, function(cf) return P.alien(root, cf, rng, { eyes = 2 }) end },
+		{ 6, function(cf) return P.alien(root, cf, rng, { skin = Color3.fromRGB(160, 220, 255), suit = C.pink, eyes = 3, gear = "pistolet", tip = C.yellow }) end },
+		{ 6, function(cf) return P.alien(root, cf, rng, { skin = Color3.fromRGB(255, 190, 240), suit = C.teal, eyes = 1, gear = "casque", trim = C.yellow }) end },
+		{ 6, function(cf) return P.alien(root, cf, rng, { skin = Color3.fromRGB(200, 170, 255), suit = C.red, eyes = 2, gear = "cape", pose = "salut", tip = C.cyan }) end },
+		{ 6, function(cf) return P.alien(root, cf, rng, { skin = Color3.fromRGB(255, 230, 120), suit = C.blue, eyes = 3, trim = C.pink }) end },
 		{ 7, function(cf) return P.cybernaut(root, cf, rng, C.cyan) end },
 		{ 7, function(cf) return P.cybernaut(root, cf, rng, C.pink, "salut") end },
 		{ 7, function(cf) return P.cybernaut(root, cf, rng, C.green) end },

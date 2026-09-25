@@ -1,6 +1,7 @@
 local L = require(script.Parent.GalaxyBuildLib)
 local C = L.C
 local V = Vector3.new
+local C3 = Color3.fromRGB
 local CF = CFrame.new
 local ANG = CFrame.Angles
 local rad = math.rad
@@ -302,27 +303,52 @@ function P.portal(parent, cf, rng, width, height, text)
 	return m, beam
 end
 
-function P.rover(parent, cf, rng)
-	local m = L.model("Rover", parent, cf)
-	L.part(m, "Chassis", V(5, 1, 8), cf * CF(0, 2.2, 0), C.metalL)
-	L.part(m, "Caisse", V(4, 1.6, 5), cf * CF(0, 3.5, 0.5), C.white)
-	L.part(m, "Or", V(4.1, 0.4, 5.1), cf * CF(0, 2.9, 0.5), C.gold, { Material = Enum.Material.Foil, MaterialVariant = "" })
-	for _, z in { -3, 0, 3 } do
-		for _, s in { -1, 1 } do
-			L.cyl(m, "Roue", 1, 2.4, cf * CF(s * 3, 1.2, z), C.dark)
-			L.cyl(m, "Jante", 1.1, 1.1, cf * CF(s * 3, 1.2, z), C.metal)
-			L.bar(m, "Suspension", (cf * CF(s * 2.5, 2.2, z)).Position, (cf * CF(s * 3, 1.2, z)).Position, 0.3, C.metalD)
-		end
-	end
-	L.part(m, "Panneau", V(5.5, 0.2, 4), cf * CF(0, 4.5, 1), C.panel, { Material = Enum.Material.Glass, MaterialVariant = "", Reflectance = 0.2 })
-	L.vcyl(m, "Mat", 3, 0.35, cf * CF(0, 5, -2.5), C.metal)
-	L.part(m, "Tete", V(1.6, 1, 1), cf * CF(0, 6.8, -2.5), C.white)
-	local eye = L.part(m, "Camera", V(0.6, 0.6, 0.2), cf * CF(0, 6.8, -3.05), C.cyan, L.glow())
-	L.light(eye, C.cyan, 10, 1)
-	L.bar(m, "Antenne", (cf * CF(1.5, 3.8, 2.5)).Position, (cf * CF(1.8, 7, 3)).Position, 0.15, C.metalD)
-	L.ball(m, "Balise", 0.5, cf * CF(1.8, 7.1, 3), C.red, L.glow())
+-- Petit rover-araignee en blocs : cabine cube, 6 pattes, gros oeil laser,
+-- ailes solaires et un mini-drone au-dessus.
+function P.rover(parent, cf, rng, col)
+	col = col or C.cyan
+	local m = L.model("RoverAraignee", parent, cf)
+	local body = cf * CF(0, 3, 0)
+	L.part(m, "Coque", V(3.4, 1.8, 3.8), body, C.white)
+	L.part(m, "Ceinture", V(3.6, 0.35, 4), body * CF(0, -0.5, 0), col, L.glow())
+	L.part(m, "Dessous", V(2.6, 0.6, 3), body * CF(0, -1.2, 0), C.metalD)
+	L.part(m, "Cabine", V(2.4, 1.4, 2.2), body * CF(0, 1.6, 0.3), col, { Material = Enum.Material.Glass, MaterialVariant = "", Transparency = 0.45 })
+	L.part(m, "Pilote", V(1, 1, 1), body * CF(0, 1.4, 0.4), C3(190, 255, 160))
+	L.part(m, "PiloteOeil", V(0.6, 0.3, 0.05), body * CF(0, 1.5, -0.12), C.black)
+	local eye = body * CF(0, 0.1, -1.95)
+	L.part(m, "OeilCadre", V(1.8, 1.2, 0.3), eye, C.dark)
+	L.part(m, "Oeil", V(1.2, 0.7, 0.12), eye * CF(0, 0, -0.18), C.red, L.glow())
+	L.light(L.anchor(m, "Laser", eye * CF(0, 0, -0.5)), C.red, 12, 1.5)
 	for _, s in { -1, 1 } do
-		L.part(m, "Phare", V(0.8, 0.4, 0.2), cf * CF(s * 1.6, 2.4, -4.05), C.yellow, L.glow())
+		L.part(m, "Phare", V(0.4, 0.4, 0.1), body * CF(s * 1.3, -0.1, -1.95), C.yellow, L.glow())
+	end
+	for i = 0, 5 do
+		local side = i < 3 and -1 or 1
+		local z = ((i % 3) - 1) * 1.4
+		local hip = body * CF(side * 1.8, -0.4, z)
+		local knee = body * CF(side * 3, 0.9, z * 1.25)
+		local foot = cf * CF(side * 3.9, 0.35, z * 1.5)
+		L.part(m, "Hanche", V(0.7, 0.7, 0.7), hip, C.metalD)
+		L.bar(m, "Cuisse", hip.Position, knee.Position, 0.45, C.metal)
+		L.part(m, "Genou", V(0.6, 0.6, 0.6), knee, col, L.glow())
+		L.bar(m, "Patte", knee.Position, foot.Position, 0.38, C.metalD)
+		L.part(m, "Pied", V(0.8, 0.4, 0.8), foot * CF(0, -0.15, 0), C.dark)
+	end
+	for _, s in { -1, 1 } do
+		local w = body * CF(s * 2.4, 1, 1.4) * ANG(0, 0, s * rad(20))
+		L.part(m, "AileSolaire", V(2.6, 0.15, 1.6), w, C.panel, { Material = Enum.Material.Glass, MaterialVariant = "", Reflectance = 0.25 })
+		L.part(m, "AileBord", V(2.7, 0.2, 0.15), w * CF(0, 0, -0.8), col, L.glow())
+	end
+	L.bar(m, "Antenne", (body * CF(1.1, 0.9, 1.5)).Position, (body * CF(1.3, 3.2, 1.7)).Position, 0.15, C.metalD)
+	L.part(m, "Balise", V(0.45, 0.45, 0.45), body * CF(1.3, 3.3, 1.7), C.yellow, L.glow())
+	local drone = body * CF(-0.9, 4, -0.8)
+	L.part(m, "Drone", V(1, 0.6, 1), drone, C.white)
+	L.part(m, "DroneOeil", V(0.4, 0.25, 0.05), drone * CF(0, 0, -0.52), col, L.glow())
+	for i = 0, 3 do
+		local a = i * math.pi / 2 + math.pi / 4
+		local r = drone * CF(math.cos(a) * 1, 0.1, math.sin(a) * 1)
+		L.bar(m, "DroneBras", drone.Position, r.Position, 0.12, C.metalD, { CanCollide = false })
+		L.part(m, "Helice", V(0.9, 0.05, 0.2), r * CF(0, 0.12, 0) * ANG(0, a, 0), col, L.glow({ Transparency = 0.3 }))
 	end
 	return m
 end
@@ -407,44 +433,62 @@ end
 
 --== PERSONNAGES & VEHICULES ==--
 
-function P.alien(parent, cf, rng, col, eyes)
-	col = col or C.green
-	eyes = eyes or 1
-	local dark = col:Lerp(C.black, 0.35)
+-- Style de la map : tout en blocs a picots (MaterialVariant "Studs").
+-- o = { skin, suit, eyes (1-3), gear = "casque" | "pistolet" | "cape" | nil, pose = "salut" | nil }
+function P.alien(parent, cf, rng, o)
+	o = o or {}
+	local skin = o.skin or C3(190, 255, 160)
+	local suit = o.suit or C3(110, 90, 230)
+	local trim = o.trim or C.cyan
 	local m = L.model("Alien", parent, cf)
 	for _, s in { -1, 1 } do
-		L.vcyl(m, "Jambe", 2, 0.8, cf * CF(s * 0.7, 1, 0), dark)
-		L.part(m, "Pied", V(1.1, 0.5, 1.6), cf * CF(s * 0.7, 0.25, -0.25), dark)
+		L.part(m, "Chaussure", V(1.3, 0.8, 1.6), cf * CF(s * 0.75, 0.4, -0.15), C.white)
+		L.part(m, "Jambe", V(1.2, 2.2, 1.2), cf * CF(s * 0.75, 1.9, 0), suit)
 	end
-	L.ball(m, "Corps", 3.2, cf * CF(0, 3.4, 0), col)
-	L.ball(m, "Ventre", 2.2, cf * CF(0, 3.3, -0.65), col:Lerp(C.white, 0.35))
+	L.part(m, "Ceinture", V(3.2, 0.5, 1.9), cf * CF(0, 3.2, 0), trim)
+	L.part(m, "Corps", V(3, 2.8, 1.8), cf * CF(0, 4.8, 0), suit)
+	L.part(m, "Insigne", V(0.8, 0.8, 0.2), cf * CF(0, 5, -0.95) * ANG(0, 0, rad(45)), C.yellow, L.glow())
+	L.part(m, "Col", V(2, 0.4, 1.4), cf * CF(0, 6.4, 0), trim)
 	for _, s in { -1, 1 } do
-		local sh = (cf * CF(s * 1.4, 4.2, 0)).Position
-		local hand = (cf * CF(s * 2.4, 2.8, -0.6)).Position
-		L.bar(m, "Bras", sh, hand, 0.5, col)
-		L.ball(m, "Main", 0.9, CF(hand), dark)
+		local up = o.pose == "salut" and s == 1
+		if up then
+			L.part(m, "Bras", V(0.9, 2.4, 0.9), cf * CF(s * 1.95, 7, 0) * ANG(0, 0, s * rad(-20)), skin)
+			L.part(m, "Manchette", V(1, 0.4, 1), cf * CF(s * 2.35, 8.1, 0) * ANG(0, 0, s * rad(-20)), trim)
+		else
+			L.part(m, "Bras", V(0.9, 2.6, 0.9), cf * CF(s * 1.95, 4.9, 0), skin)
+			L.part(m, "Manchette", V(1, 0.4, 1), cf * CF(s * 1.95, 3.8, 0), trim)
+		end
 	end
-	local head = cf * CF(0, 6.6, 0)
-	L.ball(m, "Tete", 4, head, col)
-	for i = 1, 5 do
-		local a = rng:NextNumber(0, math.pi * 2)
-		L.ball(m, "Tache", rng:NextNumber(0.5, 0.9), head * CF(math.cos(a) * 1.7, rng:NextNumber(0.3, 1.3), math.sin(a) * 1.7), dark)
+	if o.gear == "pistolet" then
+		local g = cf * CF(-1.95, 3.4, -0.9)
+		L.part(m, "Pistolet", V(0.5, 0.7, 1.6), g, C.metalD)
+		L.part(m, "Canon", V(0.3, 0.3, 0.8), g * CF(0, 0.15, -1.1), C.pink, L.glow())
 	end
-	local xs = eyes == 1 and { 0 } or (eyes == 2 and { -0.8, 0.8 } or { -1.1, 0, 1.1 })
-	local ed = eyes == 1 and 2.2 or 1.3
+	if o.gear == "cape" then
+		L.part(m, "Cape", V(3.1, 4.2, 0.2), cf * CF(0, 4.4, 1.05) * ANG(rad(-6), 0, 0), C.red)
+	end
+	local head = cf * CF(0, 8.3, 0)
+	L.part(m, "Tete", V(3.4, 3.2, 3), head, skin)
+	local eyes = o.eyes or 2
+	local xs = eyes == 1 and { 0 } or (eyes == 2 and { -0.8, 0.8 } or { -1.05, 0, 1.05 })
+	local w = eyes == 1 and 1.4 or (eyes == 2 and 1.1 or 0.75)
 	for _, x in xs do
-		local e = head * CF(x, 0.3, -1.45)
-		L.ball(m, "Oeil", ed, e, C.white)
-		L.ball(m, "Pupille", ed * 0.5, e * CF(0, 0, -ed * 0.32), C.black)
-		L.ball(m, "Reflet", ed * 0.15, e * CF(ed * 0.12, ed * 0.12, -ed * 0.48), C.white, L.glow())
+		local tilt = x == 0 and 0 or (x < 0 and rad(-12) or rad(12))
+		local e = head * CF(x, 0.1, -1.52) * ANG(0, 0, tilt)
+		L.part(m, "Oeil", V(w, w * 0.75, 0.1), e, C.black)
+		L.part(m, "Reflet", V(w * 0.25, w * 0.25, 0.12), e * CF(w * 0.15, w * 0.12, -0.02), C.white, L.glow())
 	end
-	L.part(m, "Bouche", V(1.2, 0.2, 0.2), head * CF(0, -0.9, -1.8), C.dark)
+	L.part(m, "Bouche", V(0.8, 0.15, 0.1), head * CF(0, -0.9, -1.52), C.dark)
 	for _, s in { -1, 1 } do
-		local a0 = (head * CF(s * 0.8, 1.7, 0)).Position
-		local a1 = (head * CF(s * 1.5, 3.4, 0.2)).Position
-		L.bar(m, "Antenne", a0, a1, 0.2, dark)
-		local tip = L.ball(m, "AntenneBout", 0.7, CF(a1), C.yellow:Lerp(col, 0.3), L.glow())
-		if s == 1 then L.light(tip, col, 8, 1) end
+		local a0 = head * CF(s * 0.9, 1.6, 0)
+		local a1 = head * CF(s * 1.5, 3.4, 0)
+		L.bar(m, "Antenne", a0.Position, a1.Position, 0.25, skin:Lerp(C.black, 0.2))
+		local tip = L.part(m, "AntenneBout", V(0.8, 0.8, 0.8), a1, o.tip or C.pink, L.glow())
+		if s == 1 then L.light(tip, o.tip or C.pink, 8, 1) end
+	end
+	if o.gear == "casque" then
+		L.part(m, "Casque", V(3.9, 3.7, 3.5), head * CF(0, 0.1, 0), C.cyan, { Material = Enum.Material.Glass, MaterialVariant = "", Transparency = 0.6, CanCollide = false })
+		L.part(m, "CasqueBord", V(4, 0.4, 3.6), head * CF(0, -1.7, 0), C.metalL)
 	end
 	return m
 end
