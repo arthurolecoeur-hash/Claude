@@ -1,4 +1,4 @@
-<roblox version="4"><Item class="Folder" referent="RBX3E53C16A1C02460AB34CBC3B9ADA209E"><Properties><string name="Name">GalaxyBuild_Generateurs</string></Properties><Item class="ModuleScript" referent="RBX38718DCB88C44A4AA0E00F4B594F63A6"><Properties><string name="Name">GalaxyBuildLib</string><ProtectedString name="Source"><![CDATA[local L = {}
+<roblox version="4"><Item class="Folder" referent="RBX1C16BC22767144E686D1443FD48168C8"><Properties><string name="Name">GalaxyBuild_Generateurs</string></Properties><Item class="ModuleScript" referent="RBX9F4DD825E19742F59303CD194DCDC7D4"><Properties><string name="Name">GalaxyBuildLib</string><ProtectedString name="Source"><![CDATA[local L = {}
 L.MV = "Studs"
 local C = Color3.fromRGB
 L.C = {
@@ -154,7 +154,7 @@ function L.label(part, face, text, color, font)
 end
 
 return L
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX51D292D85A17418990CA16F81A802973"><Properties><string name="Name">GalaxyBuildMain</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBXACE90757FB7846FEB0A666E14C1FA05B"><Properties><string name="Name">GalaxyBuildMain</string><ProtectedString name="Source"><![CDATA[--[[
 	GalaxyBuildMain
 	---------------
 	Decor "galaxie" de la Cosmos Map. A lancer une fois depuis la Command Bar
@@ -443,7 +443,7 @@ function M.kit()
 end
 
 return M
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBXF7EC9DF4268343B3AEAE9CBFC5FA24E6"><Properties><string name="Name">GalaxyProps</string><ProtectedString name="Source"><![CDATA[local L = require(script.Parent.GalaxyBuildLib)
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX1B3C8AA995C24DB1B2475C68F47C1808"><Properties><string name="Name">GalaxyProps</string><ProtectedString name="Source"><![CDATA[local L = require(script.Parent.GalaxyBuildLib)
 local C = L.C
 local V = Vector3.new
 local C3 = Color3.fromRGB
@@ -661,7 +661,7 @@ function P.alienPlant(parent, cf, rng, col, kind)
 	for i = 1, rng:NextInteger(3, 5) do
 		local a = i / 5 * TAU + rng:NextNumber(-0.4, 0.4)
 		local h = rng:NextNumber(3, 6)
-		local lean = rng:NextNumber(0.5, 1.3)
+		local lean = rng:NextNumber(1, 1.8)
 		local p0 = cf * CF(math.cos(a) * 0.5, 1, math.sin(a) * 0.5)
 		local p1 = cf * CF(math.cos(a) * lean * 0.6, 1 + h * 0.5, math.sin(a) * lean * 0.6)
 		local p2 = cf * CF(math.cos(a) * lean * 1.4, 1 + h, math.sin(a) * lean * 1.4)
@@ -672,7 +672,7 @@ function P.alienPlant(parent, cf, rng, col, kind)
 			L.bar(m, "Tentacule", p2.Position, p3.Position, 0.35, col)
 			L.part(m, "Ventouse", V(0.5, 0.5, 0.5), p3, col:Lerp(C.white, 0.4), L.glow())
 		else
-			local sz = rng:NextNumber(0.9, 1.4)
+			local sz = rng:NextNumber(0.7, 1)
 			L.part(m, "Bulbe", V(sz, sz, sz), p2 * ANG(0, a, rad(45)), col, L.glow())
 		end
 		L.part(m, "Feuille", V(1.4, 0.15, 0.7), p1 * ANG(0, -a, rad(20)), C.teal)
@@ -947,8 +947,8 @@ function P.alien(parent, cf, rng, o)
 	local head = cf * CF(0, 8.3, 0)
 	L.part(m, "Tete", V(3.4, 3.2, 3), head, skin)
 	local eyes = o.eyes or 2
-	local xs = eyes == 1 and { 0 } or (eyes == 2 and { -0.8, 0.8 } or { -1.05, 0, 1.05 })
-	local w = eyes == 1 and 1.4 or (eyes == 2 and 1.1 or 0.75)
+	local xs = eyes == 1 and { 0 } or (eyes == 2 and { -0.8, 0.8 } or { -1.08, 0, 1.08 })
+	local w = eyes == 1 and 1.8 or (eyes == 2 and 1.35 or 0.9)
 	for _, x in xs do
 		local tilt = x == 0 and 0 or (x < 0 and rad(-12) or rad(12))
 		local e = head * CF(x, 0.1, -1.52) * ANG(0, 0, tilt)
@@ -974,44 +974,51 @@ function P.cybernaut(parent, cf, rng, accent, pose)
 	accent = accent or C.cyan
 	local m = L.model("Cybernaute", parent, cf)
 	for _, s in { -1, 1 } do
-		L.part(m, "Botte", V(1.3, 1, 1.9), cf * CF(s * 0.75, 0.5, -0.2), C.metalD)
-		L.part(m, "Jambe", V(1.1, 2.6, 1.2), cf * CF(s * 0.75, 2.3, 0), C.white)
-		L.part(m, "Genou", V(1.2, 0.5, 1.3), cf * CF(s * 0.75, 2.2, -0.05), accent, L.glow())
+		L.part(m, "Botte", V(1.4, 1, 1.9), cf * CF(s * 0.75, 0.5, -0.2), C.metalD)
+		L.part(m, "Jambe", V(1.2, 2.4, 1.3), cf * CF(s * 0.75, 2.2, 0), C.white)
+		L.part(m, "Genou", V(1.3, 0.45, 1.4), cf * CF(s * 0.75, 2, 0), accent, L.glow())
 	end
-	L.part(m, "Ceinture", V(2.8, 0.5, 1.6), cf * CF(0, 3.8, 0), C.metalD)
-	L.part(m, "Torse", V(3, 3, 1.8), cf * CF(0, 5.5, 0), C.white)
-	L.part(m, "Plastron", V(1.8, 1.4, 0.2), cf * CF(0, 5.8, -0.95), C.dark)
+	L.part(m, "Ceinture", V(3.1, 0.5, 1.9), cf * CF(0, 3.6, 0), C.metalD)
+	L.part(m, "Torse", V(3, 2.8, 1.8), cf * CF(0, 5.2, 0), C.white)
+	L.part(m, "Plastron", V(1.9, 1.4, 0.2), cf * CF(0, 5.4, -0.95), C.dark)
 	for i = 0, 2 do
-		L.part(m, "Voyant", V(0.3, 0.3, 0.1), cf * CF(-0.5 + i * 0.5, 6, -1.08), ({ C.red, C.yellow, C.green })[i + 1], L.glow())
+		L.part(m, "Voyant", V(0.35, 0.35, 0.1), cf * CF(-0.55 + i * 0.55, 5.7, -1.08), ({ C.red, C.yellow, C.green })[i + 1], L.glow())
 	end
-	L.part(m, "Jauge", V(1.2, 0.2, 0.1), cf * CF(0, 5.4, -1.08), accent, L.glow())
-	L.part(m, "SacDos", V(2.6, 3, 1.2), cf * CF(0, 5.6, 1.4), C.metalL)
+	L.part(m, "Jauge", V(1.3, 0.25, 0.1), cf * CF(0, 5.05, -1.08), accent, L.glow())
+	L.part(m, "SacDos", V(2.6, 3, 1.2), cf * CF(0, 5.3, 1.45), C.metalL)
 	for _, s in { -1, 1 } do
-		L.vcyl(m, "Reservoir", 2.6, 0.8, cf * CF(s * 0.7, 5.6, 2.1), C.metal)
-		L.part(m, "Tube", V(0.2, 2.4, 0.2), cf * CF(s * 0.7, 5.6, 2.55), accent, L.glow())
+		L.part(m, "Reservoir", V(0.9, 2.6, 0.9), cf * CF(s * 0.7, 5.3, 2.2), C.metal)
+		L.part(m, "Tube", V(0.25, 2.2, 0.1), cf * CF(s * 0.7, 5.3, 2.7), accent, L.glow())
 	end
 	for _, s in { -1, 1 } do
 		local cyber = s == 1
-		local sh = cf * CF(s * 1.9, 6.5, 0)
-		local up = pose == "salut" and s == 1
-		local elbow = up and (cf * CF(s * 2.6, 7.6, 0)) or (sh * CF(0, -1.6, 0))
-		local hand = up and (cf * CF(s * 2.4, 9.2, -0.2)) or (sh * CF(0, -3, -0.3))
-		L.ball(m, "Epaule", 1.3, sh, cyber and C.metalD or C.white)
-		L.bar(m, "BrasHaut", sh.Position, elbow.Position, 0.9, cyber and C.metalD or C.white)
-		L.bar(m, "AvantBras", elbow.Position, hand.Position, 0.8, cyber and C.dark or C.white)
-		if cyber then
-			L.ball(m, "Articulation", 0.8, elbow, accent, L.glow())
+		local up = pose == "salut" and s == -1
+		local armCol = cyber and C.metalD or C.white
+		L.part(m, "Epaule", V(1.3, 1.1, 1.5), cf * CF(s * 2, 6.2, 0), cyber and C.metalD or C.metalL)
+		if up then
+			L.part(m, "Bras", V(1, 2.6, 1), cf * CF(s * 2.1, 7.6, 0) * ANG(0, 0, s * rad(-15)), armCol)
+			L.part(m, "Gant", V(1.1, 1, 1.1), cf * CF(s * 2.45, 9.1, 0), C.metalD)
+		else
+			L.part(m, "Bras", V(1, 2.6, 1), cf * CF(s * 2, 4.6, 0), armCol)
+			L.part(m, "Gant", V(1.1, 1, 1.1), cf * CF(s * 2, 3, 0), cyber and accent or C.metalD, cyber and L.glow() or nil)
 		end
-		L.ball(m, "Gant", 1, hand, cyber and accent or C.metalD, cyber and L.glow() or nil)
+		if cyber and not up then
+			L.part(m, "Articulation", V(1.1, 0.35, 1.1), cf * CF(s * 2, 4.8, 0), accent, L.glow())
+			L.part(m, "Canon", V(0.5, 0.5, 1.2), cf * CF(s * 2, 3.8, -0.8), C.dark)
+		end
 	end
-	local head = cf * CF(0, 8.3, 0)
-	L.vcyl(m, "Col", 0.5, 1.8, cf * CF(0, 7.1, 0), C.metalD)
-	L.ball(m, "Casque", 3.2, head, C.white)
-	L.ball(m, "Visiere", 2.5, head * CF(0, 0, -0.5), C.dark, { Material = Enum.Material.Glass, MaterialVariant = "", Reflectance = 0.4 })
-	L.part(m, "VisiereLueur", V(2.2, 0.15, 0.1), head * CF(0, 0.1, -1.73), accent, L.glow())
-	L.part(m, "OeilCyber", V(0.5, 0.3, 0.1), head * CF(0.55, 0.35, -1.72), C.red, L.glow())
-	L.bar(m, "Antenne", (head * CF(1.2, 1, 0)).Position, (head * CF(1.4, 2.8, 0.2)).Position, 0.15, C.metalD)
-	local b = L.ball(m, "Balise", 0.45, head * CF(1.4, 2.9, 0.2), accent, L.glow())
+	local head = cf * CF(0, 8.1, 0)
+	L.part(m, "Col", V(1.8, 0.5, 1.6), cf * CF(0, 6.8, 0), C.metalD)
+	L.part(m, "Casque", V(3.2, 3, 3), head, C.white)
+	L.part(m, "CasqueBande", V(3.3, 0.4, 3.1), head * CF(0, 1.1, 0), accent, L.glow())
+	L.part(m, "Visiere", V(2.6, 1.6, 0.2), head * CF(0, -0.1, -1.55), C.dark, { Material = Enum.Material.Glass, MaterialVariant = "", Reflectance = 0.4 })
+	L.part(m, "VisiereReflet", V(0.8, 0.25, 0.05), head * CF(-0.6, 0.35, -1.67) * ANG(0, 0, rad(20)), C.white, L.glow({ Transparency = 0.3 }))
+	L.part(m, "OeilCyber", V(0.6, 0.35, 0.05), head * CF(0.6, 0, -1.67), C.red, L.glow())
+	for _, s in { -1, 1 } do
+		L.part(m, "Oreillette", V(0.3, 1.2, 1.2), head * CF(s * 1.7, 0, 0), C.metalD)
+	end
+	L.part(m, "Antenne", V(0.2, 1.8, 0.2), head * CF(1.4, 2.4, 0.4), C.metalD)
+	local b = L.part(m, "Balise", V(0.5, 0.5, 0.5), head * CF(1.4, 3.4, 0.4), accent, L.glow())
 	L.light(b, accent, 8, 1)
 	return m
 end

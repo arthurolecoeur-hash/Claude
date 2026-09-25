@@ -1,4 +1,4 @@
-<roblox version="4"><Item class="Folder" referent="RBX142748DE1FA94C9587CB10C29AF925E7"><Properties><string name="Name">PirateBuild_Generateurs</string></Properties><Item class="ModuleScript" referent="RBXB2B9C865F6254A6CBF659D5EFD4DAFDA"><Properties><string name="Name">PirateBuildLib</string><ProtectedString name="Source"><![CDATA[local L = {}
+<roblox version="4"><Item class="Folder" referent="RBXB438C1FC72F94EC5B7FCE454108DA405"><Properties><string name="Name">PirateBuild_Generateurs</string></Properties><Item class="ModuleScript" referent="RBX2F90C65E09EB4167974CDEBB56468C33"><Properties><string name="Name">PirateBuildLib</string><ProtectedString name="Source"><![CDATA[local L = {}
 L.MV = "Studs"
 local C = Color3.fromRGB
 L.C = {
@@ -160,7 +160,7 @@ function L.label(part, face, text, color, font)
 end
 
 return L
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX9801684F3D3D47678B1D30B2D5026A98"><Properties><string name="Name">PirateBuildMain</string><ProtectedString name="Source"><![CDATA[--[[
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBXF1620F9FCA44408D935EFB584301AEB2"><Properties><string name="Name">PirateBuildMain</string><ProtectedString name="Source"><![CDATA[--[[
 	PirateBuildMain
 	---------------
 	Nouveaux modeles pirates (style blocs de la map). Depuis la Command Bar :
@@ -376,7 +376,7 @@ function M.run()
 end
 
 return M
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBXA1A9565C8988476C912A906834C0851E"><Properties><string name="Name">PirateProps</string><ProtectedString name="Source"><![CDATA[local L = require(script.Parent.PirateBuildLib)
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX02494F4FF3A6469697E5CAEB7FC6CDCC"><Properties><string name="Name">PirateProps</string><ProtectedString name="Source"><![CDATA[local L = require(script.Parent.PirateBuildLib)
 local C = L.C
 local V = Vector3.new
 local CF = CFrame.new
@@ -450,10 +450,14 @@ function P.pirate(parent, cf, rng, o)
 	end
 	local head = cf * CF(0, 7.7, 0)
 	L.part(m, "Tete", V(2.6, 2.6, 2.4), head, C.skin)
-	L.part(m, "Oeil", V(0.4, 0.5, 0.1), head * CF(0.55, 0.2, -1.22), C.black)
-	L.part(m, "Bandeau", V(0.7, 0.7, 0.1), head * CF(-0.55, 0.2, -1.23), C.black)
-	L.part(m, "Lanière", V(2.7, 0.15, 2.5), head * CF(0, 0.45, 0) * ANG(0, 0, rad(-20)), C.black)
-	L.part(m, "Nez", V(0.4, 0.5, 0.3), head * CF(0, -0.15, -1.3), C.skinD)
+	L.part(m, "BlancOeil", V(0.7, 0.6, 0.1), head * CF(0.6, 0.2, -1.22), C.white)
+	L.part(m, "Pupille", V(0.35, 0.4, 0.1), head * CF(0.5, 0.18, -1.26), C.black)
+	L.part(m, "Sourcil", V(0.8, 0.2, 0.1), head * CF(0.6, 0.65, -1.24) * ANG(0, 0, rad(-12)), C.beard)
+	L.part(m, "Bandeau", V(0.8, 0.7, 0.12), head * CF(-0.6, 0.2, -1.24), C.black)
+	L.part(m, "Laniere", V(0.15, 0.15, 2.5), head * CF(-0.6, 0.62, 0) * ANG(0, 0, 0), C.black)
+	L.part(m, "Laniere", V(2.62, 0.15, 0.15), head * CF(0, 0.62, 1.2), C.black)
+	L.part(m, "Sourcil", V(0.8, 0.2, 0.1), head * CF(-0.6, 0.65, -1.25) * ANG(0, 0, rad(12)), C.beard)
+	L.part(m, "Nez", V(0.45, 0.55, 0.35), head * CF(0, -0.15, -1.33), C.skinD)
 	if o.beard ~= false then
 		local bc = o.beard or C.beard
 		L.part(m, "Barbe", V(2.6, 1.1, 0.4), head * CF(0, -0.95, -1.1), bc)
@@ -499,8 +503,9 @@ function P.parrot(parent, cf, rng, cols)
 		L.part(m, "Aile", V(0.2, 1.2, 0.9), b * CF(s * 0.6, -0.1, 0.1), cols[2])
 		L.part(m, "Patte", V(0.2, 0.4, 0.2), b * CF(s * 0.25, -0.85, 0), C.parrotY)
 	end
-	L.part(m, "Queue", V(0.6, 1.4, 0.2), b * CF(0, -1.1, 0.5) * ANG(rad(25), 0, 0), cols[2])
-	L.part(m, "QueueBout", V(0.5, 0.8, 0.2), b * CF(0, -1.9, 0.85) * ANG(rad(25), 0, 0), cols[3])
+	L.part(m, "Queue", V(0.6, 0.2, 1.4), b * CF(0, -0.55, 0.75) * ANG(rad(-35), 0, 0), cols[2])
+	L.part(m, "QueueBout", V(0.5, 0.2, 0.9), b * CF(0, -0.95, 1.4) * ANG(rad(-35), 0, 0), cols[3])
+	L.part(m, "Crete", V(0.3, 0.5, 0.6), b * CF(0, 1.6, 0), cols[3])
 	return m
 end
 
@@ -617,26 +622,30 @@ end
 
 function P.wreck(parent, cf, rng)
 	local m = L.model("Epave", parent, cf)
-	local tilt = cf * ANG(rad(-6), 0, rad(14))
-	L.part(m, "Sable", V(16, 0.4, 12), cf * CF(0, 0.2, 0), C.sand)
-	for i = 0, 4 do
-		local y = 0.8 + i * 0.9
-		local w = 6 - math.abs(i - 1.5) * 0.3
-		L.part(m, "Bordage", V(0.5, 0.85, 10 - i * 0.4), tilt * CF(-w / 2, y, 0), (i % 2 == 0) and C.wood or C.woodD)
-		if i < 3 then
-			L.part(m, "Bordage", V(0.5, 0.85, 7 - i), tilt * CF(w / 2, y, 1.5), (i % 2 == 0) and C.wood or C.woodD)
-		end
+	L.part(m, "Sable", V(18, 0.4, 14), cf * CF(0, 0.2, 0), C.sand)
+	local hull = cf * CF(0, 0, 0) * ANG(0, 0, rad(18))
+	L.part(m, "Fond", V(6, 1, 11), hull * CF(0, 0.6, 0), C.woodD)
+	for i = 0, 3 do
+		local y = 1.4 + i * 0.9
+		local col = (i % 2 == 0) and C.wood or C.woodD
+		L.part(m, "BordGauche", V(0.5, 0.85, 11), hull * CF(-2.8, y, 0), col)
+		L.part(m, "BordDroit", V(0.5, 0.85, 7 - i * 1.2), hull * CF(2.8, y, 2 + i * 0.6), col)
 	end
-	L.part(m, "Fond", V(6, 0.5, 10), tilt * CF(0, 0.6, 0), C.woodD)
-	L.wedge(m, "Proue", V(6, 4, 3), tilt * CF(0, 2.6, -6.4), C.wood)
+	for i = 0, 2 do
+		L.part(m, "Proue", V(4.6 - i * 1.5, 3.6, 1.2), hull * CF(0, 2.6, -6 - i * 1.1), (i % 2 == 0) and C.wood or C.woodD)
+	end
+	L.part(m, "Poupe", V(6, 4.6, 1), hull * CF(0, 3, 5.5), C.woodD)
+	L.part(m, "PoupeFenetre", V(3, 1.2, 0.2), hull * CF(0, 3.6, 6.05), C.dark)
 	for i = -1, 1 do
-		L.part(m, "Couple", V(6.4, 0.4, 0.4), tilt * CF(0, 3.8, i * 3), C.woodD)
+		L.part(m, "Couple", V(5.6, 0.45, 0.45), hull * CF(0, 4.2, i * 3), C.woodL)
 	end
-	L.part(m, "MatCasse", V(0.9, 7, 0.9), tilt * CF(0, 4.5, -1) * ANG(rad(-20), 0, rad(10)), C.woodL)
-	L.part(m, "Voile", V(0.1, 3, 4), tilt * CF(0.6, 6, -1.2) * ANG(rad(-20), 0, rad(10)), C.sailD)
-	for _ = 1, 4 do
-		L.part(m, "Debris", V(rng:NextNumber(1, 3), 0.3, rng:NextNumber(0.5, 1)), cf * CF(rng:NextNumber(-7, 7), 0.5, rng:NextNumber(-5, 5)) * ANG(0, rng:NextNumber(0, TAU), 0), C.woodL)
+	L.part(m, "MatCasse", V(0.9, 6, 0.9), hull * CF(0, 4, -1) * ANG(rad(-25), 0, rad(-30)), C.woodL)
+	L.part(m, "Voile", V(0.12, 2.6, 3.4), hull * CF(1.6, 5.4, -1.4) * ANG(rad(-25), 0, rad(-30)), C.sailD)
+	for _ = 1, 5 do
+		L.part(m, "Debris", V(rng:NextNumber(1.5, 3), 0.3, rng:NextNumber(0.5, 1)), cf * CF(rng:NextNumber(-8, 8), 0.55, rng:NextNumber(-6, 6)) * ANG(0, rng:NextNumber(0, TAU), 0), C.woodL)
 	end
+	L.part(m, "Tonneau", V(1.4, 1.8, 1.4), cf * CF(5.5, 1.3, -3), C.wood)
+	L.part(m, "Cercle", V(1.5, 0.25, 1.5), cf * CF(5.5, 1.8, -3), C.iron)
 	return m
 end
 
@@ -671,24 +680,30 @@ end
 function P.kraken(parent, cf, rng, n)
 	n = n or 4
 	local m = L.model("Kraken", parent, cf)
-	L.part(m, "Flaque", V(12, 0.3, 12), cf * CF(0, 0.15, 0), C.water, { Material = Enum.Material.Glass, MaterialVariant = "", Transparency = 0.3 })
+	L.part(m, "Flaque", V(14, 0.3, 14), cf * CF(0, 0.15, 0), C.water, { Material = Enum.Material.Glass, MaterialVariant = "", Transparency = 0.3 })
+	L.part(m, "Tete", V(4, 2.2, 4), cf * CF(0, 0.9, 0), C.kraken)
+	for _, s in { -1, 1 } do
+		L.part(m, "Oeil", V(1.1, 1.1, 0.2), cf * CF(s * 1, 1.3, -2.02), C.yellow, L.glow())
+		L.part(m, "Pupille", V(0.25, 0.9, 0.22), cf * CF(s * 1, 1.3, -2.08), C.black)
+	end
 	for i = 1, n do
-		local a = i / n * TAU + rng:NextNumber(-0.3, 0.3)
-		local base = cf * CF(math.cos(a) * 3.2, 0, math.sin(a) * 3.2) * ANG(0, -a, 0)
-		local segs = 7
+		local a = i / n * TAU + rng:NextNumber(-0.25, 0.25)
+		local base = cf * CF(math.cos(a) * 4.2, 0, math.sin(a) * 4.2) * ANG(0, -a, 0)
+		local segs = rng:NextInteger(7, 9)
 		local p = base
 		for k = 1, segs do
 			local t = k / segs
-			local w = 1.5 * (1 - t * 0.7)
-			p = p * CF(0, 1.3, 0) * ANG(0, 0, rad(12 + t * 16))
+			local w = 1.6 * (1 - t * 0.75)
+			local bend = t < 0.5 and -4 or (t - 0.5) * 70
+			p = p * CF(0, 1.35, 0) * ANG(0, 0, rad(bend))
 			L.part(m, "Tentacule", V(w, 1.5, w), p, C.kraken)
-			if k % 2 == 0 then
-				L.part(m, "Ventouse", V(0.1, w * 0.5, w * 0.5), p * CF(-w / 2 - 0.02, 0, 0), C.pink)
+			if k % 2 == 1 then
+				L.part(m, "Ventouse", V(0.1, w * 0.55, w * 0.55), p * CF(w / 2 + 0.02, 0, 0), C.pink)
 			end
 		end
 	end
-	for _ = 1, 5 do
-		L.part(m, "Eclaboussure", V(0.5, 0.5, 0.5), cf * CF(rng:NextNumber(-5, 5), rng:NextNumber(0.5, 2), rng:NextNumber(-5, 5)), C.white, { Transparency = 0.3, CanCollide = false })
+	for _ = 1, 6 do
+		L.part(m, "Eclaboussure", V(0.5, 0.5, 0.5), cf * CF(rng:NextNumber(-6, 6), rng:NextNumber(0.5, 2), rng:NextNumber(-6, 6)), C.white, { Transparency = 0.3, CanCollide = false })
 	end
 	return m
 end
@@ -748,7 +763,9 @@ function P.sloop(parent, cf, rng, hullCol)
 	L.part(m, "Eau", V(14, 0.3, 22), cf * CF(0, 0.15, 0), C.water, { Material = Enum.Material.Glass, MaterialVariant = "", Transparency = 0.3, CanCollide = false })
 	L.part(m, "Coque", V(6, 2.4, 12), cf * CF(0, 1.4, 0), hullCol)
 	L.part(m, "Quille", V(4, 1, 11), cf * CF(0, 0.5, 0), hullCol:Lerp(C.black, 0.25))
-	L.wedge(m, "Proue", V(6, 2.4, 3.5), cf * CF(0, 1.4, -7.75), hullCol)
+	for i = 0, 2 do
+		L.part(m, "Proue", V(4.8 - i * 1.6, 2.4 + i * 0.3, 1.3), cf * CF(0, 1.4 + i * 0.15, -6.65 - i * 1.2), hullCol)
+	end
 	L.part(m, "Pont", V(5.6, 0.3, 11.6), cf * CF(0, 2.65, 0), C.plank)
 	L.part(m, "Liseré", V(6.1, 0.35, 12.1), cf * CF(0, 2.2, 0), C.gold)
 	L.part(m, "Poupe", V(6, 2, 3), cf * CF(0, 3.8, 4.5), hullCol)
@@ -786,7 +803,10 @@ function P.sign(parent, cf, rng, text)
 	L.label(board, Enum.NormalId.Front, text or "PIRATES", C.gold, Enum.Font.Fantasy)
 	L.label(board, Enum.NormalId.Back, text or "PIRATES", C.gold, Enum.Font.Fantasy)
 	for _, s in { -1, 1 } do
-		L.part(m, "Sabre", V(0.25, 0.2, 4), cf * CF(s * 3, 5.5, -0.6) * ANG(0, rad(90), s * rad(40)), C.metalL, SHINY)
+		local sw = cf * CF(0, 5.6, -0.5) * ANG(0, 0, s * rad(40))
+		L.part(m, "Lame", V(5, 0.35, 0.15), sw, C.metalL, SHINY)
+		L.part(m, "Garde", V(0.3, 1, 0.3), sw * CF(s * -2.4, 0, 0), C.gold, SHINY)
+		L.part(m, "Poignee", V(0.9, 0.3, 0.3), sw * CF(s * -3, 0, 0), C.woodD)
 	end
 	return m
 end
@@ -837,7 +857,10 @@ function P.plank(parent, cf, rng)
 	local m = L.model("PlancheDuSupplice", parent, cf)
 	L.part(m, "Pont", V(6, 3, 5), cf * CF(0, 1.5, 4), C.woodD)
 	L.part(m, "PontDessus", V(6.2, 0.3, 5.2), cf * CF(0, 3.1, 4), C.plank)
-	L.part(m, "Planche", V(1.4, 0.3, 8), cf * CF(0, 3.2, -2.5), C.woodL)
+	L.part(m, "Planche", V(1.8, 0.45, 9), cf * CF(0, 3.25, -3), C.woodL)
+	for _, s in { -1, 1 } do
+		L.part(m, "Rambarde", V(0.3, 1.6, 5), cf * CF(s * 2.9, 4, 4), C.woodD)
+	end
 	L.part(m, "Clou", V(0.3, 0.3, 0.3), cf * CF(0, 3.4, 1.2), C.iron)
 	local sh = P.sharks(m, cf * CF(0, 0, -5), rng, 3)
 	sh.Parent = m
@@ -856,7 +879,6 @@ function P.hammock(parent, cf, rng)
 		L.part(m, "Toile", V(0.85, 0.2, 2.2), cf * CF(i * 0.8, y, 0), (i % 2 == 0) and C.red or C.sail)
 	end
 	L.part(m, "Coussin", V(1.4, 0.4, 1.6), cf * CF(-2, 2.4, 0), C.parrotY)
-	L.part(m, "Chapeau", V(1.6, 0.4, 1.4), cf * CF(1, 2.3, 0), C.black)
 	return m
 end
 
@@ -987,10 +1009,13 @@ end
 function P.bottles(parent, cf, rng, n)
 	n = n or 4
 	local m = L.model("BouteillesALaMer", parent, cf)
+	L.part(m, "Sable", V(7, 0.3, 7), cf * CF(0, 0.15, 0), C.sand)
+	L.part(m, "Coquillage", V(0.6, 0.3, 0.5), cf * CF(2.5, 0.4, -2), C.pink)
+	L.part(m, "Etoile", V(0.8, 0.2, 0.8), cf * CF(-2.4, 0.35, 2) * ANG(0, 0.5, 0), C.orange)
 	for _ = 1, n do
 		local a = rng:NextNumber(0, TAU)
 		local r = rng:NextNumber(0.5, 3)
-		local b = cf * CF(math.cos(a) * r, 0.35, math.sin(a) * r) * ANG(0, rng:NextNumber(0, TAU), rad(90) + rng:NextNumber(-0.2, 0.2))
+		local b = cf * CF(math.cos(a) * r, 0.65, math.sin(a) * r) * ANG(0, rng:NextNumber(0, TAU), rng:NextNumber(-0.15, 0.15))
 		local glass = { Material = Enum.Material.Glass, MaterialVariant = "", Transparency = 0.3 }
 		L.part(m, "Bouteille", V(1.2, 0.6, 0.6), b, C.emerald, glass)
 		L.part(m, "Goulot", V(0.5, 0.3, 0.3), b * CF(0.85, 0, 0), C.emerald, glass)
