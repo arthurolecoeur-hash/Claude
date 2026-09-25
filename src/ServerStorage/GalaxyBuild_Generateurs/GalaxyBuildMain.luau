@@ -244,8 +244,8 @@ function M.kit()
 	local root = Instance.new("Folder"); root.Name = "ModelesGalaxie"; root.Parent = workspace
 	local rng = Random.new(42)
 	local origin = CF(CX, 300, -1753)
-	L.part(root, "Plateforme", V(170, 2, 70), origin * CF(0, -1, 0), C.dark)
-	L.part(root, "PlateformeNeon", V(171, 0.4, 71), origin * CF(0, -0.3, 0), C.purple, L.glow())
+	L.part(root, "Plateforme", V(230, 2, 70), origin * CF(0, -1, 0), C.dark)
+	L.part(root, "PlateformeNeon", V(231, 0.4, 71), origin * CF(0, -0.3, 0), C.purple, L.glow())
 
 	local items = {
 		{ 6, function(cf) return P.alien(root, cf, rng, { eyes = 2 }) end },
@@ -261,6 +261,14 @@ function M.kit()
 		{ 14, function(cf) return P.dish(root, cf, rng, 1) end },
 		{ 10, function(cf) return P.dish(root, cf, rng, 0.6) end },
 		{ 9, function(cf) return P.rover(root, cf, rng) end },
+		{ 5, function(cf) return P.alienPlant(root, cf, rng, C.cyan, "bulbes") end },
+		{ 5, function(cf) return P.alienPlant(root, cf, rng, C.pink, "bulbes") end },
+		{ 5, function(cf) return P.alienPlant(root, cf, rng, C.green, "tentacules") end },
+		{ 5, function(cf) return P.alienPlant(root, cf, rng, C.purple, "tentacules") end },
+		{ 5, function(cf) return P.alienPlant(root, cf, rng, C.red, "carnivore") end },
+		{ 5, function(cf) return P.alienPlant(root, cf, rng, C.yellow, "carnivore") end },
+		{ 5, function(cf) return P.shrooms(root, cf, rng, C.cyan) end },
+		{ 5, function(cf) return P.shrooms(root, cf, rng, C.magenta) end },
 	}
 	local total = 0
 	for _, it in items do total += it[1] end

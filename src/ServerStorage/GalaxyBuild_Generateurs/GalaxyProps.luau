@@ -184,24 +184,55 @@ end
 
 --== SOL ==--
 
-function P.alienPlant(parent, cf, rng, col)
+-- Plantes aliens en blocs (style de la map).
+-- kind : "bulbes" (tiges + bulbes lumineux), "tentacules" (tiges qui ondulent),
+-- "carnivore" (machoire a dents) ; par defaut au hasard.
+function P.alienPlant(parent, cf, rng, col, kind)
 	col = col or pick(rng, L.GLOWS)
+	kind = kind or pick(rng, { "bulbes", "tentacules", "carnivore" })
 	local m = L.model("PlanteAlien", parent, cf)
-	L.vcyl(m, "Butte", 0.8, 4, cf * CF(0, 0.4, 0), C.soil)
-	L.vcyl(m, "ButteHaut", 0.6, 2.8, cf * CF(0, 0.9, 0), C.soilL)
+	L.part(m, "Pot", V(3.6, 0.8, 3.6), cf * CF(0, 0.4, 0), C.soil)
+	L.part(m, "Terre", V(3, 0.3, 3), cf * CF(0, 0.9, 0), C.soilL)
+	if kind == "carnivore" then
+		L.part(m, "Tige", V(0.7, 3.5, 0.7), cf * CF(0, 2.8, 0), C.teal)
+		for _, s in { -1, 1 } do
+			L.part(m, "Feuille", V(2, 0.25, 0.9), cf * CF(s * 1.2, 2, 0) * ANG(0, 0, s * rad(25)), C.teal:Lerp(C.black, 0.2))
+		end
+		local head = cf * CF(0, 5.2, 0)
+		L.part(m, "Machoire", V(2.6, 0.9, 2.6), head * CF(0, -0.5, 0), col)
+		L.part(m, "Machoire", V(2.6, 0.9, 2.6), head * CF(0, 0.9, 0.6) * ANG(rad(-35), 0, 0), col)
+		L.part(m, "Gorge", V(2, 0.3, 2), head * CF(0, 0, 0), C.dark)
+		for i = -1, 1 do
+			L.wedge(m, "Dent", V(0.4, 0.5, 0.3), head * CF(i * 0.8, 0.05, -1.15), C.white)
+			L.wedge(m, "Dent", V(0.4, 0.5, 0.3), head * CF(i * 0.8, 0.35, -0.75) * ANG(rad(-35), 0, rad(180)), C.white)
+		end
+		for _, s in { -1, 1 } do
+			L.part(m, "Oeil", V(0.6, 0.6, 0.6), head * CF(s * 0.7, 1.6, 0.2), C.yellow, L.glow())
+			L.part(m, "Pupille", V(0.3, 0.3, 0.1), head * CF(s * 0.7, 1.6, -0.12), C.black)
+		end
+		L.light(L.anchor(m, "Lueur", head), col, 10, 1.2)
+		return m
+	end
 	for i = 1, rng:NextInteger(3, 5) do
 		local a = i / 5 * TAU + rng:NextNumber(-0.4, 0.4)
 		local h = rng:NextNumber(3, 6)
-		local lean = rng:NextNumber(0.6, 1.6)
-		local p0 = (cf * CF(math.cos(a) * 0.5, 1, math.sin(a) * 0.5)).Position
-		local p1 = (cf * CF(math.cos(a) * lean * 0.5, 1 + h * 0.5, math.sin(a) * lean * 0.5)).Position
-		local p2 = (cf * CF(math.cos(a) * lean * 1.3, 1 + h, math.sin(a) * lean * 1.3)).Position
-		L.bar(m, "Tige", p0, p1, 0.35, C.stemL)
-		L.bar(m, "Tige", p1, p2, 0.3, C.stem)
-		L.ball(m, "Bulbe", rng:NextNumber(0.9, 1.4), CF(p2), col, L.glow())
-		L.wedge(m, "Feuille", V(0.15, 0.8, 1.6), CF(p1) * ANG(0, a, rad(30)), C.teal)
+		local lean = rng:NextNumber(0.5, 1.3)
+		local p0 = cf * CF(math.cos(a) * 0.5, 1, math.sin(a) * 0.5)
+		local p1 = cf * CF(math.cos(a) * lean * 0.6, 1 + h * 0.5, math.sin(a) * lean * 0.6)
+		local p2 = cf * CF(math.cos(a) * lean * 1.4, 1 + h, math.sin(a) * lean * 1.4)
+		L.bar(m, "Tige", p0.Position, p1.Position, 0.45, C.stemL)
+		L.bar(m, "Tige", p1.Position, p2.Position, 0.4, C.stem)
+		if kind == "tentacules" then
+			local p3 = p2 * CF(math.cos(a) * 0.8, 0.9, math.sin(a) * 0.8)
+			L.bar(m, "Tentacule", p2.Position, p3.Position, 0.35, col)
+			L.part(m, "Ventouse", V(0.5, 0.5, 0.5), p3, col:Lerp(C.white, 0.4), L.glow())
+		else
+			local sz = rng:NextNumber(0.9, 1.4)
+			L.part(m, "Bulbe", V(sz, sz, sz), p2 * ANG(0, a, rad(45)), col, L.glow())
+		end
+		L.part(m, "Feuille", V(1.4, 0.15, 0.7), p1 * ANG(0, -a, rad(20)), C.teal)
 	end
-	local core = L.ball(m, "Coeur", 1.2, cf * CF(0, 1.4, 0), col, L.glow())
+	local core = L.part(m, "Coeur", V(1.1, 1.1, 1.1), cf * CF(0, 1.6, 0) * ANG(0, rad(45), 0), col, L.glow())
 	L.light(core, col, 10, 1.2)
 	return m
 end
@@ -211,12 +242,13 @@ function P.shrooms(parent, cf, rng, col)
 	local m = L.model("Champignons", parent, cf)
 	for i = 1, rng:NextInteger(3, 6) do
 		local a = rng:NextNumber(0, TAU)
-		local r = i == 1 and 0 or rng:NextNumber(0.8, 2.2)
+		local r = i == 1 and 0 or rng:NextNumber(0.9, 2.2)
 		local h = i == 1 and rng:NextNumber(2.5, 3.5) or rng:NextNumber(0.8, 2)
-		local c = cf * CF(math.cos(a) * r, 0, math.sin(a) * r)
-		L.vcyl(m, "Pied", h, h * 0.25, c * CF(0, h / 2, 0), C.white:Lerp(col, 0.2))
-		L.vcyl(m, "Chapeau", h * 0.25, h * 0.9, c * CF(0, h, 0), col, L.glow())
-		L.ball(m, "Dome", h * 0.6, c * CF(0, h + 0.05, 0), col:Lerp(C.white, 0.3), L.glow({ Transparency = 0.3 }))
+		local c = cf * CF(math.cos(a) * r, 0, math.sin(a) * r) * ANG(0, rng:NextNumber(0, TAU), 0)
+		L.part(m, "Pied", V(h * 0.3, h, h * 0.3), c * CF(0, h / 2, 0), C.white:Lerp(col, 0.2))
+		L.part(m, "Chapeau", V(h * 0.95, h * 0.3, h * 0.95), c * CF(0, h, 0), col, L.glow())
+		L.part(m, "ChapeauHaut", V(h * 0.55, h * 0.2, h * 0.55), c * CF(0, h + h * 0.22, 0), col:Lerp(C.white, 0.3), L.glow())
+		L.part(m, "Point", V(h * 0.15, h * 0.05, h * 0.15), c * CF(h * 0.25, h + h * 0.17, -h * 0.2), C.white, L.glow())
 	end
 	return m
 end
