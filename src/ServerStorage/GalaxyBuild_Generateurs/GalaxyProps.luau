@@ -405,4 +405,184 @@ function P.dust(parent, cf, rng)
 		pick(rng, { C.soil, C.soilL, C.rockD }))
 end
 
+--== PERSONNAGES & VEHICULES ==--
+
+function P.alien(parent, cf, rng, col, eyes)
+	col = col or C.green
+	eyes = eyes or 1
+	local dark = col:Lerp(C.black, 0.35)
+	local m = L.model("Alien", parent, cf)
+	for _, s in { -1, 1 } do
+		L.vcyl(m, "Jambe", 2, 0.8, cf * CF(s * 0.7, 1, 0), dark)
+		L.part(m, "Pied", V(1.1, 0.5, 1.6), cf * CF(s * 0.7, 0.25, -0.25), dark)
+	end
+	L.ball(m, "Corps", 3.2, cf * CF(0, 3.4, 0), col)
+	L.ball(m, "Ventre", 2.2, cf * CF(0, 3.3, -0.65), col:Lerp(C.white, 0.35))
+	for _, s in { -1, 1 } do
+		local sh = (cf * CF(s * 1.4, 4.2, 0)).Position
+		local hand = (cf * CF(s * 2.4, 2.8, -0.6)).Position
+		L.bar(m, "Bras", sh, hand, 0.5, col)
+		L.ball(m, "Main", 0.9, CF(hand), dark)
+	end
+	local head = cf * CF(0, 6.6, 0)
+	L.ball(m, "Tete", 4, head, col)
+	for i = 1, 5 do
+		local a = rng:NextNumber(0, math.pi * 2)
+		L.ball(m, "Tache", rng:NextNumber(0.5, 0.9), head * CF(math.cos(a) * 1.7, rng:NextNumber(0.3, 1.3), math.sin(a) * 1.7), dark)
+	end
+	local xs = eyes == 1 and { 0 } or (eyes == 2 and { -0.8, 0.8 } or { -1.1, 0, 1.1 })
+	local ed = eyes == 1 and 2.2 or 1.3
+	for _, x in xs do
+		local e = head * CF(x, 0.3, -1.45)
+		L.ball(m, "Oeil", ed, e, C.white)
+		L.ball(m, "Pupille", ed * 0.5, e * CF(0, 0, -ed * 0.32), C.black)
+		L.ball(m, "Reflet", ed * 0.15, e * CF(ed * 0.12, ed * 0.12, -ed * 0.48), C.white, L.glow())
+	end
+	L.part(m, "Bouche", V(1.2, 0.2, 0.2), head * CF(0, -0.9, -1.8), C.dark)
+	for _, s in { -1, 1 } do
+		local a0 = (head * CF(s * 0.8, 1.7, 0)).Position
+		local a1 = (head * CF(s * 1.5, 3.4, 0.2)).Position
+		L.bar(m, "Antenne", a0, a1, 0.2, dark)
+		local tip = L.ball(m, "AntenneBout", 0.7, CF(a1), C.yellow:Lerp(col, 0.3), L.glow())
+		if s == 1 then L.light(tip, col, 8, 1) end
+	end
+	return m
+end
+
+function P.cybernaut(parent, cf, rng, accent, pose)
+	accent = accent or C.cyan
+	local m = L.model("Cybernaute", parent, cf)
+	for _, s in { -1, 1 } do
+		L.part(m, "Botte", V(1.3, 1, 1.9), cf * CF(s * 0.75, 0.5, -0.2), C.metalD)
+		L.part(m, "Jambe", V(1.1, 2.6, 1.2), cf * CF(s * 0.75, 2.3, 0), C.white)
+		L.part(m, "Genou", V(1.2, 0.5, 1.3), cf * CF(s * 0.75, 2.2, -0.05), accent, L.glow())
+	end
+	L.part(m, "Ceinture", V(2.8, 0.5, 1.6), cf * CF(0, 3.8, 0), C.metalD)
+	L.part(m, "Torse", V(3, 3, 1.8), cf * CF(0, 5.5, 0), C.white)
+	L.part(m, "Plastron", V(1.8, 1.4, 0.2), cf * CF(0, 5.8, -0.95), C.dark)
+	for i = 0, 2 do
+		L.part(m, "Voyant", V(0.3, 0.3, 0.1), cf * CF(-0.5 + i * 0.5, 6, -1.08), ({ C.red, C.yellow, C.green })[i + 1], L.glow())
+	end
+	L.part(m, "Jauge", V(1.2, 0.2, 0.1), cf * CF(0, 5.4, -1.08), accent, L.glow())
+	L.part(m, "SacDos", V(2.6, 3, 1.2), cf * CF(0, 5.6, 1.4), C.metalL)
+	for _, s in { -1, 1 } do
+		L.vcyl(m, "Reservoir", 2.6, 0.8, cf * CF(s * 0.7, 5.6, 2.1), C.metal)
+		L.part(m, "Tube", V(0.2, 2.4, 0.2), cf * CF(s * 0.7, 5.6, 2.55), accent, L.glow())
+	end
+	for _, s in { -1, 1 } do
+		local cyber = s == 1
+		local sh = cf * CF(s * 1.9, 6.5, 0)
+		local up = pose == "salut" and s == 1
+		local elbow = up and (cf * CF(s * 2.6, 7.6, 0)) or (sh * CF(0, -1.6, 0))
+		local hand = up and (cf * CF(s * 2.4, 9.2, -0.2)) or (sh * CF(0, -3, -0.3))
+		L.ball(m, "Epaule", 1.3, sh, cyber and C.metalD or C.white)
+		L.bar(m, "BrasHaut", sh.Position, elbow.Position, 0.9, cyber and C.metalD or C.white)
+		L.bar(m, "AvantBras", elbow.Position, hand.Position, 0.8, cyber and C.dark or C.white)
+		if cyber then
+			L.ball(m, "Articulation", 0.8, elbow, accent, L.glow())
+		end
+		L.ball(m, "Gant", 1, hand, cyber and accent or C.metalD, cyber and L.glow() or nil)
+	end
+	local head = cf * CF(0, 8.3, 0)
+	L.vcyl(m, "Col", 0.5, 1.8, cf * CF(0, 7.1, 0), C.metalD)
+	L.ball(m, "Casque", 3.2, head, C.white)
+	L.ball(m, "Visiere", 2.5, head * CF(0, 0, -0.5), C.dark, { Material = Enum.Material.Glass, MaterialVariant = "", Reflectance = 0.4 })
+	L.part(m, "VisiereLueur", V(2.2, 0.15, 0.1), head * CF(0, 0.1, -1.73), accent, L.glow())
+	L.part(m, "OeilCyber", V(0.5, 0.3, 0.1), head * CF(0.55, 0.35, -1.72), C.red, L.glow())
+	L.bar(m, "Antenne", (head * CF(1.2, 1, 0)).Position, (head * CF(1.4, 2.8, 0.2)).Position, 0.15, C.metalD)
+	local b = L.ball(m, "Balise", 0.45, head * CF(1.4, 2.9, 0.2), accent, L.glow())
+	L.light(b, accent, 8, 1)
+	return m
+end
+
+function P.rocket(parent, cf, rng, col, h)
+	col = col or C.red
+	h = h or 30
+	local d = h * 0.2
+	local m = L.model("Fusee", parent, cf)
+	L.vcyl(m, "Pas", 1, d * 2.6, cf * CF(0, 0.5, 0), C.metalD)
+	L.vcyl(m, "PasNeon", 0.3, d * 2.7, cf * CF(0, 1, 0), C.cyan, L.glow())
+	local base = h * 0.18
+	local lift = h * 0.15
+	L.vcyl(m, "Tuyere", base * 0.5, d * 0.7, cf * CF(0, 1 + lift + base * 0.25, 0), C.metalD)
+	L.vcyl(m, "TuyereBas", base * 0.3, d * 0.9, cf * CF(0, 1 + lift + base * 0.15, 0), C.dark)
+	local body0 = 1 + lift + base * 0.5
+	for i = 0, 3 do
+		local a = i * math.pi / 2
+		local top = (cf * ANG(0, a, 0) * CF(0, body0 + 1, -d / 2)).Position
+		local foot = (cf * ANG(0, a, 0) * CF(0, 1, -(d / 2 + lift * 0.7))).Position
+		L.bar(m, "Bequille", top, foot, 0.5, C.metalD)
+		L.vcyl(m, "Patin", 0.3, 1.4, CF(foot) * CF(0, 0.15, 0), C.dark)
+	end
+	local bodyH = h * 0.55
+	L.vcyl(m, "Corps", bodyH, d, cf * CF(0, body0 + bodyH / 2, 0), C.white)
+	for i, t in { 0.12, 0.55 } do
+		L.vcyl(m, "Bande", bodyH * 0.07, d + 0.2, cf * CF(0, body0 + bodyH * t, 0), i == 1 and col or C.dark)
+	end
+	for i = 0, 1 do
+		local y = body0 + bodyH * (0.7 + i * 0.16)
+		local win = cf * CF(0, y, -d / 2)
+		L.cyl(m, "Hublot", 0.3, d * 0.34, win * ANG(0, rad(90), 0), C.metalD)
+		L.cyl(m, "Vitre", 0.35, d * 0.24, win * ANG(0, rad(90), 0), C.cyan, L.glow({ Transparency = 0.2 }))
+	end
+	local y = body0 + bodyH
+	local coneSteps = 6
+	for i = 1, coneSteps do
+		local t = (i - 0.5) / coneSteps
+		local step = h * 0.28 / coneSteps
+		L.vcyl(m, "Nez", step + 0.05, d * (1 - t * 0.85), cf * CF(0, y + step / 2, 0), i <= 2 and C.white or col)
+		y += step
+	end
+	L.ball(m, "Pointe", d * 0.18, cf * CF(0, y, 0), col)
+	local tip = L.ball(m, "Feu", 0.6, cf * CF(0, y + d * 0.1, 0), C.red, L.glow())
+	L.light(tip, C.red, 10, 1)
+	for i = 0, 3 do
+		local a = i * math.pi / 2 + math.pi / 4
+		local fc = cf * ANG(0, a, 0) * CF(0, body0 + h * 0.08, -(d / 2 + h * 0.06))
+		L.wedge(m, "Aileron", V(0.5, h * 0.18, h * 0.12), fc, col)
+		L.part(m, "AileronPied", V(0.6, h * 0.02, h * 0.12), fc * CF(0, -h * 0.09, 0), C.dark)
+	end
+	local flame = L.anchor(m, "Flamme", cf * CF(0, 1 + lift, 0), V(d * 0.6, 0.4, d * 0.6))
+	L.vcyl(m, "FlammeNeon", lift * 0.8, d * 0.55, cf * CF(0, 1 + lift * 0.6, 0), C.orange, L.glow({ Transparency = 0.25, CanCollide = false }))
+	L.emitter(flame, {
+		Name = "Feu", Texture = "rbxasset://textures/particles/fire_main.dds", LightEmission = 1, LightInfluence = 0,
+		Color = ColorSequence.new(C.yellow, C.orange), Size = L.seq({ 0, d * 0.4, 1, d * 0.1 }), Transparency = L.seq({ 0, 0.2, 1, 1 }),
+		Lifetime = NumberRange.new(0.4, 0.7), Rate = 40, Speed = NumberRange.new(4, 7), EmissionDirection = Enum.NormalId.Bottom,
+		SpreadAngle = Vector2.new(15, 15),
+	})
+	L.light(flame, C.orange, 16, 2)
+	return m
+end
+
+function P.dish(parent, cf, rng, s)
+	s = s or 1
+	local m = L.model("Parabole", parent, cf)
+	L.part(m, "Socle", V(5, 1, 5) * s, cf * CF(0, 0.5 * s, 0), C.metalD)
+	L.part(m, "SocleNeon", V(5.2, 0.25, 5.2) * s, cf * CF(0, 1 * s, 0), C.cyan, L.glow())
+	L.vcyl(m, "Pilier", 5 * s, 1.2 * s, cf * CF(0, 3.5 * s, 0), C.metal)
+	L.part(m, "Fourche", V(3.6, 0.6, 0.8) * s, cf * CF(0, 6.2 * s, 0), C.metalD)
+	for _, x in { -1.6, 1.6 } do
+		L.part(m, "FourcheBras", V(0.4, 2, 0.8) * s, cf * CF(x * s, 7.2 * s, 0), C.metalD)
+	end
+	local aim = cf * CF(0, 8 * s, 0) * ANG(rad(40), 0, 0)
+	local layers = 6
+	for i = 0, layers - 1 do
+		local t = i / (layers - 1)
+		local dd = (2 + t * 8) * s
+		L.cyl(m, "Coupe", 0.35 * s, dd, aim * CF(0, 0, -(t * t) * 2.2 * s) * ANG(0, rad(90), 0), i == layers - 1 and C.metalL or C.white)
+	end
+	L.cyl(m, "Liseré", 0.2 * s, 10.3 * s, aim * CF(0, 0, -2.3 * s) * ANG(0, rad(90), 0), C.cyan, L.glow({ Transparency = 0.3 }))
+	local rx = (aim * CF(0, 0, -6.5 * s)).Position
+	for i = 0, 2 do
+		local a = i / 3 * math.pi * 2
+		L.bar(m, "Support", (aim * CF(math.cos(a) * 4.5 * s, math.sin(a) * 4.5 * s, -2.2 * s)).Position, rx, 0.18 * s, C.metalD)
+	end
+	local rcv = L.ball(m, "Recepteur", 0.9 * s, CF(rx), C.magenta, L.glow())
+	L.light(rcv, C.magenta, 10 * s, 1.2)
+	L.sparkles(rcv, C.pink, 3, 0.4 * s)
+	L.part(m, "Boitier", V(1.6, 1.4, 1) * s, cf * CF(0, 2.2 * s, -0.9 * s), C.metalL)
+	L.part(m, "Ecran", V(1.2, 0.8, 0.1) * s, cf * CF(0, 2.3 * s, -1.42 * s), C.green, L.glow())
+	return m
+end
+
 return P

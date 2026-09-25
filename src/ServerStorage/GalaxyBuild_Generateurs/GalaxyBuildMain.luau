@@ -6,6 +6,10 @@
 
 		local f = game.ServerStorage.GalaxyBuild_Generateurs:Clone() f.Parent = game.ServerStorage print(require(f.GalaxyBuildMain).run()) f:Destroy()
 
+	Modeles seuls, exposes sur une plateforme (Workspace > ModelesGalaxie) :
+
+		local f = game.ServerStorage.GalaxyBuild_Generateurs:Clone() f.Parent = game.ServerStorage print(require(f.GalaxyBuildMain).kit()) f:Destroy()
+
 	Tout est range dans Cosmos Map > DecoGalaxy (remplace a chaque lancement).
 	Le decor existant (CosmosDecor, CosmosHeroes) n'est pas modifie : les
 	objets au sol qui le chevaucheraient sont deplaces ou abandonnes.
@@ -113,6 +117,21 @@ function M.run()
 		place(function(cf) return P.nest(ground, cf, rng, side == 1 and C.green or C.pink) end, stripPos(side, side == 1 and -1830 or -1685))
 	end
 
+	--== Personnages et engins ==--
+	local alienCols = { C.green, C.purple, C.blue, C.pink }
+	for i, z in { -1612, -1700, -1790, -1880 } do
+		local side = i % 2 + 1
+		place(function(cf) return P.alien(ground, cf, rng, alienCols[i], (i % 3) + 1) end, stripPos(side, z))
+	end
+	for i, z in { -1650, -1760, -1860 } do
+		local side = (i + 1) % 2 + 1
+		place(function(cf) return P.cybernaut(ground, cf, rng, i == 2 and C.pink or C.cyan, i == 2 and "salut" or nil) end, stripPos(side, z))
+	end
+	place(function(cf) return P.rocket(ground, cf, rng, C.purple, 26) end, { CF(805, 0, -1895), CF(805, 0, -1885), CF(805, 0, -1615) })
+	place(function(cf) return P.rocket(ground, cf, rng, C.red, 22) end, { CF(921, 0, -1612), CF(921, 0, -1622), CF(921, 0, -1895) })
+	place(function(cf) return P.dish(ground, cf, rng, 0.8) end, { CF(806, 0, -1665) * ANG(0, rad(40), 0), CF(806, 0, -1845) * ANG(0, rad(140), 0) })
+	place(function(cf) return P.dish(ground, cf, rng, 0.8) end, { CF(920, 0, -1850) * ANG(0, rad(-40), 0), CF(920, 0, -1672) * ANG(0, rad(-140), 0) })
+
 	--== Remplissage des bandes laterales ==--
 	local fillers = {
 		{ 3, function(cf) return P.alienPlant(ground, cf, rng) end },
@@ -210,6 +229,47 @@ function M.run()
 		if d:IsA("BasePart") then n += 1 end
 	end
 	return ("DecoGalaxy : %d pieces"):format(n)
+end
+
+-- Expose chaque modele sur une plateforme au-dessus de la Cosmos Map, pour
+-- les copier/deplacer a la main. Tout est dans Workspace > ModelesGalaxie.
+function M.kit()
+	local old = workspace:FindFirstChild("ModelesGalaxie")
+	if old then old:Destroy() end
+	local root = Instance.new("Folder"); root.Name = "ModelesGalaxie"; root.Parent = workspace
+	local rng = Random.new(42)
+	local origin = CF(CX, 300, -1753)
+	L.part(root, "Plateforme", V(170, 2, 70), origin * CF(0, -1, 0), C.dark)
+	L.part(root, "PlateformeNeon", V(171, 0.4, 71), origin * CF(0, -0.3, 0), C.purple, L.glow())
+
+	local items = {
+		{ 6, function(cf) return P.alien(root, cf, rng, C.green, 1) end },
+		{ 6, function(cf) return P.alien(root, cf, rng, C.purple, 2) end },
+		{ 6, function(cf) return P.alien(root, cf, rng, C.blue, 3) end },
+		{ 6, function(cf) return P.alien(root, cf, rng, C.pink, 1) end },
+		{ 7, function(cf) return P.cybernaut(root, cf, rng, C.cyan) end },
+		{ 7, function(cf) return P.cybernaut(root, cf, rng, C.pink, "salut") end },
+		{ 7, function(cf) return P.cybernaut(root, cf, rng, C.green) end },
+		{ 16, function(cf) return P.rocket(root, cf, rng, C.red, 30) end },
+		{ 12, function(cf) return P.rocket(root, cf, rng, C.purple, 20) end },
+		{ 14, function(cf) return P.dish(root, cf, rng, 1) end },
+		{ 10, function(cf) return P.dish(root, cf, rng, 0.6) end },
+		{ 9, function(cf) return P.rover(root, cf, rng) end },
+	}
+	local total = 0
+	for _, it in items do total += it[1] end
+	local x = -total / 2
+	for _, it in items do
+		x += it[1] / 2
+		it[2](origin * CF(x, 0, 0))
+		x += it[1] / 2
+	end
+
+	local n = 0
+	for _, d in root:GetDescendants() do
+		if d:IsA("BasePart") then n += 1 end
+	end
+	return ("ModelesGalaxie : %d pieces (au-dessus de la Cosmos Map, Y=300)"):format(n)
 end
 
 return M
