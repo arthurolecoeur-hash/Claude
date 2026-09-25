@@ -14,7 +14,7 @@ L.C = {
 	skin = C(246, 200, 156), skinD = C(210, 160, 120), beard = C(80, 50, 30), navy = C(40, 56, 110), coat = C(150, 30, 40),
 	shirtW = C(240, 240, 236), bandana = C(210, 40, 50), sand = C(236, 210, 150), water = C(40, 150, 210), kraken = C(140, 60, 170),
 	parrotR = C(230, 40, 50), parrotB = C(40, 110, 230), parrotY = C(255, 210, 40), paper = C(236, 220, 176),
-	emerald = C(40, 220, 120), ruby = C(230, 30, 70), sapphire = C(50, 110, 255),
+	emerald = C(40, 220, 120), ghost = C(120, 255, 200), stone = C(130, 126, 118), ruby = C(230, 30, 70), sapphire = C(50, 110, 255),
 	stem = C(70, 50, 110), stemL = C(110, 80, 160), soil = C(54, 44, 74), soilL = C(78, 64, 104),
 }
 L.GLOWS = { L.C.gold, L.C.orange, L.C.yellow }

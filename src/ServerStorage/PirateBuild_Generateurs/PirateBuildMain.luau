@@ -70,6 +70,20 @@ function M.kit()
 	table.insert(items, { 11, function(cf) return P.dock(root, cf * CF(0, 0, 8), rng, 16) end })
 	table.insert(items, { 15, function(cf) return P.sloop(root, cf, rng) end })
 	table.insert(items, { 15, function(cf) return P.sign(root, cf, rng, "PIRATES") end })
+	table.insert(items, { 6, function(cf) return P.ghost(root, cf, rng) end })
+	table.insert(items, { 17, function(cf) return P.sharks(root, cf, rng, 3) end })
+	table.insert(items, { 17, function(cf) return P.plank(root, cf, rng) end })
+	table.insert(items, { 11, function(cf) return P.hammock(root, cf, rng) end })
+	table.insert(items, { 9, function(cf) return P.stall(root, cf, rng) end })
+	table.insert(items, { 9, function(cf) return P.digSpot(root, cf, rng) end })
+	table.insert(items, { 10, function(cf) return P.watchtower(root, cf, rng) end })
+	table.insert(items, { 8, function(cf) return P.throne(root, cf, rng) end })
+	table.insert(items, { 6, function(cf) return P.bell(root, cf, rng) end })
+	table.insert(items, { 7, function(cf) return P.bottles(root, cf, rng, 5) end })
+	table.insert(items, { 5, function(cf) return P.goldSacks(root, cf, rng) end })
+	table.insert(items, { 9, function(cf) return P.fishNet(root, cf, rng) end })
+	table.insert(items, { 4, function(cf) return P.skullTotem(root, cf, rng) end })
+	table.insert(items, { 6, function(cf) return P.mermaid(root, cf, rng) end })
 
 	local total = 0
 	for _, it in items do total += it[1] end
@@ -162,6 +176,32 @@ function M.run()
 	end
 	for _, z in { -2240, -2400, -2505 } do
 		place(function(cf) return P.cannonballs(root, cf, rng) end, stripPos(z == -2400 and 1 or 2, z))
+	end
+
+	-- Lot 2
+	place(function(cf) return P.watchtower(root, cf, rng) end, { CF(922, 0, -2200) * ANG(0, face(2), 0), CF(922, 0, -2490) * ANG(0, face(2), 0) })
+	place(function(cf) return P.plank(root, cf, rng) end, { CF(805, 0, -2500) * ANG(0, rad(-90), 0), CF(805, 0, -2200) * ANG(0, rad(-90), 0) })
+	place(function(cf) return P.throne(root, cf, rng) end, stripPos(1, -2275))
+	place(function(cf) return P.stall(root, cf, rng) end, stripPos(2, -2225))
+	place(function(cf) return P.hammock(root, cf, rng) end, stripPos(2, -2460))
+	place(function(cf) return P.digSpot(root, cf, rng) end, stripPos(1, -2455))
+	place(function(cf) return P.mermaid(root, cf, rng) end, stripPos(2, -2510))
+	for _, z in { -2250, -2480 } do
+		place(function(cf) return P.ghost(root, cf, rng) end, stripPos(z == -2250 and 1 or 2, z))
+	end
+	local small = {
+		function(cf) return P.bottles(root, cf, rng, 4) end,
+		function(cf) return P.goldSacks(root, cf, rng) end,
+		function(cf) return P.bell(root, cf, rng) end,
+		function(cf) return P.fishNet(root, cf, rng) end,
+		function(cf) return P.skullTotem(root, cf, rng) end,
+	}
+	for z = Z0 - 6, Z1 + 6, -14 do
+		for side = 1, 2 do
+			if rng:NextNumber() < 0.55 then
+				place(small[rng:NextInteger(1, #small)], stripPos(side, z))
+			end
+		end
 	end
 
 	-- Lanternes le long de l'allee
