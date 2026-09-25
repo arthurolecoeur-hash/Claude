@@ -76,6 +76,9 @@
       },
       "PirateBuild_Generateurs": {
         "$path": "src/ServerStorage/PirateBuild_Generateurs"
+      },
+      "SteamBuild_Generateurs": {
+        "$path": "src/ServerStorage/SteamBuild_Generateurs"
       }
     }
   }
