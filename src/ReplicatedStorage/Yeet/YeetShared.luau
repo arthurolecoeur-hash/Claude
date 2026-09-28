@@ -251,12 +251,30 @@ end
 --[[
 	Noob en blocs, style studs, bras en l'air (il hurle en volant).
 	Face avant = -Z du modele. PrimaryPart = Torso.
+	skinKey : skin de Mastery (couleurs + chapeau), nil = noob classique.
+	Le chapeau est soude a la tete (hors de la liste des parts animees).
 ]]
-function YeetShared.BuildNoob(): Model
+local function skinOf(skinKey: any)
+	local ok, MasteryShared = pcall(function()
+		return require(game:GetService("ReplicatedStorage"):WaitForChild("Mastery"):WaitForChild("MasteryShared", 5))
+	end)
+	return ok and MasteryShared and MasteryShared.Get(skinKey) or nil
+end
+
+function YeetShared.SkinColors(skinKey: any)
+	local skin = skinOf(skinKey)
+	if skin and skin.colors then
+		return skin.colors, skin
+	end
+	return { head = YeetShared.NOOB_YELLOW, torso = YeetShared.NOOB_BLUE, arms = YeetShared.NOOB_YELLOW, legs = YeetShared.NOOB_GREEN }, nil
+end
+
+function YeetShared.BuildNoob(skinKey: any?): Model
 	local model = Instance.new("Model")
 	model.Name = "YeetNoob"
+	local colors, skin = YeetShared.SkinColors(skinKey)
 
-	local function part(name: string, size: Vector3, offset: Vector3, color: Color3): Part
+	local function part(name: string, size: Vector3, offset: Vector3, color: Color3, parent: Instance?): Part
 		local p = Instance.new("Part")
 		p.Name = name
 		p.Size = size
@@ -271,16 +289,16 @@ function YeetShared.BuildNoob(): Model
 		p.CanQuery = false
 		p.CanTouch = false
 		p.CastShadow = true
-		p.Parent = model
+		p.Parent = parent or model
 		return p
 	end
 
-	local torso = part("Torso", Vector3.new(2, 2, 1), Vector3.zero, YeetShared.NOOB_BLUE)
-	local head = part("Head", Vector3.new(1.3, 1.3, 1.3), Vector3.new(0, 1.65, 0), YeetShared.NOOB_YELLOW)
-	part("LeftArm", Vector3.new(1, 2, 1), Vector3.new(-1.5, 1.4, 0), YeetShared.NOOB_YELLOW)
-	part("RightArm", Vector3.new(1, 2, 1), Vector3.new(1.5, 1.4, 0), YeetShared.NOOB_YELLOW)
-	part("LeftLeg", Vector3.new(1, 2, 1), Vector3.new(-0.5, -2, 0), YeetShared.NOOB_GREEN)
-	part("RightLeg", Vector3.new(1, 2, 1), Vector3.new(0.5, -2, 0), YeetShared.NOOB_GREEN)
+	local torso = part("Torso", Vector3.new(2, 2, 1), Vector3.zero, colors.torso)
+	local head = part("Head", Vector3.new(1.3, 1.3, 1.3), Vector3.new(0, 1.65, 0), colors.head)
+	part("LeftArm", Vector3.new(1, 2, 1), Vector3.new(-1.5, 1.4, 0), colors.arms)
+	part("RightArm", Vector3.new(1, 2, 1), Vector3.new(1.5, 1.4, 0), colors.arms)
+	part("LeftLeg", Vector3.new(1, 2, 1), Vector3.new(-0.5, -2, 0), colors.legs)
+	part("RightLeg", Vector3.new(1, 2, 1), Vector3.new(0.5, -2, 0), colors.legs)
 
 	local face = Instance.new("Decal")
 	face.Name = "face"
@@ -288,6 +306,33 @@ function YeetShared.BuildNoob(): Model
 	face.Face = Enum.NormalId.Front
 	face.Parent = head
 
+	-- Chapeau / cheveux du skin, soudes a la tete.
+	local hat = skin and skin.hat
+	if hat then
+		local pieces = {}
+		if hat.kind == "hardhat" then
+			table.insert(pieces, { Vector3.new(1.5, 0.55, 1.5), Vector3.new(0, 2.5, 0) })
+			table.insert(pieces, { Vector3.new(1.9, 0.15, 1.9), Vector3.new(0, 2.28, 0) })
+			table.insert(pieces, { Vector3.new(0.3, 0.2, 1.52), Vector3.new(0, 2.82, 0) })
+		elseif hat.kind == "cap" then
+			table.insert(pieces, { Vector3.new(1.4, 0.4, 1.4), Vector3.new(0, 2.45, 0) })
+			table.insert(pieces, { Vector3.new(1.1, 0.12, 0.7), Vector3.new(0, 2.3, -0.95) })
+		elseif hat.kind == "hair" then
+			table.insert(pieces, { Vector3.new(1.42, 0.45, 1.42), Vector3.new(0, 2.42, 0.02) })
+			table.insert(pieces, { Vector3.new(1.42, 1.1, 0.35), Vector3.new(0, 1.85, 0.62) })
+		end
+		for i, pc in ipairs(pieces) do
+			local p = part("Hat" .. i, pc[1], pc[2], hat.color, head)
+			p.Anchored = false
+			p.Massless = true
+			local w = Instance.new("WeldConstraint")
+			w.Part0 = head
+			w.Part1 = p
+			w.Parent = p
+		end
+	end
+
+	model:SetAttribute("Skin", skin and skin.key or "")
 	model.PrimaryPart = torso
 	return model
 end

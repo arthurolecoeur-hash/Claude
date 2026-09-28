@@ -927,8 +927,8 @@ local LIMBS = {
 	RightLeg = { pivot = Vector3.new(0.5, -1, 0), off = Vector3.new(0, -1, 0), phase = 0, side = 1 },
 }
 
-local function makeNoob()
-	local model = Shared.BuildNoob()
+local function makeNoob(skinKey: any?)
+	local model = Shared.BuildNoob(skinKey)
 	local d = { model = model, list = {}, base = {}, cframes = {}, scale = 1 }
 	for _, part in ipairs(model:GetChildren()) do
 		if part:IsA("BasePart") then
@@ -1193,7 +1193,29 @@ local function createRec(thrower: Player, t0: number)
 		t0 = t0,
 		chargeStart = t0 + PICKUP,
 	}
-	rec.noob = makeNoob()
+	local skinKey = thrower:GetAttribute("SkinEquipped")
+	rec.noob = makeNoob(skinKey)
+
+	-- Trainee a la couleur du skin (Mastery).
+	local _, skin = Shared.SkinColors(skinKey)
+	if skin then
+		local a0 = Instance.new("Attachment")
+		a0.Position = Vector3.new(0, 0.9, 0)
+		a0.Parent = rec.noob.torso
+		local a1 = Instance.new("Attachment")
+		a1.Position = Vector3.new(0, -0.9, 0)
+		a1.Parent = rec.noob.torso
+		local trail = Instance.new("Trail")
+		trail.Attachment0 = a0
+		trail.Attachment1 = a1
+		trail.Lifetime = 0.45
+		trail.LightEmission = 1
+		trail.FaceCamera = true
+		trail.Color = ColorSequence.new(skin.trail or skin.color, Color3.new(1, 1, 1))
+		trail.Transparency = NumberSequence.new(0.2, 1)
+		trail.WidthScale = NumberSequence.new(1, 0)
+		trail.Parent = rec.noob.torso
+	end
 
 	-- Aura (etincelles) accrochee au noob.
 	local att = Instance.new("Attachment")

@@ -104,7 +104,7 @@ UI.stroke(header, 4, BLACK)
 UI.gradient(header, Color3.fromRGB(255, 225, 90), Color3.fromRGB(235, 140, 10))
 UI.studs(header, 28, 0.72, 14)
 UI.shine(header, 3.5, 0.1)
-local title = UI.text(header, "OLD ROBLOX SKINS", 50, WHITE, UI.FONT_TITLE, 5)
+local title = UI.text(header, "⭐ MASTERY SKINS ⭐", 50, WHITE, UI.FONT_TITLE, 5)
 title.AnchorPoint = Vector2.new(0.5, 0.5)
 title.Position = UDim2.fromScale(0.5, 0.5)
 title.Size = UDim2.fromOffset(520, 58)
@@ -134,7 +134,7 @@ close.Size = UDim2.fromOffset(62, 58)
 local powerLine = UI.text(root, "", 26, WHITE, UI.FONT_TITLE, 3)
 powerLine.Position = UDim2.fromOffset(0, 98)
 powerLine.Size = UDim2.new(1, 0, 0, 30)
-local hint = UI.text(root, "Earn " .. STAR .. " MASTERY by YEETING! Farther throw = more Mastery.", 20, Color3.fromRGB(245, 235, 255), UI.FONT, 2)
+local hint = UI.text(root, "YEET to earn " .. STAR .. " (farther = more). The skin is the noob you THROW. Best owned skin = FORCE passive!", 19, Color3.fromRGB(245, 235, 255), UI.FONT, 2)
 hint.Position = UDim2.fromOffset(0, 128)
 hint.Size = UDim2.new(1, 0, 0, 24)
 
@@ -151,7 +151,7 @@ gl.SortOrder = Enum.SortOrder.LayoutOrder
 gl.HorizontalAlignment = Enum.HorizontalAlignment.Center
 gl.Parent = grid
 
-local ownAvatar = button(root, "👤 WEAR MY OWN AVATAR", Color3.fromRGB(80, 80, 110), 24)
+local ownAvatar = button(root, "🟨 CLASSIC NOOB (FREE)", Color3.fromRGB(80, 80, 110), 24)
 ownAvatar.AnchorPoint = Vector2.new(0.5, 1)
 ownAvatar.Position = UDim2.new(0.5, 0, 1, -16)
 ownAvatar.Size = UDim2.fromOffset(420, 60)
@@ -181,7 +181,7 @@ local function showToast(msg: string, color: Color3?)
 end
 
 -- Petit perso blocky dessine (Noob / Guest).
-local function drawBlocky(parent: Instance, colors, z: number)
+local function drawBlocky(parent: Instance, colors, z: number, hat)
 	local holder = Instance.new("Frame")
 	holder.AnchorPoint = Vector2.new(0.5, 0.5)
 	holder.Position = UDim2.fromScale(0.5, 0.5)
@@ -206,18 +206,30 @@ local function drawBlocky(parent: Instance, colors, z: number)
 	block(92, 36, 22, 56, colors.arms)
 	block(30, 94, 29, 54, colors.legs)
 	block(61, 94, 29, 54, colors.legs)
-	local face = UI.text(head, ":)", 22, BLACK, UI.FONT_TITLE, 0)
+	local face = Instance.new("ImageLabel")
+	face.BackgroundTransparency = 1
 	face.Size = UDim2.fromScale(1, 1)
-	face.Rotation = 90
+	face.Image = "rbxasset://textures/face.png"
 	face.ZIndex = z + 2
-	local st = face:FindFirstChildOfClass("UIStroke")
-	if st then
-		st:Destroy()
+	face.Parent = head
+	if hat then
+		if hat.kind == "hardhat" then
+			block(36, -14, 48, 18, hat.color)
+			block(28, -2, 64, 7, hat.color)
+		elseif hat.kind == "cap" then
+			block(38, -10, 44, 14, hat.color)
+			block(20, 0, 30, 6, hat.color)
+		elseif hat.kind == "hair" then
+			block(38, -8, 44, 14, hat.color)
+			block(38, 2, 8, 22, hat.color)
+			block(74, 2, 8, 22, hat.color)
+		end
 	end
 	return holder
 end
 
 local cards = {}
+local anims = {}
 
 local function bestMult(): number
 	return MasteryShared.BestMult(state.owned)
@@ -226,17 +238,18 @@ end
 local function refresh()
 	balanceText.Text = STAR .. " " .. NumberFormat.Format(state.points)
 	local m = bestMult()
-	powerLine.Text = m > 1 and ("💪 POWER BONUS: <font color=\"#FFD23C\">%s</font>"):format(MasteryShared.FormatMult(m)) or "💪 POWER BONUS: <font color=\"#cccccc\">NONE YET</font>"
+	powerLine.Text = m > 1 and ("💪 PASSIVE: <font color=\"#FFD23C\">%s FORCE</font>  •  TOTAL EARNED: %s %s"):format(MasteryShared.FormatMult(m), STAR, NumberFormat.Format(state.total or 0))
+		or ("💪 PASSIVE: <font color=\"#cccccc\">NONE YET</font>  •  TOTAL EARNED: %s %s"):format(STAR, NumberFormat.Format(state.total or 0))
 	for _, s in ipairs(MasteryShared.SKINS) do
 		local c = cards[s.key]
 		if c then
 			local owned = state.owned[s.key] == true
 			local wearing = state.equipped == s.key
 			if wearing then
-				c.action.Label.Text = "✔ WEARING"
+				c.action.Label.Text = "✔ SELECTED"
 				recolor(c.action, Color3.fromRGB(90, 90, 110))
 			elseif owned then
-				c.action.Label.Text = "WEAR"
+				c.action.Label.Text = "SELECT"
 				recolor(c.action, C.green)
 			else
 				c.action.Label.Text = STAR .. " " .. NumberFormat.Format(s.cost)
@@ -250,7 +263,7 @@ local function refresh()
 		end
 	end
 	recolor(ownAvatar, state.equipped == nil and Color3.fromRGB(90, 90, 110) or Color3.fromRGB(80, 120, 200))
-	ownAvatar.Label.Text = state.equipped == nil and "✔ WEARING MY OWN AVATAR" or "👤 WEAR MY OWN AVATAR"
+	ownAvatar.Label.Text = state.equipped == nil and "✔ THROWING THE CLASSIC NOOB" or "🟨 THROW THE CLASSIC NOOB"
 end
 
 for i, s in ipairs(MasteryShared.SKINS) do
@@ -291,20 +304,42 @@ for i, s in ipairs(MasteryShared.SKINS) do
 	preview.Size = UDim2.new(1, -16, 1, -112)
 	preview.ZIndex = 4
 	preview.Parent = card
+	-- Le noob tel qu'il sera lance (couleurs + chapeau du skin).
+	local glow = Instance.new("ImageLabel")
+	glow.AnchorPoint = Vector2.new(0.5, 0.5)
+	glow.Position = UDim2.fromScale(0.5, 0.55)
+	glow.Size = UDim2.fromOffset(190, 190)
+	glow.BackgroundTransparency = 1
+	glow.Image = "rbxassetid://6120458939"
+	glow.ImageColor3 = s.color
+	glow.ImageTransparency = 0.55
+	glow.ZIndex = 4
+	glow.Parent = preview
+	local fig = drawBlocky(preview, s.colors, 5, s.hat)
+	local sc = Instance.new("UIScale")
+	sc.Scale = 0.78
+	sc.Parent = fig
 	if s.userId then
+		-- Pastille : l'avatar que prend le joueur a l'atterrissage.
+		local ring = Instance.new("Frame")
+		ring.AnchorPoint = Vector2.new(0, 1)
+		ring.Position = UDim2.fromScale(0, 1)
+		ring.Size = UDim2.fromOffset(54, 54)
+		ring.BackgroundColor3 = WHITE
+		ring.ZIndex = 7
+		ring.Parent = preview
+		UI.round(ring)
+		UI.stroke(ring, 3, BLACK)
+		UI.gradient(ring, s.color:Lerp(WHITE, 0.4), s.color)
 		local img = Instance.new("ImageLabel")
 		img.BackgroundTransparency = 1
 		img.Size = UDim2.fromScale(1, 1)
-		img.ScaleType = Enum.ScaleType.Fit
-		img.Image = ("rbxthumb://type=Avatar&id=%d&w=420&h=420"):format(s.userId)
-		img.ZIndex = 5
-		img.Parent = preview
-	else
-		local fig = drawBlocky(preview, s.colors, 5)
-		local sc = Instance.new("UIScale")
-		sc.Scale = 0.8
-		sc.Parent = fig
+		img.Image = ("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150"):format(s.userId)
+		img.ZIndex = 8
+		img.Parent = ring
+		UI.round(img)
 	end
+	table.insert(anims, { fig = fig, glow = glow, phase = i })
 
 	local lock = UI.text(preview, "🔒", 40, WHITE)
 	lock.AnchorPoint = Vector2.new(1, 1)
@@ -353,7 +388,7 @@ for i, s in ipairs(MasteryShared.SKINS) do
 			local r = remote:InvokeServer("Equip", s.key)
 			if type(r) == "table" and r.ok then
 				UISounds.Play("Success")
-				showToast("NOW WEARING " .. string.upper(s.name) .. "!", C.green)
+				showToast("YOU NOW THROW " .. string.upper(s.name) .. "!", C.green)
 			end
 			return
 		end
@@ -385,7 +420,7 @@ ownAvatar.Activated:Connect(function()
 	local r = remote:InvokeServer("Equip", nil)
 	if type(r) == "table" and r.ok then
 		UISounds.Play("Success")
-		showToast("WEARING YOUR AVATAR (BONUS KEPT!)", C.green)
+		showToast("CLASSIC NOOB SELECTED (PASSIVE KEPT!)", C.green)
 	end
 end)
 
@@ -471,5 +506,10 @@ RunService.RenderStepped:Connect(function(dt)
 	if isOpen then
 		clock += dt
 		g.Offset = Vector2.new(math.sin(clock * 1.2) * 0.6, 0)
+		for _, a in ipairs(anims) do
+			a.fig.Position = UDim2.new(0.5, 0, 0.5, math.sin(clock * 2 + a.phase) * 5)
+			a.fig.Rotation = math.sin(clock * 1.3 + a.phase) * 4
+			a.glow.Rotation = (clock * 25 + a.phase * 40) % 360
+		end
 	end
 end)

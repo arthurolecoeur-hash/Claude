@@ -24,6 +24,12 @@
       "WeatherShared": {
         "$path": "src/ReplicatedStorage/WeatherShared.luau"
       },
+      "Yeet": {
+        "$className": "Folder",
+        "YeetShared": {
+          "$path": "src/ReplicatedStorage/Yeet/YeetShared.luau"
+        }
+      },
       "Shared": {
         "$path": "src/shared"
       }
@@ -125,6 +131,12 @@
           "$path": "src/ServerScriptService/Traits/TraitService.server.luau"
         }
       },
+      "Yeet": {
+        "$className": "Folder",
+        "YeetService": {
+          "$path": "src/ServerScriptService/Yeet/YeetService.server.luau"
+        }
+      },
       "Server": {
         "$path": "src/server"
       }
@@ -215,6 +227,12 @@
           },
           "WeatherFX": {
             "$path": "src/StarterPlayerScripts/Weather/WeatherFX.luau"
+          }
+        },
+        "Yeet": {
+          "$className": "Folder",
+          "YeetClient": {
+            "$path": "src/StarterPlayerScripts/Yeet/YeetClient.client.luau"
           }
         },
         "Client": {

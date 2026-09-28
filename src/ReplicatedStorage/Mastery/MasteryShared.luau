@@ -2,12 +2,9 @@
 	MasteryShared
 	-------------
 	Mastery = points gagnes a chaque YEET (plus on lance loin, plus on en
-	gagne). Ils achetent des skins "old Roblox" qui multiplient la FORCE
-	gagnee (x1.5 -> x20). Le bonus = le meilleur skin POSSEDE (on peut
-	porter son propre avatar et garder le bonus).
-
-	userId : compte Roblox dont on copie l'avatar. colors : skin dessine
-	(Noob / Guest) a partir de couleurs de corps classiques.
+	gagne). Ils achetent des skins "old Roblox" pour le NOOB QU'ON LANCE
+	(modele tenu / en vol + apparence apres l'atterrissage). Passif : la
+	FORCE gagnee est multipliee (x1.5 -> x20) par le meilleur skin possede.
 ]]
 
 local MasteryShared = {}
@@ -21,15 +18,26 @@ MasteryShared.MAX_PER_YEET = 60
 
 local C = Color3.fromRGB
 
+-- colors : couleurs de corps du noob lance (modele en vol + perso apres
+-- l'atterrissage). hat : chapeau en blocs sur le noob en vol. userId :
+-- l'avatar de ce compte est applique au joueur a l'atterrissage.
 MasteryShared.SKINS = {
-	{ key = "Noob", name = "Noob", cost = 25, mult = 1.5, color = C(255, 215, 50),
+	{ key = "Noob", name = "Noob", cost = 25, mult = 1.5, color = C(255, 215, 50), trail = C(255, 230, 90),
 		colors = { head = C(245, 205, 48), torso = C(13, 105, 172), arms = C(245, 205, 48), legs = C(164, 189, 71) } },
-	{ key = "Guest", name = "Guest", cost = 100, mult = 2.5, color = C(200, 200, 210),
-		colors = { head = C(242, 243, 243), torso = C(27, 42, 53), arms = C(242, 243, 243), legs = C(99, 95, 98) } },
-	{ key = "JohnDoe", name = "John Doe", cost = 350, mult = 4, color = C(90, 170, 255), userId = 2 },
-	{ key = "JaneDoe", name = "Jane Doe", cost = 1000, mult = 7, color = C(255, 110, 190), userId = 3 },
-	{ key = "Shedletsky", name = "Shedletsky", cost = 3000, mult = 12, color = C(255, 90, 60), userId = 261 },
-	{ key = "Builderman", name = "Builderman", cost = 8000, mult = 20, color = C(255, 180, 0), userId = 156 },
+	{ key = "Guest", name = "Guest", cost = 100, mult = 2.5, color = C(200, 200, 210), trail = C(235, 235, 245),
+		colors = { head = C(242, 243, 243), torso = C(27, 42, 53), arms = C(242, 243, 243), legs = C(99, 95, 98) },
+		hat = { kind = "cap", color = C(27, 42, 53) } },
+	{ key = "JohnDoe", name = "John Doe", cost = 350, mult = 4, color = C(90, 170, 255), trail = C(90, 170, 255), userId = 2,
+		colors = { head = C(245, 205, 48), torso = C(27, 42, 53), arms = C(245, 205, 48), legs = C(13, 105, 172) } },
+	{ key = "JaneDoe", name = "Jane Doe", cost = 1000, mult = 7, color = C(255, 110, 190), trail = C(255, 120, 200), userId = 3,
+		colors = { head = C(245, 205, 48), torso = C(196, 40, 28), arms = C(245, 205, 48), legs = C(13, 105, 172) },
+		hat = { kind = "hair", color = C(105, 64, 40) } },
+	{ key = "Shedletsky", name = "Shedletsky", cost = 3000, mult = 12, color = C(255, 90, 60), trail = C(255, 110, 60), userId = 261,
+		colors = { head = C(234, 184, 146), torso = C(255, 176, 0), arms = C(234, 184, 146), legs = C(27, 42, 53) },
+		hat = { kind = "hair", color = C(40, 30, 25) } },
+	{ key = "Builderman", name = "Builderman", cost = 8000, mult = 20, color = C(255, 180, 0), trail = C(255, 200, 40), userId = 156,
+		colors = { head = C(234, 184, 146), torso = C(255, 176, 0), arms = C(234, 184, 146), legs = C(13, 105, 172) },
+		hat = { kind = "hardhat", color = C(255, 205, 0) } },
 }
 
 local byKey = {}

@@ -165,14 +165,40 @@ local ACCESSORY_PROPS = {
 }
 local BODY_PART_PROPS = { "Head", "Torso", "LeftArm", "RightArm", "LeftLeg", "RightLeg" }
 
-local function buildNoobDescription(original: HumanoidDescription): HumanoidDescription
+-- Avatars des comptes des skins Mastery (John Doe, Builderman...), en cache.
+local skinDescCache = {}
+local function skinUserDescription(userId: number): HumanoidDescription?
+	local cached = skinDescCache[userId]
+	if cached then
+		return cached:Clone()
+	end
+	local ok, desc = pcall(function()
+		return Players:GetHumanoidDescriptionFromUserId(userId)
+	end)
+	if ok and desc then
+		skinDescCache[userId] = desc
+		return desc:Clone()
+	end
+	return nil
+end
+
+local function buildNoobDescription(original: HumanoidDescription, player: Player?): HumanoidDescription
+	-- Skin Mastery avec un vrai avatar : on devient ce perso.
+	local skinKey = player and player:GetAttribute("SkinEquipped")
+	local colors, skin = Shared.SkinColors(skinKey)
+	if skin and skin.userId then
+		local desc = skinUserDescription(skin.userId)
+		if desc then
+			return desc
+		end
+	end
 	local d = original:Clone()
-	d.HeadColor = Shared.NOOB_YELLOW
-	d.LeftArmColor = Shared.NOOB_YELLOW
-	d.RightArmColor = Shared.NOOB_YELLOW
-	d.TorsoColor = Shared.NOOB_BLUE
-	d.LeftLegColor = Shared.NOOB_GREEN
-	d.RightLegColor = Shared.NOOB_GREEN
+	d.HeadColor = colors.head
+	d.LeftArmColor = colors.arms
+	d.RightArmColor = colors.arms
+	d.TorsoColor = colors.torso
+	d.LeftLegColor = colors.legs
+	d.RightLegColor = colors.legs
 	d.Shirt = 0
 	d.Pants = 0
 	d.GraphicTShirt = 0
@@ -365,7 +391,7 @@ local function landPlayer(player: Player, character: Model, land: Vector3, label
 	local ok, err = pcall(function()
 		st.original = humanoid:GetAppliedDescription()
 		st.materials = snapshotMaterials(character)
-		humanoid:ApplyDescription(buildNoobDescription(st.original))
+		humanoid:ApplyDescription(buildNoobDescription(st.original, player))
 	end)
 	if not ok then
 		warn("YeetService: morph noob rate -", err)

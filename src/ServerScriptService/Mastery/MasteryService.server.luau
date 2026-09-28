@@ -6,15 +6,16 @@
 	- Les points achetent des skins old Roblox (MasteryShared.SKINS).
 	- Bonus de force = meilleur skin possede -> attribut "SkinPower", lu par
 	  ShopPerks.GetStrengthMultiplier.
-	- Le skin porte est applique au spawn (et apres un yeet, YeetService
-	  restaure l'apparence capturee a l'atterrissage = le skin).
+	- Le skin "porte" (attribut SkinEquipped) est l'apparence du noob qu'on
+	  LANCE : YeetShared.BuildNoob (modele en vol) + YeetService (perso a
+	  l'atterrissage). Le perso normal garde son avatar.
 
 	Sauvegarde : champ de profil "mastery" = { points, total, owned = {cles}, equipped }.
 
 	Remote ReplicatedStorage.Mastery.MasteryRemote (RemoteFunction) :
 	  "GetState"        -> { points, total, owned = { [cle] = true }, equipped }
 	  "Buy", cle        -> { ok, err? }
-	  "Equip", cle|nil  -> { ok }   (nil = son propre avatar)
+	  "Equip", cle|nil  -> { ok }   (nil = noob classique)
 	Event ReplicatedStorage.Mastery.MasteryEvent : "Gained", { amount, total } | "State", state
 ]]
 
@@ -38,7 +39,6 @@ event.Parent = folder
 -- Cles faibles (voir PlayerProfileService).
 local data = setmetatable({}, { __mode = "k" }) -- Player -> { points, total, owned, equipped }
 local lastAction = setmetatable({}, { __mode = "k" })
-local pendingApply = setmetatable({}, { __mode = "k" })
 
 local function stateOf(player: Player)
 	local d = data[player]
@@ -57,67 +57,6 @@ local function push(player: Player)
 	player:SetAttribute("SkinPower", MasteryShared.BestMult(d.owned))
 	player:SetAttribute("SkinEquipped", d.equipped or "")
 	event:FireClient(player, "State", stateOf(player))
-end
-
---== Apparence ==--
-local descCache = {}
-
-local function skinDescription(skin): HumanoidDescription?
-	if skin.userId then
-		local cached = descCache[skin.userId]
-		if cached then
-			return cached:Clone()
-		end
-		local ok, desc = pcall(function()
-			return Players:GetHumanoidDescriptionFromUserId(skin.userId)
-		end)
-		if ok and desc then
-			descCache[skin.userId] = desc
-			return desc:Clone()
-		end
-		return nil
-	end
-	local c = skin.colors
-	local d = Instance.new("HumanoidDescription")
-	d.HeadColor = c.head
-	d.TorsoColor = c.torso
-	d.LeftArmColor = c.arms
-	d.RightArmColor = c.arms
-	d.LeftLegColor = c.legs
-	d.RightLegColor = c.legs
-	return d
-end
-
-local function ownDescription(player: Player): HumanoidDescription?
-	local ok, desc = pcall(function()
-		return Players:GetHumanoidDescriptionFromUserId(player.UserId)
-	end)
-	return ok and desc or nil
-end
-
-local function busy(player: Player): boolean
-	return player:GetAttribute("IsNoob") == true or player:GetAttribute("Yeeting") == true
-end
-
-local function applyLook(player: Player)
-	local d = data[player]
-	local character = player.Character
-	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	if not d or not humanoid or humanoid.Health <= 0 then
-		return
-	end
-	if busy(player) then
-		pendingApply[player] = true
-		return
-	end
-	pendingApply[player] = nil
-	local skin = MasteryShared.Get(d.equipped)
-	local desc = skin and skinDescription(skin) or ownDescription(player)
-	if desc then
-		pcall(function()
-			humanoid:ApplyDescription(desc)
-		end)
-	end
 end
 
 --== Gains ==--
@@ -173,7 +112,6 @@ remote.OnServerInvoke = function(player: Player, action: any, arg: any)
 		d.owned[skin.key] = true
 		d.equipped = skin.key
 		push(player)
-		task.spawn(applyLook, player)
 		task.spawn(PlayerProfileService.Save, player)
 		return { ok = true }
 	elseif action == "Equip" then
@@ -182,7 +120,6 @@ remote.OnServerInvoke = function(player: Player, action: any, arg: any)
 		end
 		d.equipped = arg
 		push(player)
-		task.spawn(applyLook, player)
 		return { ok = true }
 	end
 	return { ok = false }
@@ -220,19 +157,8 @@ local function onPlayerAdded(player: Player)
 	player:GetAttributeChangedSignal("IsNoob"):Connect(function()
 		if player:GetAttribute("IsNoob") == true then
 			onLanded(player)
-		elseif pendingApply[player] then
-			task.delay(1, applyLook, player)
 		end
 	end)
-	player.CharacterAppearanceLoaded:Connect(function()
-		if data[player] and data[player].equipped then
-			task.wait(0.2)
-			applyLook(player)
-		end
-	end)
-	if player.Character and data[player].equipped then
-		task.spawn(applyLook, player)
-	end
 end
 
 Players.PlayerAdded:Connect(onPlayerAdded)

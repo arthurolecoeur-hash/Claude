@@ -53,12 +53,8 @@ card.Name = "Card"
 card.AnchorPoint = Vector2.new(0, 1)
 card.Position = UDim2.new(0, 10, 1, -10)
 card.Size = UDim2.fromOffset(W, ROW * 3 + 20)
-card.BackgroundColor3 = WHITE
+card.BackgroundTransparency = 1
 card.Parent = gui
-UI.corner(card, 16)
-UI.stroke(card, 3.5, BLACK)
-UI.gradient(card, Color3.fromRGB(44, 32, 70), Color3.fromRGB(18, 12, 30))
-UI.studs(card, 30, 0.9, 16, WHITE)
 local cardScale = Instance.new("UIScale")
 cardScale.Parent = card
 UI.bindFit(1280, 720, function(s)
@@ -83,11 +79,8 @@ local function makeRow(order: number, color: Color3, iconImage: string?, iconEmo
 	pill.AnchorPoint = Vector2.new(0, 0.5)
 	pill.Position = UDim2.new(0, 0, 0.5, 0)
 	pill.Size = UDim2.new(1, 0, 0, ROW - 8)
-	pill.BackgroundColor3 = WHITE
+	pill.BackgroundTransparency = 1
 	pill.Parent = row
-	UI.round(pill)
-	UI.stroke(pill, 2.5, BLACK)
-	UI.gradient(pill, color:Lerp(BLACK, 0.45), color:Lerp(BLACK, 0.75))
 
 	local iconHolder = Instance.new("Frame")
 	iconHolder.AnchorPoint = Vector2.new(0, 0.5)
@@ -114,7 +107,7 @@ local function makeRow(order: number, color: Color3, iconImage: string?, iconEmo
 	icon.Size = UDim2.fromScale(0.78, 0.78)
 	icon.ZIndex = 4
 
-	local value = UI.text(pill, "0", 30, WHITE, UI.FONT_TITLE, 3)
+	local value = UI.text(pill, "0", 32, WHITE, UI.FONT_TITLE, 3.5)
 	value.AnchorPoint = Vector2.new(0, 0.5)
 	value.Position = UDim2.new(0, ROW + 4, 0.5, 1)
 	value.Size = UDim2.new(1, -(ROW + 12), 0, 32)
