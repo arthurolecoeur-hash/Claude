@@ -49,8 +49,42 @@ local SFX = {
 	AdminStart = { id = "rbxassetid://9114630450", vol = 1 },
 	AdminZap = { id = "rbxassetid://98753363372264", vol = 0.9 },
 	AdminBoom = { id = "rbxassetid://89620476747699", vol = 0.8 },
-	AdminAmbient = { id = "rbxassetid://116275103627699", vol = 0.22, loop = true },
+	AdminAmbient = { id = "rbxassetid://116275103627699", vol = 0.22, loop = true, fx = "reverb" },
+	-- Sons integres a Roblox (rbxasset) : toujours disponibles.
+	AdminAlarm = { id = "rbxasset://sounds/electronicpingshort.wav", vol = 0.55, fx = "distort" },
+	AdminCharge = { id = "rbxasset://sounds/electronicpingshort.wav", vol = 0.7, fx = "reverb" },
+	AdminShot = { id = "rbxasset://sounds/Rocket shot.wav", vol = 0.9, fx = "boom" },
+	AdminWhoosh = { id = "rbxasset://sounds/Rocket whoosh 01.wav", vol = 1 },
+	AdminThud = { id = "rbxasset://sounds/collide.wav", vol = 1, fx = "boom" },
+	AdminHeart = { id = "rbxassetid://89620476747699", vol = 0.35, fx = "boom" },
 }
+
+-- Effets audio : boom = grave + sature + reverb, distort = sirene sale.
+local function addSoundFx(s: Sound, kind: string?)
+	if kind == "boom" then
+		local d = Instance.new("DistortionSoundEffect")
+		d.Level = 0.45
+		d.Parent = s
+		local eq = Instance.new("EqualizerSoundEffect")
+		eq.LowGain = 8
+		eq.MidGain = 0
+		eq.HighGain = -6
+		eq.Parent = s
+		local r = Instance.new("ReverbSoundEffect")
+		r.DecayTime = 2.2
+		r.WetLevel = -4
+		r.Parent = s
+	elseif kind == "distort" then
+		local d = Instance.new("DistortionSoundEffect")
+		d.Level = 0.7
+		d.Parent = s
+	elseif kind == "reverb" then
+		local r = Instance.new("ReverbSoundEffect")
+		r.DecayTime = 3
+		r.WetLevel = -2
+		r.Parent = s
+	end
+end
 
 local RAINBOW_COLORS = {
 	Color3.fromRGB(255, 40, 40),
@@ -192,6 +226,7 @@ local function playSound(name: string, parent: Instance?, speed: number?): Sound
 	s.Volume = d.vol
 	s.Looped = d.loop == true
 	s.PlaybackSpeed = speed or 1
+	addSoundFx(s, d.fx)
 	if parent then
 		s.RollOffMode = Enum.RollOffMode.InverseTapered
 		s.RollOffMinDistance = 20
@@ -1325,6 +1360,181 @@ local function adminBanner(sg)
 	end)
 end
 
+local PORTAL_Y = 120
+
+-- Impact proche : bord de l'ecran rouge + fissures qui apparaissent.
+local adminSg: ScreenGui? = nil
+local function nearbyHit(pos: Vector3, radius: number)
+	local cam = workspace.CurrentCamera
+	if not cam or not adminSg or (cam.CFrame.Position - pos).Magnitude > radius then
+		return
+	end
+	local edge = Instance.new("Frame")
+	edge.Size = UDim2.fromScale(1, 1)
+	edge.BackgroundColor3 = ADMIN_RED
+	edge.BorderSizePixel = 0
+	edge.ZIndex = 40
+	edge.Parent = adminSg
+	local g = Instance.new("UIGradient")
+	g.Transparency = NumberSequence.new({ kp(0, 0.2), kp(0.2, 1), kp(0.8, 1), kp(1, 0.2) })
+	g.Parent = edge
+	local edge2 = edge:Clone()
+	edge2.UIGradient.Rotation = 90
+	edge2.Parent = adminSg
+	for _, e in ipairs({ edge, edge2 }) do
+		TweenService:Create(e, TweenInfo.new(0.8), { BackgroundTransparency = 1 }):Play()
+		Debris:AddItem(e, 0.85)
+	end
+	-- Fissures : segments blancs en etoile depuis un point au hasard.
+	local cx, cy = rand(0.2, 0.8), rand(0.2, 0.8)
+	for i = 1, 7 do
+		local crack = Instance.new("Frame")
+		crack.AnchorPoint = Vector2.new(0, 0.5)
+		crack.Position = UDim2.fromScale(cx, cy)
+		crack.Size = UDim2.new(rand(0.08, 0.2), 0, 0, math.random(2, 4))
+		crack.Rotation = i * (360 / 7) + rand(-15, 15)
+		crack.BackgroundColor3 = Color3.new(1, 1, 1)
+		crack.BackgroundTransparency = 0.15
+		crack.BorderSizePixel = 0
+		crack.ZIndex = 41
+		crack.Parent = adminSg
+		TweenService:Create(crack, TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { BackgroundTransparency = 1 }):Play()
+		Debris:AddItem(crack, 1)
+	end
+end
+
+-- Aura doree sous chaque joueur + couronne au-dessus de la tete.
+local function playerAuras()
+	local made = {}
+	local function build(char: Model)
+		local root = char:FindFirstChild("HumanoidRootPart")
+		local head = char:FindFirstChild("Head")
+		if not root or made[char] then
+			return
+		end
+		made[char] = true
+		local ring = newPart({
+			Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.15, 7, 7), Material = Enum.Material.Neon,
+			Color = ADMIN_GOLD, Transparency = 0.35, Parent = state.folder,
+		})
+		local inner = newPart({
+			Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.16, 5, 5), Material = Enum.Material.Neon,
+			Color = ADMIN_RED, Transparency = 0.5, Parent = state.folder,
+		})
+		emitter(ring, {
+			Texture = TEX_SPARK, Rate = 12, Lifetime = NumberRange.new(0.8, 1.4), Speed = NumberRange.new(3, 6),
+			EmissionDirection = Enum.NormalId.Right, SpreadAngle = Vector2.new(10, 10), LightEmission = 1,
+			Size = NumberSequence.new({ kp(0, 0.5), kp(1, 0) }), Color = ColorSequence.new(ADMIN_GOLD, ADMIN_RED),
+			Shape = Enum.ParticleEmitterShape.Cylinder,
+		})
+		local crown
+		if head then
+			crown = Instance.new("BillboardGui")
+			crown.Size = UDim2.fromScale(2.4, 2.4)
+			crown.StudsOffset = Vector3.new(0, 2.6, 0)
+			crown.LightInfluence = 0
+			crown.MaxDistance = 120
+			crown.Adornee = head
+			crown.Parent = player:WaitForChild("PlayerGui")
+			local c = crown
+			onCleanup(function()
+				c:Destroy()
+			end)
+			local t = Instance.new("TextLabel")
+			t.BackgroundTransparency = 1
+			t.Size = UDim2.fromScale(1, 1)
+			t.TextScaled = true
+			t.Text = "👑"
+			t.Parent = crown
+		end
+		local t0 = os.clock()
+		step(function()
+			if not root.Parent then
+				return
+			end
+			local t = os.clock() - t0
+			local base = root.Position - Vector3.new(0, 2.9, 0)
+			ring.CFrame = CFrame.new(base) * CFrame.Angles(0, t * 2, math.rad(90))
+			inner.CFrame = CFrame.new(base + Vector3.new(0, 0.02, 0)) * CFrame.Angles(0, -t * 3, math.rad(90))
+			local p = 1 + math.sin(t * 4) * 0.08
+			ring.Size = Vector3.new(0.15, 7 * p, 7 * p)
+			if crown then
+				crown.StudsOffset = Vector3.new(0, 2.6 + math.sin(t * 3) * 0.25, 0)
+			end
+		end)
+	end
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p.Character then
+			build(p.Character)
+		end
+	end
+	local my = state
+	loop(2, function()
+		if state ~= my then
+			return
+		end
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p.Character then
+				build(p.Character)
+			end
+		end
+	end)
+end
+
+-- "ADMIN ABUSE" geant qui flotte dans le ciel.
+local function skyText()
+	local holder = newPart({ Size = Vector3.one, Transparency = 1, Parent = state.folder })
+	local bb = Instance.new("BillboardGui")
+	bb.Size = UDim2.fromScale(90, 18)
+	bb.LightInfluence = 0
+	bb.MaxDistance = 2000
+	bb.Parent = holder
+	local t = Instance.new("TextLabel")
+	t.BackgroundTransparency = 1
+	t.Size = UDim2.fromScale(1, 1)
+	t.FontFace = Font.new("rbxasset://fonts/families/LuckiestGuy.json")
+	t.Text = "ADMIN ABUSE"
+	t.TextScaled = true
+	t.TextColor3 = Color3.new(1, 1, 1)
+	t.TextTransparency = 0.15
+	t.Parent = bb
+	local g = Instance.new("UIGradient")
+	g.Rotation = 90
+	g.Color = ColorSequence.new(ADMIN_GOLD, ADMIN_RED)
+	g.Parent = t
+	local st = Instance.new("UIStroke")
+	st.Thickness = 6
+	st.Color = Color3.fromRGB(40, 0, 6)
+	st.Parent = t
+	local t0 = os.clock()
+	step(function()
+		local f = focus()
+		local tt = os.clock() - t0
+		holder.CFrame = CFrame.new(f + Vector3.new(0, PORTAL_Y - 25 + math.sin(tt) * 3, 0))
+		g.Offset = Vector2.new(0, math.sin(tt * 2) * 0.3)
+	end)
+end
+
+-- Battement grave + petit "pouls" de camera.
+local function heartbeat()
+	playSound("AdminHeart", nil, 0.45)
+	task.delay(0.22, function()
+		if state and state.key == "Admin" then
+			playSound("AdminHeart", nil, 0.4)
+		end
+	end)
+	local cam = workspace.CurrentCamera
+	if cam then
+		local fov = cam.FieldOfView
+		cam.FieldOfView = fov + 2.5
+		TweenService:Create(cam, TweenInfo.new(0.35, Enum.EasingStyle.Quad), { FieldOfView = fov }):Play()
+	end
+	local cc = getCC()
+	local tint = cc.TintColor
+	cc.TintColor = Color3.fromRGB(255, 200, 200)
+	TweenService:Create(cc, TweenInfo.new(0.4), { TintColor = tint }):Play()
+end
+
 -- Intro plein ecran : flash rouge, titre qui s'ecrase, bandes de glitch.
 local function adminIntro(sg)
 	local flash = Instance.new("Frame")
@@ -1378,6 +1588,13 @@ local function adminIntro(sg)
 	task.delay(0.33, function()
 		shake = math.max(shake, 2.2)
 		playSound("AdminBoom", nil, 0.8)
+		playSound("AdminThud", nil, 0.5)
+	end)
+	task.spawn(function()
+		for i = 1, 8 do
+			playSound("AdminAlarm", nil, i % 2 == 0 and 0.55 or 0.75)
+			task.wait(0.28)
+		end
 	end)
 	task.delay(2.2, function()
 		TweenService:Create(sc, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Scale = 0.3 }):Play()
@@ -1395,7 +1612,6 @@ local function adminIntro(sg)
 end
 
 -- Portail geant (anneau rouge et or) qui tourne dans le ciel au-dessus du joueur.
-local PORTAL_Y = 120
 local function adminPortal()
 	local ring = Instance.new("Model")
 	ring.Name = "AdminPortal"
@@ -1460,6 +1676,7 @@ local function adminLaser()
 
 	local warn = groundRing(ground, ADMIN_RED, 14, 0.9, 0.2)
 	warn.Transparency = 0.4
+	soundAt("AdminCharge", ground, 0.45)
 	task.wait(0.55)
 	if not state then
 		return
@@ -1511,6 +1728,8 @@ local function adminLaser()
 	Debris:AddItem(holder, 3)
 	soundAt("AdminBoom", ground, rand(0.9, 1.15))
 	soundAt("AdminZap", ground, rand(0.7, 0.9))
+	soundAt("AdminShot", ground, rand(0.6, 0.8))
+	nearbyHit(ground, 45)
 	local cam = workspace.CurrentCamera
 	local d = cam and (cam.CFrame.Position - ground).Magnitude or 999
 	if d < 110 then
@@ -1566,6 +1785,7 @@ local function banHammer()
 		end
 	end
 	soundAt("MeteorWhoosh", ground + Vector3.new(0, 60, 0), 0.7)
+	soundAt("AdminWhoosh", ground + Vector3.new(0, 40, 0), 0.6)
 	local value = Instance.new("NumberValue")
 	value.Changed:Connect(function(v)
 		local cf = base * CFrame.new(0, fall * (1 - v), 0) * CFrame.Angles(math.rad(-80 * (1 - v) + 90 * v), 0, 0)
@@ -1589,6 +1809,8 @@ local function banHammer()
 	end
 	soundAt("AdminBoom", impactPos, 0.7)
 	soundAt("MeteorImpact", impactPos, 0.8)
+	soundAt("AdminThud", impactPos, 0.45)
+	nearbyHit(impactPos, 70)
 	label.Text = "BANNED!"
 	label.TextColor3 = ADMIN_RED
 	local cam = workspace.CurrentCamera
@@ -1620,7 +1842,13 @@ builders.Admin = function()
 	ambient("AdminAmbient")
 	shake = 1.5
 	local sg = screenGui("WeatherAdmin", 5)
+	adminSg = sg
+	onCleanup(function()
+		adminSg = nil
+	end)
 	adminIntro(sg)
+	playerAuras()
+	skyText()
 	task.delay(1.2, function()
 		if state and state.key == "Admin" then
 			adminBanner(sg)
@@ -1661,6 +1889,7 @@ builders.Admin = function()
 		loop(function()
 			return rand(9, 15)
 		end, banHammer)
+		loop(1.8, heartbeat)
 	end)
 end
 
