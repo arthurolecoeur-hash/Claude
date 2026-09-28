@@ -25,6 +25,7 @@ local PlayerProfileService = require(ServerScriptService.PlayerProfileService)
 local PurchaseRouter = require(ServerScriptService.Purchases.PurchaseRouter)
 local IndexState = require(ServerScriptService.Index.IndexState)
 local BaseSkinShared = require(ReplicatedStorage:WaitForChild("BaseSkinShared"))
+local AdminGrants = require(ServerScriptService:WaitForChild("Admin"):WaitForChild("AdminGrants"))
 
 local WAIT_TIMEOUT = 20
 
@@ -189,12 +190,16 @@ local function grantSkin(player: Player, key: string): boolean
 end
 
 for _, s in ipairs(BaseSkinShared.SKINS) do
-	if s.productId and s.productId ~= 0 then
+	if not s.noBuy and s.productId and s.productId ~= 0 then
 		PurchaseRouter.Register(s.productId, function(player)
 			return grantSkin(player, s.key)
 		end)
 	end
 end
+
+AdminGrants.Register("BaseSkin", function(player: Player, key: any)
+	return type(key) == "string" and grantSkin(player, key)
+end)
 
 -- Studio uniquement : produit pas encore cree -> accorde gratuitement pour tester.
 studioBuyEvent.OnServerEvent:Connect(function(player: Player, key)
@@ -202,7 +207,7 @@ studioBuyEvent.OnServerEvent:Connect(function(player: Player, key)
 		return
 	end
 	local s = BaseSkinShared.Get(key)
-	if s and (s.productId or 0) == 0 then
+	if s and not s.noBuy and (s.productId or 0) == 0 then
 		grantSkin(player, key)
 	end
 end)

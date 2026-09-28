@@ -18,6 +18,7 @@ BaseSkinShared.REQUIRED_RATIO = 0.5
 -- mult = multiplicateur de cash de la base equipee (sur tous les generateurs).
 -- productId = Developer Product Robux (0 = pas encore cree : gratuit dans Studio).
 -- price = prix affiche tant que productId vaut 0.
+-- noBuy = pas de bouton d'achat (don admin uniquement).
 BaseSkinShared.SKINS = {
 	{ key = "Normal",  name = "Normal Base",  color = Color3.fromRGB(175, 180, 195), mult = 1 },
 	{ key = "Gold",    name = "Gold Base",    color = Color3.fromRGB(255, 196, 0),   mult = 1.25, productId = 3714893692, price = 199 },
@@ -27,7 +28,8 @@ BaseSkinShared.SKINS = {
 	{ key = "Galaxy",  name = "Galaxy Base",  color = Color3.fromRGB(140, 70, 255),  mult = 3.5,  productId = 3714893500, price = 799 },
 	{ key = "Hacker",  name = "Hacker Base",  color = Color3.fromRGB(0, 220, 80),    mult = 4,    productId = 3714893456, price = 899 },
 	{ key = "Rainbow", name = "Rainbow Base", color = Color3.fromRGB(255, 255, 255), mult = 5,    productId = 3714893413, price = 1399 },
-	{ key = "Admin",   name = "Admin Base",   color = Color3.fromRGB(255, 30, 45),   mult = 7,    productId = 0,          price = 1999 },
+	-- noBuy : impossible a acheter, seulement donnee par un admin (panneau admin > GIVE).
+	{ key = "Admin",   name = "Admin Base",   color = Color3.fromRGB(255, 30, 45),   mult = 7,    noBuy = true },
 }
 
 --== Rendu de chaque skin (partage : serveur = vraie base, client = apercu UI) ==--

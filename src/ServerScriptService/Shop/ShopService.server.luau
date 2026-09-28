@@ -43,6 +43,7 @@ local InventoryShared = require(ReplicatedStorage.Inventory.InventoryShared)
 local NumberFormat = require(ReplicatedStorage.NumberFormat)
 local TraitShared = require(ReplicatedStorage.Traits.TraitShared)
 local StockService = require(ServerScriptService.Shop.StockService)
+local AdminGrants = require(ServerScriptService:WaitForChild("Admin"):WaitForChild("AdminGrants"))
 local MarketplaceService = game:GetService("MarketplaceService")
 
 local shopEvent = ReplicatedStorage.Shop.ShopEvent
@@ -554,7 +555,7 @@ local function grantLuckyPack(player: Player, amount: number): boolean
 	return true
 end
 
-local function grantDirect(player: Player, direct): boolean
+local function grantDirect(player: Player, direct, free: boolean?): boolean
 	if not waitLoaded(player) or not waitAlive(player, 30) then
 		return false
 	end
@@ -562,7 +563,9 @@ local function grantDirect(player: Player, direct): boolean
 	if not result then
 		return false
 	end
-	StockService.Consume(direct.key)
+	if not free then
+		StockService.Consume(direct.key)
+	end
 	shopEvent:FireClient(player, "DirectGranted", result)
 	result.cf = getGroundCFrame(player, 0, 9)
 	if result.cf then
@@ -575,6 +578,16 @@ local function grantDirect(player: Player, direct): boolean
 	task.spawn(PlayerProfileService.Save, player)
 	return true
 end
+
+-- Dons du panneau admin (ne touchent pas au stock global).
+AdminGrants.Register("Lucky", function(player: Player, amount: any)
+	local n = math.clamp(math.floor(tonumber(amount) or 0), 1, 100)
+	return grantLuckyPack(player, n)
+end)
+AdminGrants.Register("Direct", function(player: Player, key: any)
+	local direct = ShopConfig.GetDirect(tostring(key))
+	return direct ~= nil and grantDirect(player, direct, true)
+end)
 
 for _, pack in ipairs(LUCKY.packs) do
 	PurchaseRouter.Register(pack.id, function(player)

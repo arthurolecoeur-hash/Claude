@@ -435,7 +435,10 @@ for i, skin in ipairs(BaseSkinShared.SKINS) do
 	local statusText = text(statusBtn, "Locked", UDim2.new(1, -20, 1, -18), UDim2.fromOffset(10, 9), WHITE, 3)
 
 	local robuxBtn, priceText
-	if skin.key ~= "Normal" then
+	if skin.noBuy then
+		local only = text(card, "👑 ADMIN ONLY", UDim2.fromOffset(200, 40), UDim2.new(1, -222, 0, 132), Color3.fromRGB(255, 70, 80), 3)
+		only.Name = "AdminOnly"
+	elseif skin.key ~= "Normal" then
 		robuxBtn = button(card, "RobuxButton", UDim2.fromOffset(200, 70), UDim2.new(1, -222, 0, 118), ROBUX_COL)
 		gradient(robuxBtn, ColorSequence.new(Color3.fromRGB(215, 120, 255), Color3.fromRGB(140, 20, 230)))
 		priceText = text(robuxBtn, "", UDim2.new(1, -20, 1, -18), UDim2.fromOffset(10, 9), WHITE, 3)

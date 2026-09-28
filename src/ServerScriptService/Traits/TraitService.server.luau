@@ -31,6 +31,7 @@ local GeneratorLevelShared = require(ServerScriptService.Generators.GeneratorLev
 local PickupService = require(ServerScriptService.Generators.PickupService)
 local PlayerProfileService = require(ServerScriptService.PlayerProfileService)
 local PurchaseRouter = require(ServerScriptService.Purchases.PurchaseRouter)
+local AdminGrants = require(ServerScriptService:WaitForChild("Admin"):WaitForChild("AdminGrants"))
 
 local remote = ReplicatedStorage.Traits.TraitRemote
 local event = ReplicatedStorage.Traits.TraitEvent
@@ -155,6 +156,14 @@ local function grantLuck(player: Player, rolls: number): boolean
 	event:FireClient(player, "LuckGranted", { rolls = rolls, total = luck[player] })
 	return true
 end
+
+AdminGrants.Register("TraitLuck", function(player: Player, rolls: any)
+	local t0 = os.clock()
+	while not loaded[player] and player.Parent and os.clock() - t0 < 30 do
+		task.wait(0.2)
+	end
+	return grantLuck(player, math.clamp(math.floor(tonumber(rolls) or 0), 1, 1000))
+end)
 
 for _, p in ipairs(TraitShared.LUCK_PRODUCTS) do
 	PurchaseRouter.Register(p.id, function(player)

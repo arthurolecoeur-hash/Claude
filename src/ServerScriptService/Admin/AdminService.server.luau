@@ -6,6 +6,9 @@
 	  - arreter la meteo
 	  - annonce globale (filtree) sur l'ecran de tout le serveur
 	  - restock des achats directs (stock global)
+	  - GIVE : donner a un joueur (ou a tout le serveur) une base, un game
+	    pass, des lucky blocks, un brainrot du shop, des lucky rolls ou du cash
+	    (voir AdminGrants : chaque service enregistre ce qu'il sait donner)
 
 	Qui est admin : ReplicatedStorage.Admin.AdminConfig.
 ]]
@@ -19,6 +22,12 @@ local AdminConfig = require(ReplicatedStorage.Admin.AdminConfig)
 local WeatherShared = require(ReplicatedStorage.WeatherShared)
 local ShopConfig = require(ReplicatedStorage.Shop.ShopConfig)
 local StockService = require(ServerScriptService.Shop.StockService)
+local ShopPerks = require(ServerScriptService.Shop.ShopPerks)
+local MoneyService = require(ServerScriptService.Money.MoneyService)
+local AdminGrants = require(ServerScriptService.Admin.AdminGrants)
+local BaseSkinShared = require(ReplicatedStorage.BaseSkinShared)
+local TraitShared = require(ReplicatedStorage.Traits.TraitShared)
+local NumberFormat = require(ReplicatedStorage.NumberFormat)
 
 local remote = ReplicatedStorage.Admin.AdminRemote
 local event = ReplicatedStorage.Admin.AdminEvent
@@ -80,6 +89,82 @@ actions.Restock = function(player: Player, key: any)
 	end
 	StockService.Restock(d.key)
 	announce(player, ("%s is back in stock! (%d LEFT)"):format(d.name, d.stock), Color3.fromRGB(255, 215, 60))
+	return true
+end
+
+AdminGrants.Register("Pass", function(target: Player, key: any)
+	return ShopPerks.Gift(target, tostring(key))
+end)
+AdminGrants.Register("Money", function(target: Player, amount: any)
+	local n = math.floor(tonumber(amount) or 0)
+	return n > 0 and MoneyService.AddMoney(target, n)
+end)
+
+local GIVE_LIMITS = { Lucky = 100, TraitLuck = 1000, Money = 1e30 }
+
+-- Texte lisible du don (annonce au joueur qui le recoit).
+local function describeGift(kind: string, arg: any): string?
+	if kind == "BaseSkin" then
+		local s = BaseSkinShared.Get(tostring(arg))
+		return s and s.name
+	elseif kind == "Pass" then
+		local p = ShopConfig.GetPass(tostring(arg))
+		return p and (p.title .. " Game Pass")
+	elseif kind == "Lucky" then
+		local n = tonumber(arg)
+		return n and ("%d %s"):format(n, ShopConfig.LUCKY_BLOCK.name .. (n > 1 and "s" or ""))
+	elseif kind == "Direct" then
+		local d = ShopConfig.GetDirect(tostring(arg))
+		return d and d.name
+	elseif kind == "TraitLuck" then
+		local n = tonumber(arg)
+		return n and ("%d %dx Lucky Roll%s"):format(n, TraitShared.LUCK_MULT, n > 1 and "s" or "")
+	elseif kind == "Money" then
+		local n = tonumber(arg)
+		return n and ("$" .. NumberFormat.Format(n))
+	end
+	return nil
+end
+
+local function resolveTargets(who: any): { Player }
+	if who == "ALL" then
+		return Players:GetPlayers()
+	end
+	local target = Players:GetPlayerByUserId(tonumber(who) or 0)
+	return target and { target } or {}
+end
+
+actions.Give = function(player: Player, who: any, data: any)
+	if type(data) ~= "table" or type(data.kind) ~= "string" then
+		return false
+	end
+	local kind, arg = data.kind, data.arg
+	local limit = GIVE_LIMITS[kind]
+	if limit then
+		arg = tonumber(arg)
+		if not arg or arg < 1 or arg > limit then
+			return false
+		end
+		arg = math.floor(arg)
+	end
+	local label = describeGift(kind, arg)
+	if not label or not AdminGrants.Has(kind) then
+		return false
+	end
+	local targets = resolveTargets(who)
+	if #targets == 0 then
+		return false
+	end
+	for _, target in ipairs(targets) do
+		task.spawn(function()
+			if AdminGrants.Grant(kind, target, arg) then
+				event:FireClient(target, "Gift", { text = label, from = player.DisplayName, kind = kind })
+			end
+		end)
+	end
+	if who == "ALL" then
+		announce(player, ("%s gave everyone %s!"):format(player.DisplayName, label), Color3.fromRGB(255, 215, 60))
+	end
 	return true
 end
 

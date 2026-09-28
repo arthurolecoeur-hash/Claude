@@ -3,16 +3,31 @@
   "tree": {
     "$className": "DataModel",
     "ReplicatedStorage": {
+      "BaseSkinShared": {
+        "$path": "src/ReplicatedStorage/BaseSkinShared.luau"
+      },
+      "Traits": {
+        "$className": "Folder",
+        "TraitShared": {
+          "$path": "src/ReplicatedStorage/Traits/TraitShared.luau"
+        }
+      },
+      "UIKit": {
+        "$path": "src/ReplicatedStorage/UIKit.luau"
+      },
       "Shared": {
         "$path": "src/shared"
       }
     },
     "ServerScriptService": {
-      "Server": {
-        "$path": "src/server"
-      },
-      "PlayerProfileService": {
-        "$path": "src/ServerScriptService/PlayerProfileService.luau"
+      "Admin": {
+        "$className": "Folder",
+        "AdminGrants": {
+          "$path": "src/ServerScriptService/Admin/AdminGrants.luau"
+        },
+        "AdminService": {
+          "$path": "src/ServerScriptService/Admin/AdminService.server.luau"
+        }
       },
       "Base": {
         "$className": "Folder",
@@ -21,12 +36,15 @@
         },
         "BaseLevelService": {
           "$path": "src/ServerScriptService/Base/BaseLevelService.server.luau"
+        },
+        "BaseSkinService": {
+          "$path": "src/ServerScriptService/Base/BaseSkinService.server.luau"
         }
       },
-      "Money": {
+      "Brainrots": {
         "$className": "Folder",
-        "MoneyService": {
-          "$path": "src/ServerScriptService/Money/MoneyService.luau"
+        "MutationLabel": {
+          "$path": "src/ServerScriptService/Brainrots/MutationLabel.luau"
         }
       },
       "Generators": {
@@ -38,10 +56,37 @@
           "$path": "src/ServerScriptService/Generators/PickupService.luau"
         }
       },
+      "Money": {
+        "$className": "Folder",
+        "MoneyService": {
+          "$path": "src/ServerScriptService/Money/MoneyService.luau"
+        }
+      },
+      "PlayerProfileService": {
+        "$path": "src/ServerScriptService/PlayerProfileService.luau"
+      },
       "Purchases": {
         "$className": "Folder",
         "PurchaseRouter": {
           "$path": "src/ServerScriptService/Purchases/PurchaseRouter.luau"
+        }
+      },
+      "Shop": {
+        "$className": "Folder",
+        "ShopPerks": {
+          "$path": "src/ServerScriptService/Shop/ShopPerks.luau"
+        },
+        "ShopService": {
+          "$path": "src/ServerScriptService/Shop/ShopService.server.luau"
+        }
+      },
+      "SpinWheel": {
+        "$className": "Folder",
+        "SpinHandler": {
+          "$path": "src/ServerScriptService/SpinWheel/SpinHandler.server.luau"
+        },
+        "SpinService": {
+          "$path": "src/ServerScriptService/SpinWheel/SpinService.luau"
         }
       },
       "Training": {
@@ -53,21 +98,14 @@
           "$path": "src/ServerScriptService/Training/SpeedService.luau"
         }
       },
-      "SpinWheel": {
+      "Traits": {
         "$className": "Folder",
-        "SpinHandler": {
-          "$path": "src/ServerScriptService/SpinWheel/SpinHandler.server.luau"
-        },
-        "SpinService": {
-          "$path": "src/ServerScriptService/SpinWheel/SpinService.luau"
+        "TraitService": {
+          "$path": "src/ServerScriptService/Traits/TraitService.server.luau"
         }
-      }
-    },
-    "StarterPlayer": {
-      "StarterPlayerScripts": {
-        "Client": {
-          "$path": "src/client"
-        }
+      },
+      "Server": {
+        "$path": "src/server"
       }
     },
     "ServerStorage": {
@@ -79,6 +117,61 @@
       },
       "SteamBuild_Generateurs": {
         "$path": "src/ServerStorage/SteamBuild_Generateurs"
+      }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "Admin": {
+          "$className": "Folder",
+          "AdminPanelClient": {
+            "$path": "src/StarterPlayerScripts/Admin/AdminPanelClient.client.luau"
+          }
+        },
+        "Base": {
+          "$className": "Folder",
+          "BaseShopGuiClient": {
+            "$path": "src/StarterPlayerScripts/Base/BaseShopGuiClient.client.luau"
+          }
+        },
+        "Brainrots": {
+          "$className": "Folder",
+          "BrainrotSpawnFxClient": {
+            "$path": "src/StarterPlayerScripts/Brainrots/BrainrotSpawnFxClient.client.luau"
+          }
+        },
+        "Index": {
+          "$className": "Folder",
+          "IndexUIClient": {
+            "$path": "src/StarterPlayerScripts/Index/IndexUIClient.client.luau"
+          }
+        },
+        "Inventory": {
+          "$className": "Folder",
+          "BackpackClient": {
+            "$path": "src/StarterPlayerScripts/Inventory/BackpackClient.client.luau"
+          }
+        },
+        "Shop": {
+          "$className": "Folder",
+          "ShopPodiumsClient": {
+            "$path": "src/StarterPlayerScripts/Shop/ShopPodiumsClient.client.luau"
+          }
+        },
+        "Traits": {
+          "$className": "Folder",
+          "TraitMachineClient": {
+            "$path": "src/StarterPlayerScripts/Traits/TraitMachineClient.client.luau"
+          }
+        },
+        "Weather": {
+          "$className": "Folder",
+          "WeatherFX": {
+            "$path": "src/StarterPlayerScripts/Weather/WeatherFX.luau"
+          }
+        },
+        "Client": {
+          "$path": "src/client"
+        }
       }
     }
   }
