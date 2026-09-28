@@ -171,6 +171,11 @@ function ShopPerks.GetStrengthMultiplier(player: Player): number
 	if ShopPerks.Owns(player, "Strength2x") then
 		m *= ShopConfig.STRENGTH2X_MULT
 	end
+	-- Skin old Roblox (MasteryService) : x1.5 -> x20.
+	local skin = tonumber(player:GetAttribute("SkinPower"))
+	if skin and skin > 1 then
+		m *= skin
+	end
 	return m
 end
 

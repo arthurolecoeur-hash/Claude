@@ -6,6 +6,12 @@
       "BaseSkinShared": {
         "$path": "src/ReplicatedStorage/BaseSkinShared.luau"
       },
+      "Mastery": {
+        "$className": "Folder",
+        "MasteryShared": {
+          "$path": "src/ReplicatedStorage/Mastery/MasteryShared.luau"
+        }
+      },
       "Traits": {
         "$className": "Folder",
         "TraitShared": {
@@ -63,6 +69,12 @@
         "$className": "Folder",
         "LeaderboardService": {
           "$path": "src/ServerScriptService/Leaderboards/LeaderboardService.server.luau"
+        }
+      },
+      "Mastery": {
+        "$className": "Folder",
+        "MasteryService": {
+          "$path": "src/ServerScriptService/Mastery/MasteryService.server.luau"
         }
       },
       "Money": {
@@ -151,6 +163,12 @@
             "$path": "src/StarterPlayerScripts/Brainrots/BrainrotSpawnFxClient.client.luau"
           }
         },
+        "Hud": {
+          "$className": "Folder",
+          "StatsHudClient": {
+            "$path": "src/StarterPlayerScripts/Hud/StatsHudClient.client.luau"
+          }
+        },
         "Index": {
           "$className": "Folder",
           "IndexUIClient": {
@@ -161,6 +179,12 @@
           "$className": "Folder",
           "BackpackClient": {
             "$path": "src/StarterPlayerScripts/Inventory/BackpackClient.client.luau"
+          }
+        },
+        "Mastery": {
+          "$className": "Folder",
+          "SkinShopClient": {
+            "$path": "src/StarterPlayerScripts/Mastery/SkinShopClient.client.luau"
           }
         },
         "Platform": {

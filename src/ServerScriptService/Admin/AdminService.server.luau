@@ -100,7 +100,7 @@ AdminGrants.Register("Money", function(target: Player, amount: any)
 	return n > 0 and MoneyService.AddMoney(target, n)
 end)
 
-local GIVE_LIMITS = { Lucky = 100, TraitLuck = 1000, Money = 1e30 }
+local GIVE_LIMITS = { Lucky = 100, TraitLuck = 1000, Money = 1e30, Mastery = 1e9 }
 
 -- Texte lisible du don (annonce au joueur qui le recoit).
 local function describeGift(kind: string, arg: any): string?
@@ -119,6 +119,9 @@ local function describeGift(kind: string, arg: any): string?
 	elseif kind == "TraitLuck" then
 		local n = tonumber(arg)
 		return n and ("%d %dx Lucky Roll%s"):format(n, TraitShared.LUCK_MULT, n > 1 and "s" or "")
+	elseif kind == "Mastery" then
+		local n = tonumber(arg)
+		return n and ("%s ⭐ Mastery"):format(NumberFormat.Format(n))
 	elseif kind == "Money" then
 		local n = tonumber(arg)
 		return n and ("$" .. NumberFormat.Format(n))

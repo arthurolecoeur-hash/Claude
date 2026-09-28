@@ -633,7 +633,7 @@ local function buildGivePage(page: Frame)
 	cats.ZIndex = 5
 	cats.Parent = page
 	local cl = Instance.new("UIGridLayout")
-	cl.CellSize = UDim2.new(1 / 6, -7, 1, 0)
+	cl.CellSize = UDim2.new(1 / 7, -7, 1, 0)
 	cl.CellPadding = UDim2.fromOffset(8, 0)
 	cl.SortOrder = Enum.SortOrder.LayoutOrder
 	cl.Parent = cats
@@ -653,6 +653,7 @@ local function buildGivePage(page: Frame)
 		{ key = "Direct", label = "🧠 SHOP", color = Color3.fromRGB(40, 220, 110) },
 		{ key = "TraitLuck", label = "🍀 ROLLS", color = Color3.fromRGB(90, 230, 70) },
 		{ key = "Money", label = "💵 CASH", color = Color3.fromRGB(70, 170, 255) },
+		{ key = "Mastery", label = "⭐ MASTERY", color = Color3.fromRGB(170, 90, 255) },
 	}
 	local catButtons = {}
 
@@ -679,6 +680,10 @@ local function buildGivePage(page: Frame)
 		elseif key == "TraitLuck" then
 			for _, n in ipairs({ 1, 5, 10, 25, 100, 500 }) do
 				table.insert(out, { arg = n, label = ("x%d"):format(n), sub = ("%dx LUCK ROLL%s"):format(TraitShared.LUCK_MULT, n > 1 and "S" or ""), color = Color3.fromRGB(70, 200, 70) })
+			end
+		elseif key == "Mastery" then
+			for _, n in ipairs({ 10, 50, 100, 500, 1000, 10000 }) do
+				table.insert(out, { arg = n, label = "⭐ " .. NumberFormat.Format(n), sub = "MASTERY", color = Color3.fromRGB(150, 70, 240) })
 			end
 		elseif key == "Money" then
 			for _, n in ipairs({ 1e3, 1e6, 1e9, 1e12, 1e15, 1e18 }) do
@@ -741,7 +746,7 @@ local function buildGivePage(page: Frame)
 			end)
 			UI.pop(b, (order - 1) * 0.03, 0.6)
 		end
-		customRow.Visible = category == "Lucky" or category == "TraitLuck" or category == "Money"
+		customRow.Visible = category == "Lucky" or category == "TraitLuck" or category == "Money" or category == "Mastery"
 		items.Size = customRow.Visible and UDim2.new(1, 0, 1, -252) or UDim2.new(1, 0, 1, -194)
 	end
 
