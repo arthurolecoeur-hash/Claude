@@ -777,10 +777,12 @@ local function makeSlot(i: number, tool: Tool?)
 		UI.stroke(plus, 4, Color3.fromRGB(20, 110, 20))
 		UI.gradient(plus, Color3.fromRGB(150, 255, 110), Color3.fromRGB(40, 190, 40))
 		UI.studs(plus, 22, 0.72, 14)
-		local pl = UI.text(plus, "+", 80, WHITE, FONT_TITLE, 4)
-		pl.Size = UDim2.fromScale(1, 1)
-		pl.Position = UDim2.fromOffset(0, 6)
-		pl.ZIndex = 10
+		-- "+" dessine avec 2 barres : parfaitement centre (le "+" de la police ne l'est pas).
+		for _, sz in ipairs({ UDim2.fromOffset(52, 14), UDim2.fromOffset(14, 52) }) do
+			local bar = frame(plus, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = sz, BackgroundColor3 = WHITE, ZIndex = 10 })
+			UI.corner(bar, 4)
+			UI.stroke(bar, 3, Color3.fromRGB(20, 110, 20))
+		end
 		local add = UI.text(empty, "ADD", 24, WHITE, FONT_TITLE, 3)
 		add.AnchorPoint = Vector2.new(0.5, 1)
 		add.Position = UDim2.new(0.5, 0, 1, -14)
