@@ -342,9 +342,9 @@ UI.corner(drawer, 16)
 UI.stroke(drawer, 4, GOLD)
 UI.studs(drawer, 36, 0.9, 16, WHITE)
 local drawerTitle = UI.text(drawer, "CHOOSE BRAINROTS", 34, GOLD, FONT_TITLE, 3)
-drawerTitle.Position = UDim2.fromOffset(18, 12)
-drawerTitle.Size = UDim2.new(0.55, 0, 0, 40)
-drawerTitle.TextXAlignment = Enum.TextXAlignment.Left
+drawerTitle.AnchorPoint = Vector2.new(0.5, 0)
+drawerTitle.Position = UDim2.new(0.5, -60, 0, 12)
+drawerTitle.Size = UDim2.new(0.5, 0, 0, 40)
 local drawerCount = UI.text(drawer, "0/4", 28, WHITE, FONT_TITLE, 3)
 drawerCount.AnchorPoint = Vector2.new(1, 0)
 drawerCount.Position = UDim2.new(1, -170, 0, 16)
@@ -426,7 +426,6 @@ local infoBody = UI.text(info, table.concat({
 infoBody.Position = UDim2.fromOffset(30, 76)
 infoBody.Size = UDim2.new(1, -60, 0, 270)
 infoBody.TextWrapped = true
-infoBody.TextXAlignment = Enum.TextXAlignment.Left
 infoBody.TextYAlignment = Enum.TextYAlignment.Top
 local infoOk = fancyButton(info, "GOT IT!", C.green, 30)
 infoOk.AnchorPoint = Vector2.new(0.5, 1)

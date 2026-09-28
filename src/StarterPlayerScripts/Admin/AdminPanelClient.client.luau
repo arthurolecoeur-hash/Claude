@@ -37,7 +37,7 @@ local RED = Color3.fromRGB(255, 35, 50)
 local DARK = Color3.fromRGB(26, 9, 14)
 local GOLD = Color3.fromRGB(255, 205, 60)
 
-local W, H = 720, 560
+local W, H = 720, 640
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "AdminGui"
@@ -112,11 +112,9 @@ local function showAnnouncement(data)
 	local tag = UI.text(card, "📢 " .. string.upper(tostring(data.from or "ADMIN")), 16, color, UI.FONT_TITLE)
 	tag.Position = UDim2.fromOffset(24, 6)
 	tag.Size = UDim2.new(1, -34, 0, 20)
-	tag.TextXAlignment = Enum.TextXAlignment.Left
 	local msg = UI.text(card, tostring(data.text or ""), 26, WHITE)
 	msg.Position = UDim2.fromOffset(24, 28)
 	msg.Size = UDim2.new(1, -34, 0, 42)
-	msg.TextXAlignment = Enum.TextXAlignment.Left
 	msg.TextWrapped = true
 	UI.shine(card, 1.5, 0.12)
 	local sc = UI.scaleOf(card)
@@ -239,11 +237,22 @@ local function toast(msg: string, color: Color3?)
 	end)
 end
 
+-- Historique local des actions reussies (onglet SERVER).
+local history: { { text: string, at: number } } = {}
+local historyChanged: (() -> ())? = nil
+
 local function feedback(ok: boolean, okMsg: string?, from: GuiObject?)
 	UISounds.Play(ok and "Success" or "BuyFail")
 	if ok then
 		if okMsg then
 			toast(okMsg, C.green)
+			table.insert(history, 1, { text = okMsg, at = os.time() })
+			if #history > 8 then
+				table.remove(history)
+			end
+			if historyChanged then
+				historyChanged()
+			end
 		end
 		if from and panel then
 			local p = from.AbsolutePosition + from.AbsoluteSize / 2 - panel.AbsolutePosition
@@ -312,8 +321,9 @@ end
 
 local function sectionTitle(parent: Instance, str: string, y: number)
 	local pill = Instance.new("Frame")
-	pill.Position = UDim2.fromOffset(0, y)
-	pill.Size = UDim2.fromOffset(240, 22)
+	pill.AnchorPoint = Vector2.new(0.5, 0)
+	pill.Position = UDim2.new(0.5, 0, 0, y)
+	pill.Size = UDim2.fromOffset(280, 24)
 	pill.BackgroundColor3 = WHITE
 	pill.ZIndex = 5
 	pill.Parent = parent
@@ -333,14 +343,34 @@ local function buildWeatherPage(page: Frame)
 	local durButtons = {}
 
 	local status = UI.text(page, "", 20, WHITE, UI.FONT_TITLE)
-	status.Size = UDim2.new(1, 0, 0, 26)
+	status.Size = UDim2.new(1, 0, 0, 22)
+	local barBg = Instance.new("Frame")
+	barBg.AnchorPoint = Vector2.new(0.5, 0)
+	barBg.Position = UDim2.new(0.5, 0, 0, 24)
+	barBg.Size = UDim2.new(0.7, 0, 0, 8)
+	barBg.BackgroundColor3 = Color3.fromRGB(30, 10, 14)
+	barBg.ZIndex = 5
+	barBg.Parent = page
+	UI.round(barBg)
+	local bar = Instance.new("Frame")
+	bar.Size = UDim2.fromScale(0, 1)
+	bar.BackgroundColor3 = WHITE
+	bar.ZIndex = 6
+	bar.Parent = barBg
+	UI.round(bar)
+	local lastTotal = 1
 	local function refreshStatus()
 		local w, left = WeatherShared.GetCurrent()
 		if w then
 			local l = math.floor(left)
+			lastTotal = math.max(lastTotal, l)
 			status.Text = ("NOW: <font color=\"#%s\">%s</font>  •  %d:%02d"):format(w.color:ToHex(), string.upper(w.name), l // 60, l % 60)
+			bar.BackgroundColor3 = w.rainbow and Color3.fromRGB(190, 70, 255) or w.color
+			bar.Size = UDim2.fromScale(math.clamp(l / lastTotal, 0, 1), 1)
 		else
+			lastTotal = 1
 			status.Text = "NOW: <font color=\"#aaaaaa\">NO WEATHER</font>"
+			bar.Size = UDim2.fromScale(0, 1)
 		end
 	end
 	task.spawn(function()
@@ -386,6 +416,7 @@ local function buildWeatherPage(page: Frame)
 		end
 		b.Activated:Connect(function()
 			local ok = remote:InvokeServer("Weather", w.key, selectedDuration)
+			lastTotal = selectedDuration
 			feedback(ok, ok and (w.name:upper() .. " STARTED!") or nil, b)
 			refreshStatus()
 		end)
@@ -398,7 +429,7 @@ local function buildWeatherPage(page: Frame)
 	row.Size = UDim2.new(1, 0, 0, 52)
 	row.ZIndex = 5
 	row.Parent = page
-	UI.list(row, Enum.FillDirection.Horizontal, 10)
+	UI.list(row, Enum.FillDirection.Horizontal, 10, Enum.HorizontalAlignment.Center)
 	local function refreshDur()
 		for d, b in pairs(durButtons) do
 			setButtonColor(b, d == selectedDuration and Color3.fromRGB(255, 185, 40) or Color3.fromRGB(80, 66, 84))
@@ -416,9 +447,24 @@ local function buildWeatherPage(page: Frame)
 	end
 	refreshDur()
 
-	local stop = button(page, "⏹ STOP WEATHER", Color3.fromRGB(95, 95, 110), 24)
-	stop.Position = UDim2.fromOffset(0, 372)
-	stop.Size = UDim2.new(1, 0, 0, 58)
+	local extend = button(page, "⏩ +1 MIN", Color3.fromRGB(40, 170, 90), 24)
+	extend.Position = UDim2.fromOffset(0, 372)
+	extend.Size = UDim2.new(0.5, -6, 0, 58)
+	extend.Activated:Connect(function()
+		local w, left = WeatherShared.GetCurrent()
+		if not w then
+			feedback(false, nil, extend)
+			return
+		end
+		local ok = remote:InvokeServer("Weather", w.key, math.floor(left) + 60)
+		lastTotal = math.floor(left) + 60
+		feedback(ok, ok and (w.name:upper() .. " +1 MIN") or nil, extend)
+		refreshStatus()
+	end)
+	local stop = button(page, "⏹ STOP", Color3.fromRGB(95, 95, 110), 24)
+	stop.AnchorPoint = Vector2.new(1, 0)
+	stop.Position = UDim2.new(1, 0, 0, 372)
+	stop.Size = UDim2.new(0.5, -6, 0, 58)
 	stop.Activated:Connect(function()
 		local ok = remote:InvokeServer("StopWeather")
 		feedback(ok, ok and "WEATHER STOPPED" or nil, stop)
@@ -433,11 +479,26 @@ local function buildGivePage(page: Frame)
 	local targetButtons: { [any]: any } = {}
 
 	sectionTitle(page, "🎯 TARGET", 0)
+	local search = Instance.new("TextBox")
+	search.Position = UDim2.fromOffset(0, 32)
+	search.Size = UDim2.fromOffset(150, 48)
+	search.BackgroundColor3 = Color3.fromRGB(15, 5, 8)
+	search.FontFace = UI.FONT
+	search.TextSize = 18
+	search.TextColor3 = WHITE
+	search.PlaceholderText = "🔍 Search..."
+	search.PlaceholderColor3 = Color3.fromRGB(150, 120, 125)
+	search.Text = ""
+	search.ClearTextOnFocus = false
+	search.ZIndex = 6
+	search.Parent = page
+	UI.corner(search, 10)
+	UI.stroke(search, 3, BLACK)
 	local targets = Instance.new("ScrollingFrame")
 	targets.BackgroundTransparency = 1
 	targets.BorderSizePixel = 0
-	targets.Position = UDim2.fromOffset(0, 24)
-	targets.Size = UDim2.new(1, 0, 0, 62)
+	targets.Position = UDim2.fromOffset(160, 28)
+	targets.Size = UDim2.new(1, -160, 0, 58)
 	targets.ScrollBarThickness = 4
 	targets.ScrollingDirection = Enum.ScrollingDirection.X
 	targets.AutomaticCanvasSize = Enum.AutomaticSize.X
@@ -456,11 +517,53 @@ local function buildGivePage(page: Frame)
 		end
 	end
 
+	local info = UI.text(page, "", 18, WHITE, UI.FONT_TITLE, 2)
+	info.Position = UDim2.fromOffset(0, 88)
+	info.Size = UDim2.new(1, 0, 0, 22)
+
+	local function cashOf(p: Player): string
+		local ls = p:FindFirstChild("leaderstats")
+		local v = ls and ls:FindFirstChild("Cash")
+		if v and v:IsA("ValueBase") then
+			return "$" .. NumberFormat.Format(tonumber((v :: any).Value) or 0)
+		end
+		return "?"
+	end
+
+	local function refreshInfo()
+		if target == "ALL" then
+			info.Text = ("GIVING TO: <font color=\"#FFD23C\">EVERYONE (%d)</font>"):format(#Players:GetPlayers())
+		elseif target == "RANDOM" then
+			info.Text = ("GIVING TO: <font color=\"#FFD23C\">%d RANDOM PLAYER(S)</font>"):format(RANDOM_COUNTS[randomIndex])
+		else
+			local p = Players:GetPlayerByUserId(target)
+			info.Text = p and ("GIVING TO: <font color=\"#FFD23C\">%s</font>  •  %s"):format(p.DisplayName:upper(), cashOf(p)) or ""
+		end
+	end
+	task.spawn(function()
+		while page.Parent do
+			if isOpen then
+				refreshInfo()
+			end
+			task.wait(1)
+		end
+	end)
+
 	local function refreshTargets()
 		for who, b in pairs(targetButtons) do
 			setButtonColor(b, who == target and Color3.fromRGB(255, 185, 40) or Color3.fromRGB(70, 58, 78))
 		end
+		refreshInfo()
 	end
+
+	local function applySearch()
+		local q = search.Text:lower()
+		for _, b in pairs(targetButtons) do
+			local name = b:GetAttribute("SearchName")
+			b.Visible = q == "" or name == nil or string.find(name, q, 1, true) ~= nil
+		end
+	end
+	search:GetPropertyChangedSignal("Text"):Connect(applySearch)
 
 	local function addTarget(who: any, label: string, order: number, userId: number?)
 		local b = button(targets, label, Color3.fromRGB(70, 58, 78), 17)
@@ -484,7 +587,7 @@ local function buildGivePage(page: Frame)
 			end)
 			b.Label.Position = UDim2.fromOffset(50, 3)
 			b.Label.Size = UDim2.new(1, -56, 1, -6)
-			b.Label.TextXAlignment = Enum.TextXAlignment.Left
+			b:SetAttribute("SearchName", label:lower())
 		end
 		targetButtons[who] = b
 		b.Activated:Connect(function()
@@ -514,6 +617,7 @@ local function buildGivePage(page: Frame)
 			target = player.UserId
 		end
 		refreshTargets()
+		applySearch()
 	end
 	Players.PlayerAdded:Connect(rebuildTargets)
 	Players.PlayerRemoving:Connect(function()
@@ -521,10 +625,10 @@ local function buildGivePage(page: Frame)
 	end)
 	rebuildTargets()
 
-	sectionTitle(page, "📦 WHAT", 94)
+	sectionTitle(page, "📦 WHAT", 114)
 	local cats = Instance.new("Frame")
 	cats.BackgroundTransparency = 1
-	cats.Position = UDim2.fromOffset(0, 118)
+	cats.Position = UDim2.fromOffset(0, 142)
 	cats.Size = UDim2.new(1, 0, 0, 44)
 	cats.ZIndex = 5
 	cats.Parent = page
@@ -534,7 +638,7 @@ local function buildGivePage(page: Frame)
 	cl.SortOrder = Enum.SortOrder.LayoutOrder
 	cl.Parent = cats
 
-	local items = scrolling(page, UDim2.fromOffset(0, 172), UDim2.new(1, 0, 1, -172))
+	local items = scrolling(page, UDim2.fromOffset(0, 194), UDim2.new(1, 0, 1, -194))
 	local il = Instance.new("UIGridLayout")
 	il.CellSize = UDim2.new(1 / 3, -8, 0, 86)
 	il.CellPadding = UDim2.fromOffset(12, 12)
@@ -585,7 +689,21 @@ local function buildGivePage(page: Frame)
 	end
 
 	local customBox, customRow
+	-- EVERYONE / RANDOM : deuxieme clic pour confirmer (evite les dons par erreur).
+	local pendingFrom: GuiObject? = nil
+	local pendingAt = 0
 	local function give(arg: any, from: GuiObject?)
+		if (target == "ALL" or target == "RANDOM") and not (pendingFrom == from and os.clock() - pendingAt < 2.5) then
+			pendingFrom = from
+			pendingAt = os.clock()
+			UISounds.Play("Tab")
+			toast("CLICK AGAIN TO CONFIRM", GOLD)
+			if from then
+				UI.shake(from, 4)
+			end
+			return
+		end
+		pendingFrom = nil
 		local sendTo = target == "RANDOM" and ("RANDOM:" .. RANDOM_COUNTS[randomIndex]) or target
 		local ok = remote:InvokeServer("Give", sendTo, { kind = category, arg = arg })
 		local who
@@ -624,7 +742,7 @@ local function buildGivePage(page: Frame)
 			UI.pop(b, (order - 1) * 0.03, 0.6)
 		end
 		customRow.Visible = category == "Lucky" or category == "TraitLuck" or category == "Money"
-		items.Size = customRow.Visible and UDim2.new(1, 0, 1, -230) or UDim2.new(1, 0, 1, -172)
+		items.Size = customRow.Visible and UDim2.new(1, 0, 1, -252) or UDim2.new(1, 0, 1, -194)
 	end
 
 	customRow = Instance.new("Frame")
@@ -644,7 +762,6 @@ local function buildGivePage(page: Frame)
 	customBox.PlaceholderColor3 = Color3.fromRGB(150, 120, 125)
 	customBox.Text = ""
 	customBox.ClearTextOnFocus = false
-	customBox.TextXAlignment = Enum.TextXAlignment.Left
 	customBox.ZIndex = 6
 	customBox.Parent = customRow
 	UI.corner(customBox, 10)
@@ -709,7 +826,6 @@ local function buildServerPage(page: Frame)
 	box.PlaceholderColor3 = Color3.fromRGB(150, 120, 125)
 	box.Text = ""
 	box.ClearTextOnFocus = false
-	box.TextXAlignment = Enum.TextXAlignment.Left
 	box.ZIndex = 6
 	box.Parent = page
 	UI.corner(box, 10)
@@ -738,8 +854,8 @@ local function buildServerPage(page: Frame)
 		end
 	end)
 
-	sectionTitle(page, "📦 SHOP STOCK", 100)
-	local y = 126
+	sectionTitle(page, "📦 SHOP STOCK", 92)
+	local y = 122
 	for _, d in ipairs(ShopConfig.DIRECT_BUYS) do
 		local row = Instance.new("Frame")
 		row.BackgroundColor3 = Color3.fromRGB(15, 5, 8)
@@ -751,12 +867,11 @@ local function buildServerPage(page: Frame)
 		UI.corner(row, 12)
 		UI.stroke(row, 2, d.color)
 		local name = UI.text(row, d.name:upper(), 24, d.color, UI.FONT_TITLE)
-		name.Position = UDim2.fromOffset(14, 0)
-		name.Size = UDim2.new(0.38, 0, 1, 0)
-		name.TextXAlignment = Enum.TextXAlignment.Left
+		name.Position = UDim2.fromOffset(8, 0)
+		name.Size = UDim2.new(0.36, -8, 1, 0)
 		local left = UI.text(row, "", 22, GOLD, UI.FONT_TITLE)
-		left.Position = UDim2.new(0.38, 0, 0, 0)
-		left.Size = UDim2.new(0.32, 0, 1, 0)
+		left.Position = UDim2.new(0.36, 0, 0, 0)
+		left.Size = UDim2.new(0.64, -170, 1, 0)
 		local function refresh()
 			local v = ShopConfig.GetStockLeft(d.key)
 			left.Text = v and ("%d / %d LEFT"):format(v, d.stock) or "..."
@@ -774,7 +889,38 @@ local function buildServerPage(page: Frame)
 		y += 72
 	end
 
-	local hint = UI.text(page, "Chat: /admin  /abuse [sec]  /stopweather  /announce msg  /restock name", 15, Color3.fromRGB(200, 160, 165))
+	sectionTitle(page, "🕘 RECENT ACTIONS", y + 4)
+	local log = Instance.new("Frame")
+	log.BackgroundColor3 = Color3.fromRGB(15, 5, 8)
+	log.BackgroundTransparency = 0.3
+	log.Position = UDim2.fromOffset(0, y + 34)
+	log.Size = UDim2.new(1, 0, 1, -(y + 58))
+	log.ZIndex = 5
+	log.Parent = page
+	UI.corner(log, 12)
+	UI.padding(log, 8)
+	UI.list(log, Enum.FillDirection.Vertical, 4, Enum.HorizontalAlignment.Center)
+	local function renderHistory()
+		for _, c in ipairs(log:GetChildren()) do
+			if c:IsA("TextLabel") then
+				c:Destroy()
+			end
+		end
+		if #history == 0 then
+			local l = UI.text(log, "Nothing yet", 16, Color3.fromRGB(170, 140, 145))
+			l.Size = UDim2.new(1, 0, 0, 20)
+		end
+		for i, h in ipairs(history) do
+			local l = UI.text(log, ("%s  <font color=\"#aa8c91\">%s</font>"):format(h.text, os.date("%H:%M", h.at)), 16, i == 1 and WHITE or Color3.fromRGB(215, 200, 205))
+			l.LayoutOrder = i
+			l.Size = UDim2.new(1, 0, 0, 20)
+			l.ZIndex = 6
+		end
+	end
+	historyChanged = renderHistory
+	renderHistory()
+
+	local hint = UI.text(page, "F2 = open/close  •  Chat: /admin  /abuse [sec]  /stopweather  /announce msg  /restock name", 15, Color3.fromRGB(200, 160, 165))
 	hint.AnchorPoint = Vector2.new(0, 1)
 	hint.Position = UDim2.new(0, 0, 1, 0)
 	hint.Size = UDim2.new(1, 0, 0, 18)
@@ -810,6 +956,9 @@ local function buildPanel()
 	UI.studs(panel, 40, 0.9, 18, WHITE)
 	panelScale = Instance.new("UIScale")
 	panelScale.Parent = panel
+	-- On peut deplacer le panneau en le tirant (souris / doigt).
+	local drag = Instance.new("UIDragDetector")
+	drag.Parent = panel
 
 	local header = Instance.new("Frame")
 	header.Size = UDim2.new(1, 0, 0, 70)
@@ -946,6 +1095,15 @@ local function buildPanel()
 		end
 	end)
 end
+
+-- F2 : ouvrir / fermer le panneau.
+game:GetService("UserInputService").InputBegan:Connect(function(input, processed)
+	if processed or input.KeyCode ~= Enum.KeyCode.F2 or player:GetAttribute("IsAdmin") ~= true then
+		return
+	end
+	buildPanel()
+	setOpen(not isOpen)
+end)
 
 local function checkAdmin()
 	if player:GetAttribute("IsAdmin") == true then
