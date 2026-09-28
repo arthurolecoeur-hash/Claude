@@ -1,0 +1,804 @@
+<roblox version="4"><Item class="Folder" referent="RBX2ACEA897B2CB493697BD11FC8465ABF5"><Properties><string name="Name">ShopBuild_Generateurs</string></Properties><Item class="ModuleScript" referent="RBX2A0F63862287457D9D99E13BC380009E"><Properties><string name="Name">AdminMutationBuild</string><ProtectedString name="Source"><![CDATA[--[[
+	AdminMutationBuild
+	------------------
+	Nouveau look de la mutation ADMIN (BrainrotPack.Admin) : avant, la
+	texture etait teintee en gris quasi noir (SurfaceAppearance.Color
+	45,45,50) -> brainrots tout noirs.
+
+	Maintenant :
+	  - texture d'origine teintee rouge rubis (on garde tous les details) ;
+	  - aura de flammes rouges, braises dorees, etincelles, onde d'energie
+	    qui pulse, eclairs dores, lumiere rouge (effets dans l'attachment
+	    AdminFX, a la taille de chaque brainrot).
+
+	Traite Workspace.BrainrotPack.Admin et ServerStorage.BrainrotPack.Admin
+	(les deux si presents). Relancable.
+]]
+
+local ServerStorage = game:GetService("ServerStorage")
+
+local M = {}
+
+M.TINT = Color3.fromRGB(255, 92, 100)
+local RED = Color3.fromRGB(255, 40, 55)
+local GOLD = Color3.fromRGB(255, 205, 70)
+local DEEP = Color3.fromRGB(150, 0, 20)
+
+local function kp(t, v)
+	return NumberSequenceKeypoint.new(t, v)
+end
+
+local function emitter(parent: Instance, name: string, props)
+	local pe = Instance.new("ParticleEmitter")
+	pe.Name = name
+	for k, v in pairs(props) do
+		pe[k] = v
+	end
+	pe.Parent = parent
+	return pe
+end
+
+local function style(mesh: MeshPart)
+	local sa = mesh:FindFirstChildOfClass("SurfaceAppearance")
+	if sa then
+		sa.Color = M.TINT
+	else
+		mesh.Color = M.TINT
+	end
+
+	local fx = mesh:FindFirstChild("AdminFX")
+	if fx then
+		fx:ClearAllChildren()
+	else
+		fx = Instance.new("Attachment")
+		fx.Name = "AdminFX"
+		fx.Parent = mesh
+	end
+	local s = math.max(mesh.Size.X, mesh.Size.Y, mesh.Size.Z) / 5
+	fx.Position = Vector3.new(0, -mesh.Size.Y * 0.1, 0)
+
+	emitter(fx, "AdminAura", {
+		Texture = "rbxasset://textures/particles/fire_main.dds",
+		Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 120, 90)), ColorSequenceKeypoint.new(0.5, RED), ColorSequenceKeypoint.new(1, DEEP) }),
+		LightEmission = 0.9, LightInfluence = 0, Rate = 22,
+		Lifetime = NumberRange.new(0.6, 1.1), Speed = NumberRange.new(1.5 * s, 3 * s),
+		SpreadAngle = Vector2.new(25, 25), EmissionDirection = Enum.NormalId.Top,
+		Shape = Enum.ParticleEmitterShape.Box, ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume,
+		Size = NumberSequence.new({ kp(0, 1.4 * s), kp(1, 0.2 * s) }),
+		Transparency = NumberSequence.new({ kp(0, 0.55), kp(0.4, 0.4), kp(1, 1) }),
+		Rotation = NumberRange.new(0, 360), RotSpeed = NumberRange.new(-60, 60),
+		ZOffset = -1,
+	})
+	emitter(fx, "AdminEmbers", {
+		Texture = "rbxasset://textures/particles/fire_sparks_main.dds",
+		Color = ColorSequence.new(GOLD, Color3.fromRGB(255, 90, 40)),
+		LightEmission = 1, LightInfluence = 0, Rate = 14,
+		Lifetime = NumberRange.new(1, 1.8), Speed = NumberRange.new(2 * s, 4.5 * s),
+		SpreadAngle = Vector2.new(40, 40), EmissionDirection = Enum.NormalId.Top,
+		Acceleration = Vector3.new(0, 2 * s, 0), Drag = 1,
+		Size = NumberSequence.new({ kp(0, 0.5 * s), kp(1, 0) }),
+	})
+	emitter(fx, "AdminSparkles", {
+		Texture = "rbxasset://textures/particles/sparkles_main.dds",
+		Color = ColorSequence.new(Color3.fromRGB(255, 240, 180), GOLD),
+		LightEmission = 1, LightInfluence = 0, Rate = 9,
+		Lifetime = NumberRange.new(0.8, 1.4), Speed = NumberRange.new(0.5, 1.5),
+		SpreadAngle = Vector2.new(180, 180),
+		Shape = Enum.ParticleEmitterShape.Sphere,
+		Size = NumberSequence.new({ kp(0, 0), kp(0.3, 0.55 * s), kp(1, 0) }),
+		Rotation = NumberRange.new(0, 360), RotSpeed = NumberRange.new(-180, 180),
+	})
+	emitter(fx, "AdminPulse", {
+		Texture = "rbxasset://textures/particles/explosion01_shockwave_main.dds",
+		Color = ColorSequence.new(RED, GOLD),
+		LightEmission = 1, LightInfluence = 0, Rate = 0.8,
+		Lifetime = NumberRange.new(1.2, 1.2), Speed = NumberRange.new(0, 0),
+		Orientation = Enum.ParticleOrientation.VelocityPerpendicular,
+		EmissionDirection = Enum.NormalId.Top,
+		Size = NumberSequence.new({ kp(0, 0.5 * s), kp(1, 6 * s) }),
+		Transparency = NumberSequence.new({ kp(0, 0.2), kp(1, 1) }),
+		LockedToPart = true,
+	})
+	emitter(fx, "AdminBolts", {
+		Texture = "rbxasset://textures/particles/forcefield_vortex_main.dds",
+		Color = ColorSequence.new(Color3.fromRGB(255, 230, 150), RED),
+		LightEmission = 1, LightInfluence = 0, Rate = 3,
+		Lifetime = NumberRange.new(0.25, 0.4), Speed = NumberRange.new(0, 0),
+		Size = NumberSequence.new({ kp(0, 3 * s), kp(1, 4.5 * s) }),
+		Transparency = NumberSequence.new({ kp(0, 0.3), kp(1, 1) }),
+		Rotation = NumberRange.new(0, 360), RotSpeed = NumberRange.new(-400, 400),
+		LockedToPart = true,
+	})
+
+	local light = mesh:FindFirstChild("AdminLight")
+	if not light then
+		light = Instance.new("PointLight")
+		light.Name = "AdminLight"
+		light.Parent = mesh
+	end
+	light.Color = RED
+	light.Range = 8 * s + 4
+	light.Brightness = 1.6
+end
+
+local function process(folder: Instance?): number
+	if not folder then
+		return 0
+	end
+	local n = 0
+	for _, model in ipairs(folder:GetChildren()) do
+		local mesh = model:FindFirstChild("Mesh")
+		if mesh and mesh:IsA("MeshPart") then
+			style(mesh)
+			n += 1
+		end
+	end
+	return n
+end
+
+function M.run(): string
+	local a = workspace:FindFirstChild("BrainrotPack")
+	local b = ServerStorage:FindFirstChild("BrainrotPack")
+	local n = process(a and a:FindFirstChild("Admin")) + process(b and b:FindFirstChild("Admin"))
+	return ("Mutation Admin : %d brainrots restyles"):format(n)
+end
+
+return M
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX18511BED76244759A5B09CE01A25D980"><Properties><string name="Name">PodiumBuild</string><ProtectedString name="Source"><![CDATA[--[[
+	PodiumBuild
+	-----------
+	Refait le decor des podiums du spawn (Workspace.ShopPodiums) :
+
+	  - Podium_Strawberry : socle rond orange a double anneau blanc/rouge,
+	    disque lumineux rose, faisceau de lumiere venu du ciel, etincelles
+	    (style image 1). Les effets animes (orbite, bob) sont dans
+	    ShopPodiumsClient.
+	  - Podium_WOrL / Podium_1x1x1x1 : dalle sombre basse a liseré blanc,
+	    halo de la couleur du brainrot sous le modele (style image 4).
+
+	Ne touche pas : DisplayAnchor (prompts, attachments, lumiere),
+	LuckyBlockDisplay, attributs du Model (DirectKey / ShopSection).
+	Relancable : le decor precedent (dossier "Decor") est remplace.
+]]
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local G = script.Parent
+local L = require(G.ShopBuildLib)
+local C = L.C
+local V = Vector3.new
+local CF = CFrame.new
+
+local M = {}
+
+local OLD_PARTS = { "Base", "RingOuter", "RingRed", "Edge1", "Edge2", "Edge3", "Edge4", "Top" }
+
+local function reset(podium: Model): (Folder, CFrame)
+	local anchor = podium:FindFirstChild("DisplayAnchor") :: BasePart
+	local center = podium:GetAttribute("BuildCenter")
+	if typeof(center) ~= "CFrame" then
+		local base = podium:FindFirstChild("Base")
+		local p = anchor and anchor.Position or podium:GetPivot().Position
+		if base and base:IsA("BasePart") then
+			p = V(base.Position.X, base.Position.Y - (base.Shape == Enum.PartType.Cylinder and base.Size.X or base.Size.Y) / 2, base.Position.Z)
+		end
+		center = CF(p)
+		podium:SetAttribute("BuildCenter", center)
+	end
+	for _, n in ipairs(OLD_PARTS) do
+		local p = podium:FindFirstChild(n)
+		if p and p:IsA("BasePart") then
+			p:Destroy()
+		end
+	end
+	local old = podium:FindFirstChild("Decor")
+	if old then
+		old:Destroy()
+	end
+	local decor = Instance.new("Folder")
+	decor.Name = "Decor"
+	decor.Parent = podium
+	return decor, center
+end
+
+local function beam(decor: Instance, bottom: CFrame, height: number, color: Color3, w0: number, w1: number)
+	local holder = L.part(decor, "BeamHolder", V(1, 1, 1), bottom, C.white, { Transparency = 1, CanCollide = false, CanQuery = false, CastShadow = false })
+	local a0 = Instance.new("Attachment")
+	a0.Name = "BeamBottom"
+	a0.Parent = holder
+	local a1 = Instance.new("Attachment")
+	a1.Name = "BeamTop"
+	a1.Position = V(0, height, 0)
+	a1.Parent = holder
+	local b = Instance.new("Beam")
+	b.Name = "LightBeam"
+	b.Attachment0 = a0
+	b.Attachment1 = a1
+	b.Width0 = w0
+	b.Width1 = w1
+	b.FaceCamera = true
+	b.LightEmission = 1
+	b.LightInfluence = 0
+	b.Segments = 1
+	b.Color = ColorSequence.new(color:Lerp(Color3.new(1, 1, 1), 0.35), color)
+	b.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.35),
+		NumberSequenceKeypoint.new(0.6, 0.75),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	b.Parent = holder
+	return holder
+end
+
+function M.strawberry(podium: Model)
+	local decor, O = reset(podium)
+	local function at(x, y, z)
+		return O * CF(x, y, z)
+	end
+	L.cyl(decor, "RingRed", 0.7, 14, at(0, 0.35, 0), C.red, L.smooth())
+	L.cyl(decor, "RingWhite", 0.8, 13, at(0, 0.4, 0), C.white, L.smooth())
+	local base = L.cyl(decor, "Base", 0.9, 12, at(0, 0.45, 0), C.orange, L.smooth())
+	base.CanCollide = true
+	L.cyl(decor, "Inner", 0.92, 9.4, at(0, 0.46, 0), Color3.fromRGB(255, 70, 50), L.smooth())
+	local disk = L.cyl(decor, "GlowDisk", 0.94, 7, at(0, 0.47, 0), C.pink, L.glow({ Transparency = 0.25 }))
+	L.cyl(decor, "GlowCore", 0.96, 4, at(0, 0.48, 0), C.pinkL, L.glow({ Transparency = 0.1 }))
+	L.sparkles(disk, C.pinkL, 10, {
+		Shape = Enum.ParticleEmitterShape.Cylinder, EmissionDirection = Enum.NormalId.Top,
+		Speed = NumberRange.new(2, 5), Lifetime = NumberRange.new(1.2, 2.2), SpreadAngle = Vector2.new(8, 8),
+		Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.5), NumberSequenceKeypoint.new(1, 0) }),
+	})
+	-- Pastilles "lumieres de scene" sur l'anneau blanc.
+	for i = 0, 15 do
+		local a = i / 16 * math.pi * 2
+		L.ball(decor, "RimLight", 0.45, at(math.cos(a) * 6.5, 0.85, math.sin(a) * 6.5), i % 2 == 0 and C.pinkL or C.yellow, L.glow())
+	end
+	beam(decor, at(0, 0.9, 0), 38, C.pink, 7, 2.5)
+	local light = Instance.new("SpotLight")
+	light.Face = Enum.NormalId.Top
+	light.Angle = 70
+	light.Range = 14
+	light.Brightness = 2
+	light.Color = C.pinkL
+	light.Parent = base
+	podium:SetAttribute("PodiumStyle", "Strawberry")
+end
+
+function M.direct(podium: Model, color: Color3)
+	local decor, O = reset(podium)
+	local function at(x, y, z)
+		return O * CF(x, y, z)
+	end
+	local slab = L.part(decor, "Base", V(12, 0.8, 12), at(0, 0.4, 0), Color3.fromRGB(58, 50, 66))
+	slab.CanCollide = true
+	L.part(decor, "TopPlate", V(11.2, 0.1, 11.2), at(0, 0.85, 0), Color3.fromRGB(44, 38, 52), L.smooth())
+	local EDGE = Color3.fromRGB(250, 250, 255)
+	L.part(decor, "Edge", V(12.3, 0.22, 0.35), at(0, 0.91, 5.98), EDGE, L.smooth())
+	L.part(decor, "Edge", V(12.3, 0.22, 0.35), at(0, 0.91, -5.98), EDGE, L.smooth())
+	L.part(decor, "Edge", V(0.35, 0.22, 12.3), at(5.98, 0.91, 0), EDGE, L.smooth())
+	L.part(decor, "Edge", V(0.35, 0.22, 12.3), at(-5.98, 0.91, 0), EDGE, L.smooth())
+	local halo = L.cyl(decor, "Halo", 0.06, 7.5, at(0, 0.93, 0), color, L.glow({ Transparency = 0.55 }))
+	L.cyl(decor, "HaloCore", 0.07, 4.5, at(0, 0.94, 0), color:Lerp(Color3.new(1, 1, 1), 0.4), L.glow({ Transparency = 0.4 }))
+	L.sparkles(halo, color, 6, {
+		Shape = Enum.ParticleEmitterShape.Cylinder, EmissionDirection = Enum.NormalId.Top,
+		Speed = NumberRange.new(1.5, 3), Lifetime = NumberRange.new(1.5, 2.5), SpreadAngle = Vector2.new(5, 5),
+	})
+	local light = Instance.new("PointLight")
+	light.Color = color
+	light.Range = 12
+	light.Brightness = 1.5
+	light.Parent = halo
+	podium:SetAttribute("PodiumStyle", "Direct")
+end
+
+function M.run(): string
+	local folder = workspace:FindFirstChild("ShopPodiums")
+	if not folder then
+		return "Workspace.ShopPodiums introuvable"
+	end
+	local ShopConfig = require(ReplicatedStorage.Shop.ShopConfig)
+	local done = {}
+	for _, podium in ipairs(folder:GetChildren()) do
+		if podium:IsA("Model") then
+			local key = podium:GetAttribute("DirectKey")
+			local direct = key and ShopConfig.GetDirect(key)
+			if direct then
+				M.direct(podium, direct.color)
+				table.insert(done, podium.Name)
+			elseif podium:GetAttribute("ShopSection") or podium.Name == "Podium_Strawberry" then
+				M.strawberry(podium)
+				table.insert(done, podium.Name)
+			end
+		end
+	end
+	return "Podiums refaits : " .. table.concat(done, ", ")
+end
+
+return M
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX7A371BDDFAF149B888AEB75E5CB72AFF"><Properties><string name="Name">ShopBuildLib</string><ProtectedString name="Source"><![CDATA[local L = {}
+
+L.MV = "Studs"
+local C3 = Color3.fromRGB
+L.C = {
+	gold = C3(255, 200, 40), goldL = C3(255, 228, 110), goldD = C3(214, 144, 16), goldDD = C3(160, 98, 8),
+	black = C3(22, 20, 26), dark = C3(40, 36, 46), white = C3(248, 246, 240), cream = C3(255, 248, 225),
+	red = C3(235, 40, 50), redD = C3(150, 20, 30), blue = C3(40, 140, 255), blueD = C3(20, 80, 200),
+	green = C3(70, 220, 70), pink = C3(255, 90, 160), pinkL = C3(255, 170, 205), pinkD = C3(200, 30, 100),
+	straw = C3(235, 30, 60), leaf = C3(70, 200, 60), wood = C3(150, 96, 50), woodD = C3(105, 64, 32),
+	orange = C3(255, 120, 40), yellow = C3(255, 240, 60), grass = C3(60, 150, 50),
+}
+
+local function finish(p: BasePart, parent: Instance, props)
+	p.Anchored = true
+	p.TopSurface = Enum.SurfaceType.Smooth
+	p.BottomSurface = Enum.SurfaceType.Smooth
+	p.CanTouch = false
+	p.Material = Enum.Material.Plastic
+	p.MaterialVariant = L.MV
+	local s = p.Size
+	if math.min(s.X, s.Y, s.Z) < 0.6 then
+		p.CanCollide = false
+		p.CanQuery = false
+	end
+	if props then
+		for k, v in pairs(props) do
+			p[k] = v
+		end
+	end
+	p.Parent = parent
+	return p
+end
+
+-- Neon sans picots, sans ombre.
+function L.glow(extra)
+	local t = { Material = Enum.Material.Neon, MaterialVariant = "", CastShadow = false, CanCollide = false, CanQuery = false }
+	if extra then
+		for k, v in pairs(extra) do
+			t[k] = v
+		end
+	end
+	return t
+end
+
+function L.smooth(extra)
+	local t = { Material = Enum.Material.SmoothPlastic, MaterialVariant = "" }
+	if extra then
+		for k, v in pairs(extra) do
+			t[k] = v
+		end
+	end
+	return t
+end
+
+function L.part(parent, name, size, cf, color, props)
+	local p = Instance.new("Part")
+	p.Name = name
+	p.Size = size
+	p.CFrame = cf
+	p.Color = color
+	return finish(p, parent, props)
+end
+
+function L.wedge(parent, name, size, cf, color, props)
+	local p = Instance.new("WedgePart")
+	p.Name = name
+	p.Size = size
+	p.CFrame = cf
+	p.Color = color
+	return finish(p, parent, props)
+end
+
+-- Cylindre dont l'axe est Y (hauteur h, diametre d).
+function L.cyl(parent, name, h, d, cf, color, props)
+	local p = Instance.new("Part")
+	p.Name = name
+	p.Shape = Enum.PartType.Cylinder
+	p.Size = Vector3.new(h, d, d)
+	p.CFrame = cf * CFrame.Angles(0, 0, math.rad(90))
+	p.Color = color
+	return finish(p, parent, props)
+end
+
+function L.ball(parent, name, d, cf, color, props)
+	local p = Instance.new("Part")
+	p.Name = name
+	p.Shape = Enum.PartType.Ball
+	p.Size = Vector3.new(d, d, d)
+	p.CFrame = cf
+	p.Color = color
+	return finish(p, parent, props)
+end
+
+function L.model(parent, name)
+	local m = Instance.new("Model")
+	m.Name = name
+	m.Parent = parent
+	return m
+end
+
+-- SurfaceGui sur une face ; pixels par stud eleves pour un texte net.
+function L.surface(part: BasePart, face: Enum.NormalId, name: string?, ppu: number?)
+	local sg = Instance.new("SurfaceGui")
+	sg.Name = name or "SurfaceGui"
+	sg.Face = face
+	sg.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	sg.PixelsPerStud = ppu or 60
+	sg.LightInfluence = 0
+	sg.Brightness = 1.4
+	sg.MaxDistance = 250
+	sg.Parent = part
+	return sg
+end
+
+L.FONT_TITLE = Font.new("rbxasset://fonts/families/LuckiestGuy.json")
+L.FONT = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Bold)
+
+function L.label(parent: Instance, text: string, color: Color3, props)
+	local l = Instance.new("TextLabel")
+	l.BackgroundTransparency = 1
+	l.Size = UDim2.fromScale(1, 1)
+	l.FontFace = L.FONT_TITLE
+	l.Text = text
+	l.TextScaled = true
+	l.TextColor3 = color
+	l.RichText = true
+	if props then
+		for k, v in pairs(props) do
+			l[k] = v
+		end
+	end
+	l.Parent = parent
+	local s = Instance.new("UIStroke")
+	s.Thickness = 4
+	s.Color = Color3.new(0, 0, 0)
+	s.Parent = l
+	return l
+end
+
+function L.sparkles(parent: Instance, color: Color3, rate: number, props)
+	local pe = Instance.new("ParticleEmitter")
+	pe.Name = "Sparkles"
+	pe.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	pe.Color = ColorSequence.new(color)
+	pe.LightEmission = 1
+	pe.Rate = rate
+	pe.Lifetime = NumberRange.new(1, 2)
+	pe.Speed = NumberRange.new(1, 3)
+	pe.SpreadAngle = Vector2.new(180, 180)
+	pe.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.4), NumberSequenceKeypoint.new(1, 0) })
+	pe.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.1), NumberSequenceKeypoint.new(1, 1) })
+	pe.Rotation = NumberRange.new(0, 360)
+	pe.RotSpeed = NumberRange.new(-90, 90)
+	if props then
+		for k, v in pairs(props) do
+			pe[k] = v
+		end
+	end
+	pe.Parent = parent
+	return pe
+end
+
+function L.count(root: Instance): number
+	local n = 0
+	for _, d in root:GetDescendants() do
+		if d:IsA("BasePart") then
+			n += 1
+		end
+	end
+	return n
+end
+
+return L
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX9CEC78A508C240E7A635C26A15394BB6"><Properties><string name="Name">ShopBuildMain</string><ProtectedString name="Source"><![CDATA[--[[
+	ShopBuildMain
+	-------------
+	Depuis la Command Bar (Studio, mode Edit), puis Ctrl+S :
+
+	Tout d'un coup (Trait Machine + podiums + mutation Admin) :
+		local f = game.ServerStorage.ShopBuild_Generateurs:Clone() f.Parent = game.ServerStorage print(require(f.ShopBuildMain).run()) f:Destroy()
+
+	Ou une seule partie : remplace .run() par .machine(), .podiums() ou .admin()
+]]
+
+local G = script.Parent
+
+local M = {}
+
+function M.machine(): string
+	return require(G.TraitMachineBuild).run()
+end
+
+function M.podiums(): string
+	return require(G.PodiumBuild).run()
+end
+
+function M.admin(): string
+	return require(G.AdminMutationBuild).run()
+end
+
+function M.run(): string
+	local out = {}
+	for _, fn in ipairs({ M.machine, M.podiums, M.admin }) do
+		local ok, res = pcall(fn)
+		table.insert(out, ok and res or ("ERREUR : " .. tostring(res)))
+	end
+	return table.concat(out, "\n")
+end
+
+return M
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX330A6D6D4B8E42F3B3FCAB302635AC96"><Properties><string name="Name">TraitMachineBuild</string><ProtectedString name="Source"><![CDATA[--[[
+	TraitMachineBuild
+	-----------------
+	Reconstruit Workspace.TraitMachine facon "slot machine" doree (image de
+	reference) : socle lumineux jaune, pied noir, caisse doree a picots,
+	ecran a 4 rouleaux, tableau de boutons, levier rouge sur le cote,
+	marquee lumineuse "TRAITS", tableau ODDS et panneau INFO.
+
+	Garde la position de l'ancienne machine et son ProximityPrompt.
+	Noms lus par TraitMachineClient : OddsBoard.Odds, Screen.Reels.ReelN,
+	Lever (attribut PivotCF), LeverBall, Bulb, InfoSign (TraitInfoPrompt).
+]]
+
+local G = script.Parent
+local L = require(G.ShopBuildLib)
+local C = L.C
+local V = Vector3.new
+local CF = CFrame.new
+local ANG = CFrame.Angles
+local rad = math.rad
+
+local M = {}
+
+local function findOrigin(old: Model?): CFrame
+	if old then
+		local saved = old:GetAttribute("BuildOrigin")
+		if typeof(saved) == "CFrame" then
+			return saved
+		end
+		local ped = old:FindFirstChild("Pedestal")
+		if ped and ped:IsA("BasePart") then
+			return CF(ped.Position - V(0, ped.Size.Y / 2 + 0.25, 0)) * ped.CFrame.Rotation
+		end
+		return CF(old:GetPivot().Position)
+	end
+	return CF(734, 0.5, 811.5)
+end
+
+function M.build(): Model
+	local old = workspace:FindFirstChild("TraitMachine")
+	local O = findOrigin(old :: Model?)
+	-- "Devant" de la machine = +Z local.
+	local function at(x, y, z)
+		return O * CF(x, y, z)
+	end
+
+	local prompt = old and old:FindFirstChild("TraitMachinePrompt", true)
+	if prompt then
+		prompt.Parent = nil
+	end
+
+	local m = Instance.new("Model")
+	m.Name = "TraitMachine"
+	m:SetAttribute("BuildOrigin", O)
+
+	--== Socle lumineux ==--
+	L.part(m, "PadFrame", V(18, 0.4, 18), at(0, 0.2, 0), C.goldD)
+	local glow = L.part(m, "PadGlow", V(16, 0.44, 16), at(0, 0.22, 0), C.yellow, L.glow({ Transparency = 0.3 }))
+	local padLight = Instance.new("PointLight")
+	padLight.Color = C.yellow
+	padLight.Range = 16
+	padLight.Brightness = 1.2
+	padLight.Parent = glow
+	L.sparkles(glow, C.yellow, 5, {
+		Shape = Enum.ParticleEmitterShape.Box, EmissionDirection = Enum.NormalId.Top,
+		Speed = NumberRange.new(1.5, 3), SpreadAngle = Vector2.new(10, 10), Lifetime = NumberRange.new(1.5, 2.5),
+	})
+	for _, s in ipairs({ { -1, -1 }, { 1, -1 }, { -1, 1 }, { 1, 1 } }) do
+		L.part(m, "PadCorner", V(1.4, 0.9, 1.4), at(s[1] * 8.3, 0.45, s[2] * 8.3), C.gold)
+	end
+
+	--== Pied ==--
+	L.part(m, "Pedestal", V(11, 1.6, 7.6), at(0, 1.2, 0), C.black)
+	L.part(m, "PedestalTrim", V(11.3, 0.3, 7.9), at(0, 2.05, 0), C.goldD)
+
+	--== Caisse ==--
+	local body = L.part(m, "Body", V(8.4, 7.2, 5.2), at(0, 5.8, 0), C.gold)
+	for _, x in ipairs({ -4.3, 4.3 }) do
+		L.part(m, "SidePanel", V(0.4, 7.4, 5.4), at(x, 5.8, 0), C.goldD)
+	end
+	L.part(m, "BackPanel", V(8.2, 7, 0.3), at(0, 5.8, -2.7), C.goldD)
+	L.part(m, "CapTrim", V(9.2, 0.4, 6), at(0, 9.5, 0), C.goldL)
+	L.part(m, "Cap", V(9, 1.4, 5.8), at(0, 10.4, 0), C.goldD)
+	L.part(m, "CapTop", V(8.6, 0.3, 5.4), at(0, 11.2, 0), C.gold)
+
+	-- Marquee "TRAITS" avec ampoules.
+	local sign = L.part(m, "TopSign", V(7.6, 1.1, 0.3), at(0, 10.4, 3.05), C.black, L.smooth())
+	local ssg = L.surface(sign, Enum.NormalId.Front, "SurfaceGui", 50)
+	local sl = L.label(ssg, "⭐ TRAITS ⭐", C.goldL)
+	local sg = Instance.new("UIGradient")
+	sg.Color = ColorSequence.new(C.goldL, C.gold)
+	sg.Rotation = 90
+	sg.Parent = sl
+	for i = 0, 11 do
+		local x = -3.6 + i * (7.2 / 11)
+		L.ball(m, "Bulb", 0.36, at(x, 11.05, 3.1), i % 2 == 0 and C.yellow or C.red, L.glow())
+		L.ball(m, "Bulb", 0.36, at(x, 9.75, 3.1), i % 2 == 0 and C.red or C.yellow, L.glow())
+	end
+
+	--== Ecran a rouleaux ==--
+	L.part(m, "ScreenFrame", V(7.6, 4, 0.4), at(0, 7.2, 2.75), C.black, L.smooth())
+	L.part(m, "ScreenBezel", V(7.9, 0.3, 0.5), at(0, 9.25, 2.75), C.goldL)
+	L.part(m, "ScreenBezel", V(7.9, 0.3, 0.5), at(0, 5.15, 2.75), C.goldL)
+	local screen = L.part(m, "Screen", V(7, 3.4, 0.2), at(0, 7.2, 3.0), C.cream, L.smooth())
+	local rsg = L.surface(screen, Enum.NormalId.Front, "Reels", 60)
+	local pad = Instance.new("UIPadding")
+	pad.PaddingLeft = UDim.new(0, 10)
+	pad.PaddingRight = UDim.new(0, 10)
+	pad.PaddingTop = UDim.new(0, 10)
+	pad.PaddingBottom = UDim.new(0, 10)
+	pad.Parent = rsg
+	local layout = Instance.new("UIListLayout")
+	layout.FillDirection = Enum.FillDirection.Horizontal
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	layout.VerticalAlignment = Enum.VerticalAlignment.Center
+	layout.Padding = UDim.new(0, 10)
+	layout.Parent = rsg
+	for i = 1, 4 do
+		local r = Instance.new("Frame")
+		r.Name = "Reel" .. i
+		r.LayoutOrder = i
+		r.Size = UDim2.new(0.25, -10, 1, 0)
+		r.BackgroundColor3 = Color3.new(1, 1, 1)
+		r.ClipsDescendants = true
+		r.Parent = rsg
+		local c = Instance.new("UICorner")
+		c.CornerRadius = UDim.new(0, 14)
+		c.Parent = r
+		local st = Instance.new("UIStroke")
+		st.Thickness = 5
+		st.Color = Color3.new(0, 0, 0)
+		st.Parent = r
+		local g = Instance.new("UIGradient")
+		g.Rotation = 90
+		g.Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(190, 185, 175)),
+			ColorSequenceKeypoint.new(0.3, Color3.new(1, 1, 1)),
+			ColorSequenceKeypoint.new(0.7, Color3.new(1, 1, 1)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(190, 185, 175)),
+		})
+		g.Parent = r
+		local sym = Instance.new("TextLabel")
+		sym.Name = "Symbol"
+		sym.BackgroundTransparency = 1
+		sym.Size = UDim2.fromScale(1, 1)
+		sym.TextScaled = true
+		sym.Text = ({ "🍃", "⚡", "🔥", "⭐" })[i]
+		sym.Parent = r
+	end
+	L.part(m, "Glass", V(7, 3.4, 0.05), at(0, 7.2, 3.13), C.white, L.smooth({ Transparency = 0.85, Reflectance = 0.3, CastShadow = false, CanCollide = false }))
+
+	--== Tableau de boutons ==--
+	local panelCF = at(0, 4.55, 3.2) * ANG(rad(-28), 0, 0)
+	L.part(m, "ControlPanel", V(7.6, 1.2, 2), panelCF, C.goldD)
+	for i, x in ipairs({ -2.7, -1.3, 0.1 }) do
+		L.part(m, "Button" .. i, V(1.1, 0.3, 0.9), panelCF * CF(x, 0.7, 0), C.goldDD)
+	end
+	L.cyl(m, "BigButton", 0.35, 1.1, panelCF * CF(1.65, 0.72, 0), C.goldDD)
+	L.ball(m, "RedLight", 0.55, panelCF * CF(3, 0.85, -0.2), C.red, L.glow())
+	L.part(m, "Knob", V(0.3, 0.8, 0.3), panelCF * CF(3, 0.5, -0.2), C.redD)
+
+	-- Fente a pieces + bac.
+	L.part(m, "Slot", V(2.6, 0.5, 0.2), at(0, 3.3, 2.65), C.black, L.smooth())
+	L.part(m, "Tray", V(3.6, 0.3, 1.2), at(0, 2.45, 3.1), C.goldDD)
+	L.part(m, "TrayLip", V(3.6, 0.6, 0.25), at(0, 2.7, 3.6), C.goldD)
+
+	--== Levier ==--
+	L.part(m, "LeverBase", V(1, 1.8, 1.8), at(4.8, 6.2, 0), C.goldD)
+	L.cyl(m, "LeverHub", 1.2, 1.1, at(5.3, 6.2, 0) * ANG(0, 0, rad(90)), C.gold)
+	local lever = L.cyl(m, "Lever", 3.6, 0.36, at(5.55, 8, 0), C.white, { Material = Enum.Material.Metal, MaterialVariant = "", Color = Color3.fromRGB(200, 200, 210) })
+	lever:SetAttribute("PivotCF", at(5.55, 6.2, 0))
+	L.ball(m, "LeverBall", 1.25, at(5.55, 10.2, 0), C.red, L.smooth({ Reflectance = 0.1 }))
+
+	--== Tableau ODDS ==--
+	local oddsCF = at(9.6, 0, 0.5) * ANG(0, rad(-18), 0)
+	L.part(m, "OddsPost", V(0.6, 4.4, 0.6), oddsCF * CF(0, 2.2, -0.2), C.black)
+	L.part(m, "OddsFrame", V(6, 8, 0.4), oddsCF * CF(0, 8.1, -0.25), C.goldD)
+	local odds = L.part(m, "OddsBoard", V(5.6, 7.6, 0.4), oddsCF * CF(0, 8.1, 0), C.black, L.smooth())
+	L.surface(odds, Enum.NormalId.Front, "Odds", 60)
+
+	--== Panneau INFO ==--
+	local infoCF = at(-9.2, 0, 2.5) * ANG(0, rad(22), 0)
+	local info = L.model(m, "InfoSign")
+	L.part(info, "LegL", V(0.35, 5.2, 0.35), infoCF * CF(-1.5, 2.5, -0.3) * ANG(rad(-8), 0, 0), C.woodD)
+	L.part(info, "LegR", V(0.35, 5.2, 0.35), infoCF * CF(1.5, 2.5, -0.3) * ANG(rad(-8), 0, 0), C.woodD)
+	L.part(info, "LegBack", V(0.35, 5.2, 0.35), infoCF * CF(0, 2.4, -1.2) * ANG(rad(18), 0, 0), C.woodD)
+	L.part(info, "Frame", V(4.4, 4.8, 0.35), infoCF * CF(0, 4.4, 0) * ANG(rad(-8), 0, 0), C.goldD)
+	local board = L.part(info, "Board", V(3.9, 4.3, 0.2), infoCF * CF(0, 4.4, 0.12) * ANG(rad(-8), 0, 0), C.cream, L.smooth())
+	local isg = L.surface(board, Enum.NormalId.Front, "Info", 60)
+	L.label(isg, "INFO", C.gold, { Size = UDim2.new(1, 0, 0.3, 0), Position = UDim2.fromScale(0, 0.04) })
+	local circle = Instance.new("Frame")
+	circle.AnchorPoint = Vector2.new(0.5, 0.5)
+	circle.Position = UDim2.fromScale(0.5, 0.64)
+	circle.Size = UDim2.fromScale(0.62, 0.56)
+	circle.BackgroundColor3 = C.blue
+	circle.Parent = isg
+	local cc = Instance.new("UICorner")
+	cc.CornerRadius = UDim.new(1, 0)
+	cc.Parent = circle
+	local cs = Instance.new("UIStroke")
+	cs.Thickness = 6
+	cs.Parent = circle
+	local cg = Instance.new("UIGradient")
+	cg.Rotation = 90
+	cg.Color = ColorSequence.new(Color3.fromRGB(110, 190, 255), C.blueD)
+	cg.Parent = circle
+	L.label(circle, "i", Color3.new(1, 1, 1), { Size = UDim2.fromScale(0.8, 0.8), Position = UDim2.fromScale(0.1, 0.12) })
+	local infoAtt = Instance.new("Attachment")
+	infoAtt.Name = "PromptAttachment"
+	infoAtt.Position = V(0, -1.5, 0.6)
+	infoAtt.Parent = board
+	local infoPrompt = Instance.new("ProximityPrompt")
+	infoPrompt.Name = "TraitInfoPrompt"
+	infoPrompt.ActionText = "How it works"
+	infoPrompt.ObjectText = "Trait Machine"
+	infoPrompt.HoldDuration = 0
+	infoPrompt.MaxActivationDistance = 10
+	infoPrompt.RequiresLineOfSight = false
+	infoPrompt.KeyboardKeyCode = Enum.KeyCode.F
+	infoPrompt.GamepadKeyCode = Enum.KeyCode.ButtonY
+	infoPrompt.Parent = infoAtt
+
+	--== Titre flottant, lumiere, prompt ==--
+	local titleAtt = Instance.new("Attachment")
+	titleAtt.Name = "TitleAttachment"
+	titleAtt.Position = V(0, 8.4, 0)
+	titleAtt.Parent = body
+	local bb = Instance.new("BillboardGui")
+	bb.Name = "Title"
+	bb.Adornee = titleAtt
+	bb.Size = UDim2.fromScale(14, 3.4)
+	bb.LightInfluence = 0
+	bb.MaxDistance = 180
+	bb.Parent = body
+	local tl = L.label(bb, "TRAITS", C.yellow)
+	tl:FindFirstChildOfClass("UIStroke").Thickness = 5
+	local tg = Instance.new("UIGradient")
+	tg.Rotation = 90
+	tg.Color = ColorSequence.new(Color3.fromRGB(255, 250, 150), Color3.fromRGB(255, 200, 0))
+	tg.Parent = tl
+
+	local light = Instance.new("PointLight")
+	light.Color = Color3.fromRGB(255, 220, 110)
+	light.Range = 18
+	light.Brightness = 1.6
+	light.Parent = body
+
+	local att = Instance.new("Attachment")
+	att.Name = "PromptAttachment"
+	att.Position = V(0, -2.2, 3.4)
+	att.Parent = body
+	if not prompt then
+		prompt = Instance.new("ProximityPrompt")
+		prompt.Name = "TraitMachinePrompt"
+	end
+	prompt.ActionText = "Roll Traits"
+	prompt.ObjectText = "Trait Machine"
+	prompt.HoldDuration = 0
+	prompt.MaxActivationDistance = 12
+	prompt.RequiresLineOfSight = false
+	prompt.Parent = att
+
+	m.PrimaryPart = body
+	if old then
+		old:Destroy()
+	end
+	m.Parent = workspace
+	return m
+end
+
+function M.run(): string
+	local m = M.build()
+	return ("TraitMachine reconstruite (%d parts)"):format(L.count(m))
+end
+
+return M
+]]></ProtectedString></Properties></Item></Item></roblox>
