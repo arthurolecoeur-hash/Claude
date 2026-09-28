@@ -38,6 +38,7 @@ local MutationLabel = require(ServerScriptService.Brainrots.MutationLabel)
 local RebirthService = require(ServerScriptService.Rebirth.RebirthService)
 local GeneratorLevelShared = require(ServerScriptService.Generators.GeneratorLevelShared)
 local InventoryShared = require(game:GetService("ReplicatedStorage").Inventory.InventoryShared)
+local TraitShared = require(game:GetService("ReplicatedStorage").Traits.TraitShared)
 
 local STATS_FONT = Enum.Font.LuckiestGuy
 
@@ -117,12 +118,12 @@ local function flashCollectPad(pad: BasePart)
 end
 
 local RESPAWN_TIME = 5
-local PLACE_ACTION_TEXT = "Place item"
+local PLACE_ACTION_TEXT = "Place"
 -- Texte raccourci ("Prendre" au lieu de "Prendre / Echanger") pour que les
 -- deux prompts (Prendre + Vendre) tiennent cote a cote sans se chevaucher.
 -- La fonctionnalite d'echange (poser un objet different sur un slot deja
 -- occupe) reste inchangee, seul le libelle affiche est raccourci.
-local TAKE_ACTION_TEXT = "Take"
+local TAKE_ACTION_TEXT = "Pick Up / Swap"
 -- Demande utilisateur : reprendre un générateur déjà posé doit nécessiter de
 -- MAINTENIR la touche (pas un simple appui) - uniquement pour cette action,
 -- le prompt de pose (sur un slot vide) reste instantané.
@@ -225,7 +226,8 @@ local doRetrieve
 local placeCarriedToolInSlot
 
 local function buildStatsBillboard(parent: Instance, name: string, sourcePart: BasePart, player: Player?, studsOffsetY: number): BillboardGui
-	local income = sourcePart:GetAttribute("IncomePerSecond") or 0
+	local trait = TraitShared.GetTrait(sourcePart)
+	local income = (sourcePart:GetAttribute("IncomePerSecond") or 0) * (trait and trait.mult or 1)
 	local rarityTier = GeneratorRarity.GetTier(sourcePart)
 	local mutationKey, displayName = MutationLabel.Get(sourcePart)
 	local level = sourcePart:GetAttribute("Level") or 1
@@ -237,7 +239,7 @@ local function buildStatsBillboard(parent: Instance, name: string, sourcePart: B
 		incomeText = incomeText .. (" (x%.2f)"):format(multiplier)
 	end
 
-	local lineCount = mutationKey and 5 or 4
+	local lineCount = 4 + (mutationKey and 1 or 0) + (trait and 1 or 0)
 	local uniformTextSize = computeUniformTextSize({ levelText, displayName, rarityTier.DisplayName, incomeText }, STATS_FONT, lineCount)
 
 	local billboard = Instance.new("BillboardGui")
@@ -275,6 +277,11 @@ local function buildStatsBillboard(parent: Instance, name: string, sourcePart: B
 		stroke.Parent = label
 
 		return label
+	end
+
+	if trait then
+		local traitLabel = addLabel("TraitLabel", -1, ("%s %s %s"):format(trait.emoji, string.upper(trait.name), TraitShared.FormatMult(trait.mult)), trait.color, 1)
+		traitLabel.RichText = false
 	end
 
 	if mutationKey then
@@ -405,7 +412,7 @@ doPlace = function(handle: BasePart, slot: BasePart, plot: Model, generatorName:
 	-- Retour a l'UI native (Style Custom essaye puis abandonne : l'affichage
 	-- ne se declenchait pas de facon fiable). Decalage large pour eviter le
 	-- chevauchement avec le prompt "Vendre" juste a cote.
-	prompt.UIOffset = Vector2.new(-75, 0)
+	prompt.UIOffset = Vector2.new(-100, 0)
 	prompt.Parent = generator
 	-- Le déclenchement est géré par le listener global ProximityPromptService.PromptTriggered
 	-- (voir handleTakePrompt plus bas) : une connexion individuelle faite ici, pendant la
@@ -419,7 +426,7 @@ doPlace = function(handle: BasePart, slot: BasePart, plot: Model, generatorName:
 	sellPrompt.KeyboardKeyCode = Enum.KeyCode.G
 	sellPrompt.HoldDuration = TAKE_HOLD_DURATION
 	sellPrompt.MaxActivationDistance = 10
-	sellPrompt.UIOffset = Vector2.new(75, 0)
+	sellPrompt.UIOffset = Vector2.new(125, 0)
 	sellPrompt.Parent = generator
 
 	-- Le prix affiche doit suivre les upgrades de niveau faits pendant que
@@ -682,6 +689,14 @@ end
 CollectionService:GetInstanceAddedSignal("MoneyCollectPad"):Connect(wireCollectPad)
 
 PickupService.CreateGeneratorTool = createGeneratorTool
+
+PickupService.RefreshCarryLabel = function(handle: BasePart)
+	local old = handle:FindFirstChild("CarryDisplay")
+	if old then
+		old:Destroy()
+	end
+	addCarryLabel(handle)
+end
 
 -- Vide un slot (generateur + argent non collecte) quand sa base change de
 -- proprietaire : rien ne doit passer au joueur suivant.

@@ -29,6 +29,7 @@ local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local PlayerProfileService = require(ServerScriptService.PlayerProfileService)
+local StatTracker = require(ServerScriptService.Leaderboards.StatTracker)
 
 local PurchaseRouter = {}
 
@@ -92,6 +93,7 @@ local function processReceipt(receiptInfo)
 		if granted == false then
 			return Enum.ProductPurchaseDecision.NotProcessedYet
 		end
+		pcall(StatTracker.AddRobux, player, receiptInfo.CurrencySpent)
 
 		-- Sauvegarde AVANT de confirmer a Roblox : un crash serveur juste
 		-- apres ne fait plus perdre l'achat.

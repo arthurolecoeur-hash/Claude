@@ -113,10 +113,17 @@ end
 ]]
 local function getTemplateFor(entry): (BasePart?, boolean)
 	local template = getTemplate(entry.name)
-	if template and type(entry.income) == "number" then
+	local hasIncome = type(entry.income) == "number"
+	local hasTrait = type(entry.trait) == "string"
+	if template and (hasIncome or hasTrait) then
 		local copy = template:Clone()
-		copy:SetAttribute("IncomePerSecond", entry.income)
-		copy:SetAttribute("CustomIncome", true)
+		if hasIncome then
+			copy:SetAttribute("IncomePerSecond", entry.income)
+			copy:SetAttribute("CustomIncome", true)
+		end
+		if hasTrait then
+			copy:SetAttribute("Trait", entry.trait)
+		end
 		return copy, true
 	end
 	return template, false
@@ -158,6 +165,7 @@ local function snapshotInventory(player: Player): { any }
 				slot = tool:GetAttribute("HotbarSlot"),
 				fav = tool:GetAttribute("Favorite") == true or nil,
 				income = customIncomeOf(handle),
+				trait = handle:GetAttribute("Trait"),
 			})
 		end
 	end
@@ -334,6 +342,7 @@ PlayerProfileService.RegisterField("generators", function(player: Player): { any
 						name = child.Name,
 						level = child:GetAttribute("Level") or 1,
 						income = customIncomeOf(child),
+						trait = child:GetAttribute("Trait"),
 					})
 					break
 				end
