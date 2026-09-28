@@ -154,6 +154,12 @@
             "$path": "src/StarterPlayerScripts/Inventory/BackpackClient.client.luau"
           }
         },
+        "Platform": {
+          "$className": "Folder",
+          "PlatformSupport": {
+            "$path": "src/StarterPlayerScripts/Platform/PlatformSupport.client.luau"
+          }
+        },
         "Shop": {
           "$className": "Folder",
           "ShopPodiumsClient": {

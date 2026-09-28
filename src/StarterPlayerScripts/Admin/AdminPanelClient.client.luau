@@ -41,6 +41,8 @@ local W, H = 720, 560
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "AdminGui"
+-- Animations deja gerees ici (UIKit) : UIJuice ne doit pas ajouter les siennes.
+gui:SetAttribute("NoJuice", true)
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.DisplayOrder = 40

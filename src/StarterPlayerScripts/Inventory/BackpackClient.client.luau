@@ -1269,8 +1269,10 @@ UserInputService.InputBegan:Connect(function(input, processed)
 	if processed or UserInputService:GetFocusedTextBox() then
 		return
 	end
-	if input.KeyCode == Enum.KeyCode.Backquote then
+	if input.KeyCode == Enum.KeyCode.Backquote or input.KeyCode == Enum.KeyCode.DPadUp then
 		setOpen(not isOpen)
+	elseif input.KeyCode == Enum.KeyCode.ButtonB and isOpen then
+		setOpen(false)
 	end
 end)
 

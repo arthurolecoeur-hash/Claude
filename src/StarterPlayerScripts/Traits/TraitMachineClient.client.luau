@@ -97,6 +97,8 @@ end
 --== ScreenGui ==--
 local gui = Instance.new("ScreenGui")
 gui.Name = "TraitMachineGui"
+-- Animations deja gerees ici (UIKit) : UIJuice ne doit pas ajouter les siennes.
+gui:SetAttribute("NoJuice", true)
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.DisplayOrder = 12
