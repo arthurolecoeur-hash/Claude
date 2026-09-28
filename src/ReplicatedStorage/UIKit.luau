@@ -130,7 +130,8 @@ function UIKit.list(p: Instance, dir: Enum.FillDirection?, pad: number?, hAlign:
 	return l
 end
 
-function UIKit.studs(p: GuiObject, tile: number?, transp: number?, radius: number?)
+-- Texture a picots (Lego). color = noir sur fond clair, blanc sur fond sombre.
+function UIKit.studs(p: GuiObject, tile: number?, transp: number?, radius: number?, color: Color3?)
 	local img = Instance.new("ImageLabel")
 	img.Name = "Studs"
 	img.BackgroundTransparency = 1
@@ -138,8 +139,8 @@ function UIKit.studs(p: GuiObject, tile: number?, transp: number?, radius: numbe
 	img.Image = UIKit.STUDS
 	img.ScaleType = Enum.ScaleType.Tile
 	img.TileSize = UDim2.fromOffset(tile or 36, tile or 36)
-	img.ImageColor3 = BLACK
-	img.ImageTransparency = transp or 0.85
+	img.ImageColor3 = color or BLACK
+	img.ImageTransparency = transp or 0.75
 	img.ZIndex = p.ZIndex
 	img.Parent = p
 	if radius then

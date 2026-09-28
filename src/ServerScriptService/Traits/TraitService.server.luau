@@ -35,10 +35,8 @@ local AdminGrants = require(ServerScriptService:WaitForChild("Admin"):WaitForChi
 
 local remote = ReplicatedStorage.Traits.TraitRemote
 local event = ReplicatedStorage.Traits.TraitEvent
-local adminEvent = ReplicatedStorage:WaitForChild("Admin"):WaitForChild("AdminEvent")
 
 local ROLL_COOLDOWN = 0.9
-local ANNOUNCE_RANK = 5
 
 local rng = Random.new()
 local luck = setmetatable({}, { __mode = "k" })
@@ -137,13 +135,6 @@ local function roll(player: Player, list: any, useLuck: any)
 		end
 		local final = TraitShared.GetTrait(tool)
 		table.insert(results, { tool = tool, rolled = rolled.key, trait = final and final.key, improved = improved })
-		if improved and rolled.rank >= ANNOUNCE_RANK then
-			adminEvent:FireAllClients("Announce", {
-				text = ("%s rolled %s %s (%s) on %s!"):format(player.DisplayName, rolled.emoji, rolled.name:upper(), TraitShared.FormatMult(rolled.mult), InventoryShared.GetDisplayName(tool)),
-				from = "TRAIT MACHINE",
-				color = rolled.color,
-			})
-		end
 	end
 	return { ok = true, results = results, cost = cost, luck = luck[player] or 0, lucky = luckMult > 1 }
 end

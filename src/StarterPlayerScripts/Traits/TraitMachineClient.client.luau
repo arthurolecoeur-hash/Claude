@@ -77,7 +77,7 @@ local function fancyButton(parent: Instance, label: string, color: Color3, textS
 	UI.stroke(b, 4, BLACK)
 	local g = UI.gradient(b, color:Lerp(WHITE, 0.2), color:Lerp(BLACK, 0.3))
 	g.Name = "Fill"
-	UI.studs(b, 26, 0.84, 12)
+	UI.studs(b, 26, 0.72, 12)
 	local l = UI.text(b, label, textSize or 30, WHITE, FONT_TITLE, 3)
 	l.Name = "Label"
 	l.Size = UDim2.new(1, -12, 1, -8)
@@ -132,7 +132,7 @@ local shell = frame(root, { Name = "Shell", Size = UDim2.fromScale(1, 1), ZIndex
 UI.corner(shell, 22)
 UI.stroke(shell, 6, BLACK)
 UI.gradient(shell, Color3.fromRGB(255, 226, 90), Color3.fromRGB(226, 146, 10))
-UI.studs(shell, 40, 0.84, 22)
+UI.studs(shell, 40, 0.7, 22)
 shell.Active = true
 
 -- En-tete
@@ -140,20 +140,25 @@ local header = frame(shell, { Name = "Header", Position = UDim2.fromOffset(14, 1
 UI.corner(header, 14)
 UI.stroke(header, 4, BLACK)
 UI.gradient(header, Color3.fromRGB(255, 255, 255), Color3.fromRGB(150, 140, 170))
-UI.studs(header, 28, 0.8, 14)
+UI.studs(header, 28, 0.86, 14, WHITE)
 header.BackgroundColor3 = Color3.fromRGB(70, 30, 120)
 
-local starIcon = UI.text(header, "⭐", 56, WHITE, FONT, 3)
-starIcon.AnchorPoint = Vector2.new(0.5, 0.5)
-starIcon.Position = UDim2.fromOffset(46, 38)
-starIcon.Size = UDim2.fromOffset(70, 70)
-starIcon.ZIndex = header.ZIndex + 3
-
-local title = UI.text(header, "TRAIT MACHINE", 52, WHITE, FONT_TITLE, 5)
-title.Position = UDim2.fromOffset(88, 8)
-title.Size = UDim2.new(0.55, 0, 0, 60)
-title.TextXAlignment = Enum.TextXAlignment.Left
+local title = UI.text(header, "TRAIT MACHINE", 54, WHITE, FONT_TITLE, 5)
+title.AnchorPoint = Vector2.new(0.5, 0.5)
+title.Position = UDim2.fromScale(0.5, 0.5)
+title.Size = UDim2.fromOffset(470, 62)
 title.ZIndex = header.ZIndex + 3
+
+local starIcon = UI.text(header, "⭐", 50, WHITE, FONT, 3)
+starIcon.AnchorPoint = Vector2.new(1, 0.5)
+starIcon.Position = UDim2.new(0.5, -240, 0.5, 0)
+starIcon.Size = UDim2.fromOffset(62, 62)
+starIcon.ZIndex = header.ZIndex + 3
+local starIcon2 = UI.text(header, "⭐", 50, WHITE, FONT, 3)
+starIcon2.AnchorPoint = Vector2.new(0, 0.5)
+starIcon2.Position = UDim2.new(0.5, 240, 0.5, 0)
+starIcon2.Size = UDim2.fromOffset(62, 62)
+starIcon2.ZIndex = header.ZIndex + 3
 local titleGrad = UI.gradient(title, ColorSequence.new({
 	ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 250, 200)),
 	ColorSequenceKeypoint.new(0.5, GOLD),
@@ -161,11 +166,11 @@ local titleGrad = UI.gradient(title, ColorSequence.new({
 }), nil, 0)
 UI.shine(header, 3.5, 0.1)
 
-local luckPill = frame(header, { AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -170, 0.5, 0), Size = UDim2.fromOffset(250, 50), BackgroundColor3 = Color3.fromRGB(20, 60, 25) })
+local luckPill = frame(header, { AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 12, 0.5, 0), Size = UDim2.fromOffset(200, 50), BackgroundColor3 = Color3.fromRGB(20, 60, 25) })
 UI.round(luckPill)
 UI.stroke(luckPill, 3, BLACK)
 UI.gradient(luckPill, Color3.fromRGB(90, 220, 90), Color3.fromRGB(20, 120, 40))
-local luckPillText = UI.text(luckPill, "🍀 0 LUCKY ROLLS", 24, WHITE, FONT_TITLE, 3)
+local luckPillText = UI.text(luckPill, "🍀 0 ROLLS", 24, WHITE, FONT_TITLE, 3)
 luckPillText.Size = UDim2.new(1, -16, 1, -8)
 luckPillText.Position = UDim2.fromOffset(8, 4)
 luckPillText.ZIndex = luckPill.ZIndex + 2
@@ -185,7 +190,7 @@ local machine = frame(shell, { Name = "Machine", Position = UDim2.fromOffset(14,
 UI.corner(machine, 16)
 UI.stroke(machine, 4, BLACK)
 UI.gradient(machine, Color3.fromRGB(255, 255, 255), Color3.fromRGB(130, 120, 150))
-UI.studs(machine, 36, 0.9, 16)
+UI.studs(machine, 36, 0.9, 16, WHITE)
 
 local hint = UI.text(machine, "SELECT UP TO 4 BRAINROTS", 30, WHITE, FONT_TITLE, 3)
 hint.Position = UDim2.fromOffset(0, 10)
@@ -197,12 +202,12 @@ UI.list(slotsRow, Enum.FillDirection.Horizontal, 16, Enum.HorizontalAlignment.Ce
 local controls = frame(machine, { Name = "Controls", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -14), Size = UDim2.new(1, -28, 0, 116) })
 
 local autoButton = fancyButton(controls, "", C.purple, 26)
-autoButton.Position = UDim2.fromOffset(0, 22)
-autoButton.Size = UDim2.fromOffset(200, 80)
+autoButton.Position = UDim2.fromOffset(0, 4)
+autoButton.Size = UDim2.fromOffset(200, 72)
 autoButton.Label.Text = "AUTO"
-autoButton.Label.Size = UDim2.new(1, -12, 0, 36)
-autoButton.Label.Position = UDim2.fromOffset(6, 6)
-local switch = frame(autoButton, { AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -8), Size = UDim2.fromOffset(82, 28), BackgroundColor3 = Color3.fromRGB(40, 20, 60) })
+autoButton.Label.Size = UDim2.new(1, -12, 0, 30)
+autoButton.Label.Position = UDim2.fromOffset(6, 5)
+local switch = frame(autoButton, { AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -6), Size = UDim2.fromOffset(82, 28), BackgroundColor3 = Color3.fromRGB(40, 20, 60) })
 switch.ZIndex = autoButton.ZIndex + 3
 UI.round(switch)
 UI.stroke(switch, 3, BLACK)
@@ -213,6 +218,26 @@ knobText.AnchorPoint = Vector2.new(1, 0.5)
 knobText.Position = UDim2.new(1, -8, 0.5, 0)
 knobText.Size = UDim2.fromOffset(44, 20)
 knobText.ZIndex = switch.ZIndex + 2
+
+-- AUTO s'arrete (et retire le brainrot) quand ce trait ou mieux est obtenu.
+local stopAtRank = #TraitShared.TRAITS
+local stopButton = fancyButton(controls, "", Color3.fromRGB(70, 50, 100), 17)
+stopButton.Position = UDim2.fromOffset(0, 80)
+stopButton.Size = UDim2.fromOffset(200, 34)
+local function refreshStopAt()
+	local t = TraitShared.TRAITS[stopAtRank]
+	stopButton.Label.Text = ("STOP AT: %s %s+"):format(t.emoji, string.upper(t.name))
+	stopButton.Label.TextColor3 = t.color:Lerp(WHITE, 0.3)
+end
+refreshStopAt()
+stopButton.Activated:Connect(function()
+	stopAtRank = stopAtRank % #TraitShared.TRAITS + 1
+	if stopAtRank == 1 then
+		stopAtRank = 2
+	end
+	UISounds.Play("Tab")
+	refreshStopAt()
+end)
 
 local rollButton = fancyButton(controls, "ROLL", C.green, 56)
 rollButton.AnchorPoint = Vector2.new(0.5, 0)
@@ -315,7 +340,7 @@ local drawer = frame(machine, { Name = "Drawer", Position = UDim2.new(0, 0, 1, 1
 drawer.Active = true
 UI.corner(drawer, 16)
 UI.stroke(drawer, 4, GOLD)
-UI.studs(drawer, 36, 0.9, 16)
+UI.studs(drawer, 36, 0.9, 16, WHITE)
 local drawerTitle = UI.text(drawer, "CHOOSE BRAINROTS", 34, GOLD, FONT_TITLE, 3)
 drawerTitle.Position = UDim2.fromOffset(18, 12)
 drawerTitle.Size = UDim2.new(0.55, 0, 0, 40)
@@ -335,8 +360,8 @@ drawerEmpty.Position = UDim2.fromScale(0.5, 0.5)
 drawerEmpty.Size = UDim2.new(1, -40, 0, 40)
 drawerEmpty.Visible = false
 local grid = Instance.new("ScrollingFrame")
-grid.Position = UDim2.fromOffset(14, 68)
-grid.Size = UDim2.new(1, -28, 1, -80)
+grid.Position = UDim2.fromOffset(14, 112)
+grid.Size = UDim2.new(1, -28, 1, -124)
 grid.BackgroundTransparency = 1
 grid.BorderSizePixel = 0
 grid.ScrollBarThickness = 8
@@ -353,13 +378,40 @@ gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
 gridLayout.Parent = grid
 UI.padding(grid, 6)
 
+-- Filtres du tiroir.
+local drawerFilter = "ALL"
+local filterButtons = {}
+local filterRow = frame(drawer, { BackgroundTransparency = 1, Position = UDim2.fromOffset(14, 64), Size = UDim2.new(1, -28, 0, 40), ZIndex = drawer.ZIndex + 1 })
+UI.list(filterRow, Enum.FillDirection.Horizontal, 10, Enum.HorizontalAlignment.Left, Enum.VerticalAlignment.Center)
+local FILTERS = { { "ALL", "ALL" }, { "NOTRAIT", "NO TRAIT" }, { "UPGRADE", "CAN UPGRADE" } }
+local fillDrawer
+for i, f in ipairs(FILTERS) do
+	local b = fancyButton(filterRow, f[2], Color3.fromRGB(80, 70, 95), 18)
+	b.LayoutOrder = i
+	b.Size = UDim2.fromOffset(i == 3 and 170 or 130, 38)
+	b.ZIndex = drawer.ZIndex + 2
+	filterButtons[f[1]] = b
+	b.Activated:Connect(function()
+		if drawerFilter == f[1] then
+			return
+		end
+		drawerFilter = f[1]
+		UISounds.Play("Tab")
+		for k, fb in pairs(filterButtons) do
+			recolor(fb, k == drawerFilter and GOLD or Color3.fromRGB(80, 70, 95))
+		end
+		fillDrawer()
+	end)
+end
+recolor(filterButtons.ALL, GOLD)
+
 --== Panneau INFO ==--
 local info = frame(shell, { Name = "Info", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(640, 440), BackgroundColor3 = Color3.fromRGB(24, 40, 90), Visible = false, ZIndex = 90 })
 info.Active = true
 UI.corner(info, 18)
 UI.stroke(info, 5, BLACK)
 UI.gradient(info, Color3.fromRGB(90, 170, 255), Color3.fromRGB(30, 70, 190))
-UI.studs(info, 34, 0.85, 18)
+UI.studs(info, 34, 0.74, 18)
 local infoTitle = UI.text(info, "ℹ HOW IT WORKS", 40, WHITE, FONT_TITLE, 4)
 infoTitle.Position = UDim2.fromOffset(0, 16)
 infoTitle.Size = UDim2.new(1, 0, 0, 46)
@@ -468,7 +520,7 @@ local function buildCard(parent: Instance, tool: Tool, z: number)
 	UI.corner(card, 12)
 	local cs = UI.stroke(card, 4, rarity.color)
 	UI.gradient(card, rarity.color:Lerp(BLACK, 0.15), rarity.color:Lerp(BLACK, 0.72))
-	UI.studs(card, 24, 0.85, 12)
+	UI.studs(card, 24, 0.8, 12)
 
 	local rar = UI.text(card, string.upper(rarity.name or ""), 16, rarity.color:Lerp(WHITE, 0.45), FONT_TITLE, 2)
 	rar.Position = UDim2.fromOffset(8, 6)
@@ -685,7 +737,7 @@ local function makeSlot(i: number, tool: Tool?)
 		UI.corner(plus, 14)
 		UI.stroke(plus, 4, Color3.fromRGB(20, 110, 20))
 		UI.gradient(plus, Color3.fromRGB(150, 255, 110), Color3.fromRGB(40, 190, 40))
-		UI.studs(plus, 22, 0.8, 14)
+		UI.studs(plus, 22, 0.72, 14)
 		local pl = UI.text(plus, "+", 80, WHITE, FONT_TITLE, 4)
 		pl.Size = UDim2.fromScale(1, 1)
 		pl.Position = UDim2.fromOffset(0, 6)
@@ -717,6 +769,7 @@ local function makeSlot(i: number, tool: Tool?)
 end
 
 local updateCost
+local refreshAfford
 
 refreshSlots = function(animate: boolean?)
 	for i = #selected, 1, -1 do
@@ -737,12 +790,40 @@ refreshSlots = function(animate: boolean?)
 end
 
 --== Cout / luck ==--
+local function cash(): number
+	local ls = player:FindFirstChild("leaderstats")
+	local v = ls and ls:FindFirstChild("Cash")
+	return v and v:IsA("ValueBase") and tonumber((v :: any).Value) or 0
+end
+
+-- Rouge + bouton grise si le joueur n'a pas assez de cash.
+refreshAfford = function()
+	if rolling then
+		return
+	end
+	local ok = #selected > 0 and cash() >= lastCost
+	costLabel.TextColor3 = (#selected == 0 or ok) and Color3.fromRGB(230, 255, 170) or Color3.fromRGB(255, 110, 110)
+	recolor(rollButton, (#selected == 0 or ok) and C.green or Color3.fromRGB(150, 70, 70))
+end
+task.spawn(function()
+	local ls = player:WaitForChild("leaderstats", 60)
+	local v = ls and ls:WaitForChild("Cash", 30)
+	if v and v:IsA("ValueBase") then
+		v.Changed:Connect(function()
+			if isOpen then
+				refreshAfford()
+			end
+		end)
+	end
+end)
+
 updateCost = function()
 	costToken += 1
 	local my = costToken
 	if #selected == 0 then
 		costLabel.Text = "SELECT A BRAINROT"
 		lastCost = 0
+		refreshAfford()
 		return
 	end
 	task.spawn(function()
@@ -755,12 +836,13 @@ updateCost = function()
 		UI.countUp(costLabel, from, lastCost, function(v)
 			return "COST: $" .. NumberFormat.Format(math.floor(v))
 		end, 0.35)
+		refreshAfford()
 	end)
 end
 
 local function updateLuck()
 	local n = luckCount()
-	luckPillText.Text = ("🍀 %d LUCKY ROLL%s"):format(n, n == 1 and "" or "S")
+	luckPillText.Text = ("🍀 %d ROLL%s"):format(n, n == 1 and "" or "S")
 	local active = luckActive()
 	if n > 0 then
 		useLuckButton.Label.Text = active and "🍀 USE LUCK: ON" or "USE LUCK: OFF"
@@ -883,13 +965,22 @@ local function closeDrawer()
 	refreshSlots(true)
 end
 
-local function fillDrawer()
+fillDrawer = function()
 	for _, c in ipairs(grid:GetChildren()) do
 		if c:IsA("GuiObject") then
 			c:Destroy()
 		end
 	end
-	local list = validTools()
+	local list = {}
+	local maxRank = #TraitShared.TRAITS
+	for _, tool in ipairs(validTools()) do
+		local rank = TraitShared.GetRank(tool)
+		if drawerFilter == "ALL" or isSelected(tool)
+			or (drawerFilter == "NOTRAIT" and rank == 0)
+			or (drawerFilter == "UPGRADE" and rank < maxRank) then
+			table.insert(list, tool)
+		end
+	end
 	drawerEmpty.Visible = #list == 0
 	drawerCount.Text = ("%d/%d"):format(#selected, TraitShared.MAX_SELECTED)
 	local first
@@ -1095,6 +1186,9 @@ end
 local function setRollingVisual(on: boolean)
 	recolor(rollButton, on and Color3.fromRGB(120, 120, 130) or C.green)
 	rollButton.Label.Text = on and "ROLLING..." or "ROLL"
+	if not on then
+		refreshAfford()
+	end
 end
 
 local function doRoll(): boolean
@@ -1162,8 +1256,28 @@ local function toggleAuto()
 		task.spawn(function()
 			while auto and isOpen do
 				if not rolling then
+					-- Retire ceux qui ont atteint l'objectif (on ne paie plus pour eux).
+					local removed = 0
+					for i = #selected, 1, -1 do
+						if TraitShared.GetRank(selected[i]) >= stopAtRank then
+							table.remove(selected, i)
+							removed += 1
+						end
+					end
+					if removed > 0 then
+						UISounds.Play("Success")
+						refreshSlots(true)
+					end
+					if #selected == 0 then
+						showToast("TARGET REACHED! AUTO STOPPED", GOLD)
+						break
+					end
 					if allMaxed() then
 						showToast("ALL MAX TRAIT! AUTO STOPPED", GOLD)
+						break
+					end
+					if cash() < lastCost then
+						showToast("NOT ENOUGH CASH! AUTO STOPPED", C.red)
 						break
 					end
 					if not doRoll() then
@@ -1369,6 +1483,8 @@ RunService.RenderStepped:Connect(function(dt)
 	titleGrad.Offset = Vector2.new(math.sin(clock * 1.2) * 0.6, 0)
 	UI.scaleOf(starIcon).Scale = 1 + math.sin(clock * 3) * 0.1
 	starIcon.Rotation = math.sin(clock * 2) * 12
+	UI.scaleOf(starIcon2).Scale = 1 + math.sin(clock * 3 + 1.5) * 0.1
+	starIcon2.Rotation = -math.sin(clock * 2) * 12
 	if luckActive() then
 		UI.scaleOf(luckPill).Scale = 1 + math.abs(math.sin(clock * 3)) * 0.05
 	end
