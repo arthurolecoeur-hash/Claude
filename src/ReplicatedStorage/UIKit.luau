@@ -25,7 +25,8 @@ local UIKit = {}
 UIKit.FONT_TITLE = Font.new("rbxasset://fonts/families/LuckiestGuy.json")
 UIKit.FONT = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Bold)
 UIKit.ROBUX = utf8.char(0xE002)
-UIKit.STUDS = "rbxassetid://6372755229"
+-- Meme texture studs que les autres UIs du jeu (shop, rebirth, spin...).
+UIKit.STUDS = "rbxassetid://10509831729"
 
 local WHITE = Color3.new(1, 1, 1)
 local BLACK = Color3.new(0, 0, 0)
@@ -130,19 +131,24 @@ function UIKit.list(p: Instance, dir: Enum.FillDirection?, pad: number?, hAlign:
 	return l
 end
 
--- Texture a picots (Lego). color = noir sur fond clair, blanc sur fond sombre.
-function UIKit.studs(p: GuiObject, tile: number?, transp: number?, radius: number?, color: Color3?)
+-- Texture a picots (Lego), meme rendu que les autres UIs : image blanche
+-- en mosaique + leger degrade. `color` garde pour compatibilite (ignore).
+function UIKit.studs(p: GuiObject, tile: number?, transp: number?, radius: number?, _color: Color3?)
 	local img = Instance.new("ImageLabel")
-	img.Name = "Studs"
+	img.Name = "StudsTexture"
 	img.BackgroundTransparency = 1
 	img.Size = UDim2.fromScale(1, 1)
 	img.Image = UIKit.STUDS
 	img.ScaleType = Enum.ScaleType.Tile
 	img.TileSize = UDim2.fromOffset(tile or 36, tile or 36)
-	img.ImageColor3 = color or BLACK
-	img.ImageTransparency = transp or 0.75
+	img.ImageColor3 = WHITE
+	img.ImageTransparency = transp and math.min(transp, 0.65) or 0.55
 	img.ZIndex = p.ZIndex
 	img.Parent = p
+	local g = Instance.new("UIGradient")
+	g.Rotation = 90
+	g.Color = ColorSequence.new(WHITE, Color3.fromRGB(200, 200, 200))
+	g.Parent = img
 	if radius then
 		UIKit.corner(img, radius)
 	end

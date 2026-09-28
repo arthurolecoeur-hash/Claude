@@ -48,9 +48,9 @@ local MUTATION_COLORS = {
 	Rainbow = Color3.fromRGB(255, 120, 220), Admin = Color3.fromRGB(255, 45, 60),
 }
 
-local W, H = 1140, 680
-local LEFT_W = 800
-local SLOT_W, REEL_H, CARD_H = 172, 96, 220
+local W, H = 1260, 760
+local LEFT_W = 880
+local SLOT_W, REEL_H, CARD_H = 184, 100, 240
 local ICON_H = REEL_H
 
 --== Petits constructeurs ==--
@@ -214,13 +214,13 @@ UI.gradient(machine, Color3.fromRGB(255, 255, 255), Color3.fromRGB(130, 120, 150
 UI.studs(machine, 36, 0.8, 16, WHITE)
 
 local hint = UI.text(machine, "SELECT UP TO 4 BRAINROTS", 30, WHITE, FONT_TITLE, 3)
-hint.Position = UDim2.fromOffset(0, 10)
-hint.Size = UDim2.new(1, 0, 0, 34)
+hint.Position = UDim2.fromOffset(0, 16)
+hint.Size = UDim2.new(1, 0, 0, 36)
 
-local slotsRow = frame(machine, { Name = "Slots", BackgroundTransparency = 1, Position = UDim2.fromOffset(0, 52), Size = UDim2.new(1, 0, 0, REEL_H + CARD_H + 16) })
-UI.list(slotsRow, Enum.FillDirection.Horizontal, 16, Enum.HorizontalAlignment.Center, Enum.VerticalAlignment.Top)
+local slotsRow = frame(machine, { Name = "Slots", BackgroundTransparency = 1, Position = UDim2.fromOffset(0, 66), Size = UDim2.new(1, 0, 0, REEL_H + CARD_H + 16) })
+UI.list(slotsRow, Enum.FillDirection.Horizontal, 24, Enum.HorizontalAlignment.Center, Enum.VerticalAlignment.Top)
 
-local controls = frame(machine, { Name = "Controls", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -14), Size = UDim2.new(1, -28, 0, 116) })
+local controls = frame(machine, { Name = "Controls", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -22), Size = UDim2.new(1, -44, 0, 116) })
 
 local autoButton = fancyButton(controls, "", C.purple, 26)
 autoButton.Position = UDim2.fromOffset(0, 4)
@@ -312,11 +312,11 @@ local luckPage = frame(pages, { BackgroundTransparency = 1, Size = UDim2.fromSca
 local luckTag = UI.text(oddsPage, "", 18, LUCK_GREEN, FONT_TITLE, 2)
 luckTag.Size = UDim2.new(1, 0, 0, 22)
 local oddsList = frame(oddsPage, { BackgroundTransparency = 1, Position = UDim2.fromOffset(0, 26), Size = UDim2.new(1, 0, 1, -26) })
-UI.list(oddsList, Enum.FillDirection.Vertical, 6)
+UI.list(oddsList, Enum.FillDirection.Vertical, 10)
 local oddsRows = {}
 local maxLog = math.log(TraitShared.TRAITS[#TraitShared.TRAITS].odds + 1)
 for i, t in ipairs(TraitShared.TRAITS) do
-	local row = frame(oddsList, { LayoutOrder = i, Size = UDim2.new(1, 0, 0, 62), BackgroundColor3 = Color3.fromRGB(16, 10, 26), BackgroundTransparency = 0.25 })
+	local row = frame(oddsList, { LayoutOrder = i, Size = UDim2.new(1, 0, 0, 64), BackgroundColor3 = Color3.fromRGB(16, 10, 26), BackgroundTransparency = 0.25 })
 	UI.corner(row, 10)
 	UI.stroke(row, 2.5, t.color:Lerp(BLACK, 0.3))
 	local icon = traitIcon(row, t)

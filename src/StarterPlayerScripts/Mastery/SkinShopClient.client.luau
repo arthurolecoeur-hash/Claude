@@ -26,7 +26,7 @@ local WHITE, BLACK = C.white, C.black
 local PURPLE = Color3.fromRGB(170, 90, 255)
 local STAR = MasteryShared.ICON
 
-local W, H = 980, 640
+local W, H = 1120, 780
 
 local state = { points = 0, total = 0, owned = {}, equipped = nil }
 
@@ -132,13 +132,13 @@ close.Size = UDim2.fromOffset(62, 58)
 
 --== Infos ==--
 local powerLine = UI.text(root, "", 26, WHITE, UI.FONT_TITLE, 3)
-powerLine.Position = UDim2.fromOffset(0, 98)
+powerLine.Position = UDim2.fromOffset(0, 102)
 powerLine.Size = UDim2.new(1, 0, 0, 30)
 -- Prochain objectif : barre + estimation du nombre de lancers.
 local nextBar = Instance.new("Frame")
 nextBar.AnchorPoint = Vector2.new(0.5, 0)
-nextBar.Position = UDim2.new(0.5, 0, 0, 130)
-nextBar.Size = UDim2.new(0.62, 0, 0, 24)
+nextBar.Position = UDim2.new(0.5, 0, 0, 138)
+nextBar.Size = UDim2.new(0.6, 0, 0, 26)
 nextBar.BackgroundColor3 = Color3.fromRGB(30, 14, 50)
 nextBar.ZIndex = 3
 nextBar.Parent = root
@@ -158,7 +158,7 @@ nextText.ZIndex = 5
 
 local hint = UI.text(root, "YEET to earn " .. STAR .. " (farther = more)  •  the skin is the noob you THROW  •  best owned skin = FORCE passive", 16, Color3.fromRGB(245, 235, 255), UI.FONT, 2)
 hint.AnchorPoint = Vector2.new(0.5, 1)
-hint.Position = UDim2.new(0.5, 0, 1, -82)
+hint.Position = UDim2.new(0.5, 0, 1, -92)
 hint.Size = UDim2.new(1, -40, 0, 20)
 
 -- Moyenne des derniers gains (pour estimer les lancers restants).
@@ -177,19 +177,19 @@ end
 --== Grille ==--
 local grid = Instance.new("Frame")
 grid.BackgroundTransparency = 1
-grid.Position = UDim2.fromOffset(24, 166)
-grid.Size = UDim2.new(1, -48, 1, -276)
+grid.Position = UDim2.fromOffset(36, 178)
+grid.Size = UDim2.new(1, -72, 1, -296)
 grid.Parent = root
 local gl = Instance.new("UIGridLayout")
-gl.CellSize = UDim2.new(1 / 3, -14, 0.5, -8)
-gl.CellPadding = UDim2.fromOffset(20, 16)
+gl.CellSize = UDim2.new(1 / 3, -20, 0.5, -13)
+gl.CellPadding = UDim2.fromOffset(28, 26)
 gl.SortOrder = Enum.SortOrder.LayoutOrder
 gl.HorizontalAlignment = Enum.HorizontalAlignment.Center
 gl.Parent = grid
 
 local ownAvatar = button(root, "🟨 CLASSIC NOOB (FREE)", Color3.fromRGB(80, 80, 110), 24)
 ownAvatar.AnchorPoint = Vector2.new(0.5, 1)
-ownAvatar.Position = UDim2.new(0.5, 0, 1, -16)
+ownAvatar.Position = UDim2.new(0.5, 0, 1, -20)
 ownAvatar.Size = UDim2.fromOffset(420, 60)
 
 local toast = UI.text(root, "", 28, WHITE, UI.FONT_TITLE, 3)
