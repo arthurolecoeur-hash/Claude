@@ -213,6 +213,9 @@
         },
         "Traits": {
           "$className": "Folder",
+          "TraitFxClient": {
+            "$path": "src/StarterPlayerScripts/Traits/TraitFxClient.client.luau"
+          },
           "TraitMachineClient": {
             "$path": "src/StarterPlayerScripts/Traits/TraitMachineClient.client.luau"
           }

@@ -59,7 +59,7 @@ root.Parent = gui
 UI.corner(root, 22)
 UI.stroke(root, 6, BLACK)
 UI.gradient(root, Color3.fromRGB(200, 130, 255), Color3.fromRGB(95, 35, 190))
-UI.studs(root, 40, 0.72, 22)
+UI.studs(root, 40, 0.58, 22)
 local rootScale = Instance.new("UIScale")
 rootScale.Parent = root
 local fitScale = 1
@@ -75,7 +75,7 @@ local function button(parent: Instance, label: string, color: Color3, size: numb
 	UI.stroke(b, 4, BLACK)
 	local g = UI.gradient(b, color:Lerp(WHITE, 0.2), color:Lerp(BLACK, 0.3))
 	g.Name = "Fill"
-	UI.studs(b, 24, 0.75, 12)
+	UI.studs(b, 24, 0.62, 12)
 	local l = UI.text(b, label, size or 26, WHITE, UI.FONT_TITLE, 3)
 	l.Name = "Label"
 	l.Size = UDim2.new(1, -12, 1, -8)
@@ -102,7 +102,7 @@ header.Parent = root
 UI.corner(header, 14)
 UI.stroke(header, 4, BLACK)
 UI.gradient(header, Color3.fromRGB(255, 225, 90), Color3.fromRGB(235, 140, 10))
-UI.studs(header, 28, 0.72, 14)
+UI.studs(header, 28, 0.6, 14)
 UI.shine(header, 3.5, 0.1)
 local title = UI.text(header, "⭐ MASTERY SKINS ⭐", 50, WHITE, UI.FONT_TITLE, 5)
 title.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -134,15 +134,51 @@ close.Size = UDim2.fromOffset(62, 58)
 local powerLine = UI.text(root, "", 26, WHITE, UI.FONT_TITLE, 3)
 powerLine.Position = UDim2.fromOffset(0, 98)
 powerLine.Size = UDim2.new(1, 0, 0, 30)
-local hint = UI.text(root, "YEET to earn " .. STAR .. " (farther = more). The skin is the noob you THROW. Best owned skin = FORCE passive!", 19, Color3.fromRGB(245, 235, 255), UI.FONT, 2)
-hint.Position = UDim2.fromOffset(0, 128)
-hint.Size = UDim2.new(1, 0, 0, 24)
+-- Prochain objectif : barre + estimation du nombre de lancers.
+local nextBar = Instance.new("Frame")
+nextBar.AnchorPoint = Vector2.new(0.5, 0)
+nextBar.Position = UDim2.new(0.5, 0, 0, 130)
+nextBar.Size = UDim2.new(0.62, 0, 0, 24)
+nextBar.BackgroundColor3 = Color3.fromRGB(30, 14, 50)
+nextBar.ZIndex = 3
+nextBar.Parent = root
+UI.round(nextBar)
+UI.stroke(nextBar, 3, BLACK)
+local nextFill = Instance.new("Frame")
+nextFill.Size = UDim2.fromScale(0, 1)
+nextFill.BackgroundColor3 = WHITE
+nextFill.ZIndex = 4
+nextFill.Parent = nextBar
+UI.round(nextFill)
+UI.gradient(nextFill, Color3.fromRGB(255, 235, 120), Color3.fromRGB(240, 150, 0))
+local nextText = UI.text(nextBar, "", 16, WHITE, UI.FONT_TITLE, 2)
+nextText.Size = UDim2.new(1, -10, 1, -2)
+nextText.Position = UDim2.fromOffset(5, 1)
+nextText.ZIndex = 5
+
+local hint = UI.text(root, "YEET to earn " .. STAR .. " (farther = more)  •  the skin is the noob you THROW  •  best owned skin = FORCE passive", 16, Color3.fromRGB(245, 235, 255), UI.FONT, 2)
+hint.AnchorPoint = Vector2.new(0.5, 1)
+hint.Position = UDim2.new(0.5, 0, 1, -82)
+hint.Size = UDim2.new(1, -40, 0, 20)
+
+-- Moyenne des derniers gains (pour estimer les lancers restants).
+local recentGains = {}
+local function avgGain(): number
+	if #recentGains == 0 then
+		return 0
+	end
+	local sum = 0
+	for _, g in ipairs(recentGains) do
+		sum += g
+	end
+	return sum / #recentGains
+end
 
 --== Grille ==--
 local grid = Instance.new("Frame")
 grid.BackgroundTransparency = 1
-grid.Position = UDim2.fromOffset(24, 160)
-grid.Size = UDim2.new(1, -48, 1, -250)
+grid.Position = UDim2.fromOffset(24, 166)
+grid.Size = UDim2.new(1, -48, 1, -276)
 grid.Parent = root
 local gl = Instance.new("UIGridLayout")
 gl.CellSize = UDim2.new(1 / 3, -14, 0.5, -8)
@@ -235,7 +271,30 @@ local function bestMult(): number
 	return MasteryShared.BestMult(state.owned)
 end
 
+local function refreshNext()
+	local nextSkin
+	for _, sk in ipairs(MasteryShared.SKINS) do
+		if not state.owned[sk.key] then
+			nextSkin = sk
+			break
+		end
+	end
+	if not nextSkin then
+		nextFill.Size = UDim2.fromScale(1, 1)
+		nextText.Text = "ALL SKINS UNLOCKED! 👑"
+		return
+	end
+	local ratio = math.clamp(state.points / nextSkin.cost, 0, 1)
+	UI.tween(nextFill, 0.4, { Size = UDim2.fromScale(ratio, 1) }, Enum.EasingStyle.Quart)
+	local missing = math.max(0, nextSkin.cost - state.points)
+	local avg = avgGain()
+	local eta = (missing > 0 and avg > 0) and ("  (~%d yeets)"):format(math.ceil(missing / avg)) or ""
+	nextText.Text = missing > 0 and ("NEXT: %s  %s %s / %s%s"):format(string.upper(nextSkin.name), STAR, NumberFormat.Format(state.points), NumberFormat.Format(nextSkin.cost), eta)
+		or ("%s IS READY TO BUY!"):format(string.upper(nextSkin.name))
+end
+
 local function refresh()
+	refreshNext()
 	balanceText.Text = STAR .. " " .. NumberFormat.Format(state.points)
 	local m = bestMult()
 	powerLine.Text = m > 1 and ("💪 PASSIVE: <font color=\"#FFD23C\">%s FORCE</font>  •  TOTAL EARNED: %s %s"):format(MasteryShared.FormatMult(m), STAR, NumberFormat.Format(state.total or 0))
@@ -260,6 +319,9 @@ local function refresh()
 			c.bar.Size = UDim2.fromScale(owned and 1 or ratio, 1)
 			c.barText.Text = owned and "OWNED" or ("%s / %s"):format(NumberFormat.Format(state.points), NumberFormat.Format(s.cost))
 			c.best.Visible = owned and s.mult == bestMult()
+			c.stroke.Color = wearing and Color3.fromRGB(255, 225, 60) or BLACK
+			c.stroke.Thickness = wearing and 6 or 4
+			c.ribbon.Visible = wearing
 		end
 	end
 	recolor(ownAvatar, state.equipped == nil and Color3.fromRGB(90, 90, 110) or Color3.fromRGB(80, 120, 200))
@@ -273,9 +335,19 @@ for i, s in ipairs(MasteryShared.SKINS) do
 	card.ZIndex = 3
 	card.Parent = grid
 	UI.corner(card, 14)
-	UI.stroke(card, 4, BLACK)
+	local cardStroke = UI.stroke(card, 4, BLACK)
+	local ribbon = UI.text(card, "✔ SELECTED", 16, Color3.fromRGB(255, 235, 120), UI.FONT_TITLE, 2)
+	ribbon.AnchorPoint = Vector2.new(0, 0)
+	ribbon.Position = UDim2.fromOffset(-6, -10)
+	ribbon.Size = UDim2.fromOffset(110, 22)
+	ribbon.BackgroundColor3 = Color3.fromRGB(40, 20, 60)
+	ribbon.BackgroundTransparency = 0
+	ribbon.Rotation = -8
+	ribbon.ZIndex = 12
+	ribbon.Visible = false
+	UI.round(ribbon)
 	UI.gradient(card, s.color:Lerp(BLACK, 0.2), s.color:Lerp(BLACK, 0.7))
-	UI.studs(card, 24, 0.8, 14)
+	UI.studs(card, 24, 0.66, 14)
 
 	local name = UI.text(card, string.upper(s.name), 24, WHITE, UI.FONT_TITLE, 3)
 	name.Position = UDim2.fromOffset(0, 6)
@@ -410,7 +482,14 @@ for i, s in ipairs(MasteryShared.SKINS) do
 		end
 	end)
 
-	cards[s.key] = { card = card, action = action, lock = lock, bar = bar, barText = barText, best = best }
+	cards[s.key] = { card = card, action = action, lock = lock, bar = bar, barText = barText, best = best, stroke = cardStroke, ribbon = ribbon }
+	-- Survol : la carte grossit un peu.
+	card.MouseEnter:Connect(function()
+		UI.tween(UI.scaleOf(card), 0.15, { Scale = 1.04 }, Enum.EasingStyle.Back)
+	end)
+	card.MouseLeave:Connect(function()
+		UI.tween(UI.scaleOf(card), 0.15, { Scale = 1 })
+	end)
 end
 
 ownAvatar.Activated:Connect(function()
@@ -491,6 +570,10 @@ event.OnClientEvent:Connect(function(kind, data)
 			refresh()
 		end
 	elseif kind == "Gained" and type(data) == "table" then
+		table.insert(recentGains, tonumber(data.amount) or 0)
+		if #recentGains > 5 then
+			table.remove(recentGains, 1)
+		end
 		UISounds.PlayOverlap("Pop", 1.2, 0.5)
 	end
 end)

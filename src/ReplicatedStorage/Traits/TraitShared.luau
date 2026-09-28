@@ -15,13 +15,13 @@
 local TraitShared = {}
 
 TraitShared.TRAITS = {
-	{ key = "Leaf",    name = "Leaf",    mult = 1.5, odds = 1,     emoji = "🍃", icon = "rbxassetid://116947936406383", color = Color3.fromRGB(90, 230, 70) },
-	{ key = "Storm",   name = "Storm",   mult = 2,   odds = 10,    emoji = "⚡", icon = "rbxassetid://139001506143613", color = Color3.fromRGB(70, 170, 255) },
-	{ key = "Fire",    name = "Fire",    mult = 3,   odds = 50,    emoji = "🔥", icon = "rbxassetid://108339982275412", color = Color3.fromRGB(255, 110, 30) },
+	{ key = "Leaf",    name = "Leaf",    mult = 1.5, odds = 1,     emoji = "🍃", icon = "rbxassetid://89180650993961", color = Color3.fromRGB(90, 230, 70) },
+	{ key = "Storm",   name = "Storm",   mult = 2,   odds = 10,    emoji = "⚡", icon = "rbxassetid://108339982275412", color = Color3.fromRGB(70, 170, 255) },
+	{ key = "Fire",    name = "Fire",    mult = 3,   odds = 50,    emoji = "🔥", icon = "rbxassetid://139001506143613", color = Color3.fromRGB(255, 110, 30) },
 	{ key = "Star",    name = "Star",    mult = 4,   odds = 200,   emoji = "⭐", icon = "rbxassetid://127220309921782", color = Color3.fromRGB(255, 205, 40) },
 	{ key = "Cosmic",  name = "Cosmic",  mult = 5,   odds = 1000,  emoji = "🔮", icon = "rbxassetid://119118441475467", color = Color3.fromRGB(190, 90, 255) },
-	{ key = "Diamond", name = "Diamond", mult = 6,   odds = 7500,  emoji = "💎", icon = "rbxassetid://89180650993961", color = Color3.fromRGB(80, 225, 255) },
-	{ key = "Monkey",  name = "Monkey",  mult = 7,   odds = 15000, emoji = "🐒", icon = "rbxassetid://105521226034503", color = Color3.fromRGB(255, 150, 60) },
+	{ key = "Diamond", name = "Diamond", mult = 6,   odds = 7500,  emoji = "💎", icon = "rbxassetid://116947936406383", color = Color3.fromRGB(80, 225, 255) },
+	{ key = "Monkey",  name = "Monkey",  mult = 7,   odds = 15000, emoji = "🐒", icon = "rbxassetid://136159973697586", color = Color3.fromRGB(255, 150, 60) },
 }
 
 TraitShared.MAX_SELECTED = 4

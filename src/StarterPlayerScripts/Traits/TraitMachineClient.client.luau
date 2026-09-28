@@ -77,7 +77,7 @@ local function fancyButton(parent: Instance, label: string, color: Color3, textS
 	UI.stroke(b, 4, BLACK)
 	local g = UI.gradient(b, color:Lerp(WHITE, 0.2), color:Lerp(BLACK, 0.3))
 	g.Name = "Fill"
-	UI.studs(b, 26, 0.72, 12)
+	UI.studs(b, 26, 0.62, 12)
 	local l = UI.text(b, label, textSize or 30, WHITE, FONT_TITLE, 3)
 	l.Name = "Label"
 	l.Size = UDim2.new(1, -12, 1, -8)
@@ -153,7 +153,7 @@ local shell = frame(root, { Name = "Shell", Size = UDim2.fromScale(1, 1), ZIndex
 UI.corner(shell, 22)
 UI.stroke(shell, 6, BLACK)
 UI.gradient(shell, Color3.fromRGB(255, 226, 90), Color3.fromRGB(226, 146, 10))
-UI.studs(shell, 40, 0.7, 22)
+UI.studs(shell, 40, 0.58, 22)
 shell.Active = true
 
 -- En-tete
@@ -161,7 +161,7 @@ local header = frame(shell, { Name = "Header", Position = UDim2.fromOffset(14, 1
 UI.corner(header, 14)
 UI.stroke(header, 4, BLACK)
 UI.gradient(header, Color3.fromRGB(255, 255, 255), Color3.fromRGB(150, 140, 170))
-UI.studs(header, 28, 0.86, 14, WHITE)
+UI.studs(header, 28, 0.78, 14, WHITE)
 header.BackgroundColor3 = Color3.fromRGB(70, 30, 120)
 
 local title = UI.text(header, "TRAIT MACHINE", 54, WHITE, FONT_TITLE, 5)
@@ -211,7 +211,7 @@ local machine = frame(shell, { Name = "Machine", Position = UDim2.fromOffset(14,
 UI.corner(machine, 16)
 UI.stroke(machine, 4, BLACK)
 UI.gradient(machine, Color3.fromRGB(255, 255, 255), Color3.fromRGB(130, 120, 150))
-UI.studs(machine, 36, 0.9, 16, WHITE)
+UI.studs(machine, 36, 0.8, 16, WHITE)
 
 local hint = UI.text(machine, "SELECT UP TO 4 BRAINROTS", 30, WHITE, FONT_TITLE, 3)
 hint.Position = UDim2.fromOffset(0, 10)
@@ -291,6 +291,7 @@ local side = frame(shell, { Name = "Side", Position = UDim2.fromOffset(LEFT_W + 
 UI.corner(side, 16)
 UI.stroke(side, 4, BLACK)
 UI.gradient(side, Color3.fromRGB(255, 255, 255), Color3.fromRGB(130, 120, 150))
+UI.studs(side, 36, 0.8, 16, WHITE)
 
 local tabs = frame(side, { BackgroundTransparency = 1, Position = UDim2.fromOffset(10, 10), Size = UDim2.new(1, -20, 0, 50) })
 local tabGrid = Instance.new("UIGridLayout")
@@ -361,7 +362,7 @@ local drawer = frame(machine, { Name = "Drawer", Position = UDim2.new(0, 0, 1, 1
 drawer.Active = true
 UI.corner(drawer, 16)
 UI.stroke(drawer, 4, GOLD)
-UI.studs(drawer, 36, 0.9, 16, WHITE)
+UI.studs(drawer, 36, 0.8, 16, WHITE)
 local drawerTitle = UI.text(drawer, "CHOOSE BRAINROTS", 34, GOLD, FONT_TITLE, 3)
 drawerTitle.AnchorPoint = Vector2.new(0.5, 0)
 drawerTitle.Position = UDim2.new(0.5, -60, 0, 12)
@@ -432,7 +433,7 @@ info.Active = true
 UI.corner(info, 18)
 UI.stroke(info, 5, BLACK)
 UI.gradient(info, Color3.fromRGB(90, 170, 255), Color3.fromRGB(30, 70, 190))
-UI.studs(info, 34, 0.74, 18)
+UI.studs(info, 34, 0.62, 18)
 local infoTitle = UI.text(info, "ℹ HOW IT WORKS", 40, WHITE, FONT_TITLE, 4)
 infoTitle.Position = UDim2.fromOffset(0, 16)
 infoTitle.Size = UDim2.new(1, 0, 0, 46)
@@ -549,7 +550,7 @@ local function buildCard(parent: Instance, tool: Tool, z: number)
 	UI.corner(card, 12)
 	local cs = UI.stroke(card, 4, rarity.color)
 	UI.gradient(card, rarity.color:Lerp(BLACK, 0.15), rarity.color:Lerp(BLACK, 0.72))
-	UI.studs(card, 24, 0.8, 12)
+	UI.studs(card, 24, 0.7, 12)
 
 	local rar = UI.text(card, string.upper(rarity.name or ""), 16, rarity.color:Lerp(WHITE, 0.45), FONT_TITLE, 2)
 	rar.Position = UDim2.fromOffset(8, 6)
@@ -776,7 +777,7 @@ local function makeSlot(i: number, tool: Tool?)
 		UI.corner(plus, 14)
 		UI.stroke(plus, 4, Color3.fromRGB(20, 110, 20))
 		UI.gradient(plus, Color3.fromRGB(150, 255, 110), Color3.fromRGB(40, 190, 40))
-		UI.studs(plus, 22, 0.72, 14)
+		UI.studs(plus, 22, 0.62, 14)
 		-- "+" dessine avec 2 barres : parfaitement centre (le "+" de la police ne l'est pas).
 		for _, sz in ipairs({ UDim2.fromOffset(52, 14), UDim2.fromOffset(14, 52) }) do
 			local bar = frame(plus, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = sz, BackgroundColor3 = WHITE, ZIndex = 10 })
