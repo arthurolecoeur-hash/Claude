@@ -47,13 +47,24 @@ local function line(bb: BillboardGui, name: string, order: number, height: numbe
 	l.FontFace = font or FONT_TITLE
 	l.Text = str
 	l.TextScaled = true
+	l.RichText = true
 	l.TextColor3 = color
 	l.Parent = bb
 	local s = Instance.new("UIStroke")
-	s.Thickness = 3
+	s.Thickness = 3.5
 	s.Color = BLACK
+	s.LineJoinMode = Enum.LineJoinMode.Round
 	s.Parent = l
 	return l
+end
+
+-- Degrade haut clair -> bas plus sombre (style des panneaux de la ref).
+local function shade(l: TextLabel, top: Color3, bottom: Color3)
+	local g = Instance.new("UIGradient")
+	g.Rotation = 90
+	g.Color = ColorSequence.new(top, bottom)
+	g.Parent = l
+	return g
 end
 
 local function billboard(adornee: Instance, width: number, height: number)
@@ -80,17 +91,23 @@ local function setupDirect(podium: Model, direct)
 	if not att then
 		return
 	end
-	local bb = billboard(att, 12, 10)
-	local tier = line(bb, "Tier", 1, 0.15, direct.tier or "LIMITED", WHITE)
+	local bb = billboard(att, 12, 10.5)
+	local c = direct.color or WHITE
+	local tier = line(bb, "Tier", 1, 0.13, direct.tier or "LIMITED", WHITE)
+	shade(tier, c:Lerp(WHITE, 0.45), c)
+	local rarity = line(bb, "Rarity", 2, 0.14, "EXCLUSIVE", WHITE)
 	local g = Instance.new("UIGradient")
 	g.Color = RAINBOW
-	g.Parent = tier
+	g.Parent = rarity
 	table.insert(animated, g)
-	line(bb, "Rarity", 2, 0.13, "EXCLUSIVE", Color3.fromRGB(255, 90, 160))
-	line(bb, "Name", 3, 0.17, direct.name, WHITE)
-	local price = line(bb, "Price", 4, 0.13, ROBUX .. " " .. direct.price, Color3.fromRGB(215, 225, 215), FONT)
-	local income = line(bb, "Income", 5, 0.14, "", Color3.fromRGB(190, 255, 60))
+	local name = line(bb, "Name", 3, 0.17, direct.name, WHITE)
+	shade(name, WHITE, Color3.fromRGB(215, 215, 225))
+	local price = line(bb, "Price", 4, 0.12, ROBUX .. " " .. direct.price, Color3.fromRGB(205, 215, 205), FONT)
+	local income = line(bb, "Income", 5, 0.14, "", Color3.fromRGB(150, 255, 60))
+	shade(income, Color3.fromRGB(200, 255, 120), Color3.fromRGB(90, 220, 40))
 	local left = line(bb, "Left", 6, 0.28, "", WHITE)
+	shade(left, WHITE, Color3.fromRGB(215, 215, 225))
+	table.insert(animated, { left = left, podium = podium })
 	local pct = direct.percent or 100
 
 	if direct.id ~= 0 then
@@ -120,9 +137,15 @@ local function setupDirect(podium: Model, direct)
 			left.Text = "SOLD OUT"
 			left.TextColor3 = Color3.fromRGB(255, 70, 70)
 		else
+			local prev = tonumber(left:GetAttribute("Shown"))
 			left.Text = n .. " LEFT"
 			left.TextColor3 = n <= 10 and Color3.fromRGB(255, 140, 90) or WHITE
+			if prev and prev ~= n then
+				left:SetAttribute("BumpAt", os.clock())
+			end
+			left:SetAttribute("Shown", n)
 		end
+		left:SetAttribute("Low", n ~= nil and n > 0 and n <= 10)
 		local prompt = podium:FindFirstChild("PodiumBuyPrompt", true)
 		if prompt then
 			prompt.ActionText = (n ~= nil and n <= 0) and "Sold Out" or "Buy"
@@ -166,19 +189,66 @@ local function setupStrawberry(podium: Model)
 	end
 
 	local block = podium:WaitForChild("LuckyBlockDisplay", 10)
-	if block then
-		local base = block:GetPivot()
-		local t0 = os.clock()
-		RunService.RenderStepped:Connect(function()
-			local char = player.Character
-			local root = char and char:FindFirstChild("HumanoidRootPart")
-			if root and (root.Position - base.Position).Magnitude > 160 then
-				return
-			end
-			local t = os.clock() - t0
-			block:PivotTo(base * CFrame.new(0, math.sin(t * 2) * 0.5 + 0.4, 0) * CFrame.Angles(0, math.sin(t * 0.9) * 0.35, 0))
-		end)
+	local orbit = {}
+	local center = (anchor and anchor.Position or podium:GetPivot().Position)
+	-- Fraises / etincelles qui tournent autour du bloc (comme les chiffres
+	-- du Lucky Block "hacked" de la ref).
+	for i = 1, 8 do
+		local holder = Instance.new("Part")
+		holder.Name = "OrbitFx"
+		holder.Anchored = true
+		holder.CanCollide = false
+		holder.CanQuery = false
+		holder.CanTouch = false
+		holder.Transparency = 1
+		holder.Size = Vector3.one
+		holder.Parent = workspace.CurrentCamera
+		local bb = Instance.new("BillboardGui")
+		bb.Size = UDim2.fromScale(1.8, 1.8)
+		bb.LightInfluence = 0
+		bb.MaxDistance = 120
+		bb.Parent = holder
+		local t = Instance.new("TextLabel")
+		t.BackgroundTransparency = 1
+		t.Size = UDim2.fromScale(1, 1)
+		t.TextScaled = true
+		t.Text = i % 3 == 0 and "✨" or (i % 3 == 1 and "🍓" or "💖")
+		t.Parent = bb
+		table.insert(orbit, { part = holder, label = t, phase = i / 8 * math.pi * 2, radius = 4.2 + (i % 2) * 1.2, height = 2 + (i % 4) * 1.3 })
 	end
+	local beam = podium:FindFirstChild("LightBeam", true)
+	local base = block and block:GetPivot()
+	local t0 = os.clock()
+	RunService.RenderStepped:Connect(function()
+		local char = player.Character
+		local root = char and char:FindFirstChild("HumanoidRootPart")
+		local far = root and (root.Position - center).Magnitude > 160
+		for _, o in ipairs(orbit) do
+			o.label.Visible = not far
+		end
+		if far then
+			return
+		end
+		local t = os.clock() - t0
+		if block and base then
+			block:PivotTo(base * CFrame.new(0, math.sin(t * 2) * 0.6 + 0.6, 0) * CFrame.Angles(0, t * 0.8, math.sin(t * 1.3) * 0.06))
+		end
+		for _, o in ipairs(orbit) do
+			local a = o.phase + t * 0.9
+			o.part.CFrame = CFrame.new(center + Vector3.new(math.cos(a) * o.radius, o.height + math.sin(t * 2 + o.phase) * 0.6, math.sin(a) * o.radius))
+			o.label.TextTransparency = 0.1 + (math.sin(t * 3 + o.phase) + 1) * 0.2
+			o.label.Rotation = math.sin(t * 2 + o.phase) * 15
+		end
+		if beam and beam:IsA("Beam") then
+			local k = 0.3 + (math.sin(t * 2.2) + 1) * 0.08
+			beam.Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, k),
+				NumberSequenceKeypoint.new(0.6, 0.75),
+				NumberSequenceKeypoint.new(1, 1),
+			})
+			beam.Width0 = 7 + math.sin(t * 1.7) * 0.6
+		end
+	end)
 
 	for _, cd in ipairs(podium:GetDescendants()) do
 		if cd:IsA("ClickDetector") then
@@ -223,6 +293,12 @@ RunService.RenderStepped:Connect(function(dt)
 			a.Offset = Vector2.new(math.sin(clock * 1.4) * 0.5, 0)
 		elseif a.pulse then
 			a.pulse.TextTransparency = 0.15 + math.abs(math.sin(clock * 3)) * 0.3
+		elseif a.left then
+			local sc = a.left:FindFirstChild("Pulse") or Instance.new("UIScale")
+			sc.Name = "Pulse"
+			sc.Parent = a.left
+			local bump = math.max(0, 1 - (os.clock() - (tonumber(a.left:GetAttribute("BumpAt")) or 0)) / 0.5)
+			sc.Scale = (a.left:GetAttribute("Low") and 1 + math.abs(math.sin(clock * 4)) * 0.08 or 1) + bump * 0.35
 		end
 	end
 end)

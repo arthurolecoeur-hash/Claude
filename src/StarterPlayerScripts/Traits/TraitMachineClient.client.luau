@@ -1509,6 +1509,30 @@ task.spawn(function()
 		angle:Destroy()
 	end
 
+	-- Ampoules de la marquee qui chenillent + socle qui respire.
+	local bulbs = {}
+	for _, d in ipairs(model:GetDescendants()) do
+		if d:IsA("BasePart") and d.Name == "Bulb" then
+			table.insert(bulbs, d)
+		end
+	end
+	table.sort(bulbs, function(a, b)
+		return a.Position.X < b.Position.X
+	end)
+	local padGlow = model:FindFirstChild("PadGlow")
+	local BULB_COLORS = { Color3.fromRGB(255, 240, 60), Color3.fromRGB(255, 60, 60), Color3.fromRGB(255, 255, 255) }
+	local bulbClock = 0
+	RunService.Heartbeat:Connect(function(dt)
+		bulbClock += dt
+		local step = math.floor(bulbClock * (rolling and 14 or 5))
+		for i, b in ipairs(bulbs) do
+			b.Color = BULB_COLORS[((i + step) % #BULB_COLORS) + 1]
+		end
+		if padGlow and padGlow:IsA("BasePart") then
+			padGlow.Transparency = 0.3 + math.sin(bulbClock * 2) * 0.12
+		end
+	end)
+
 	-- Animation d'attente : les rouleaux tournent quand on est proche.
 	while true do
 		local char = player.Character
