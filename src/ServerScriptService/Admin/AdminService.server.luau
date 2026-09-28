@@ -130,6 +130,19 @@ local function resolveTargets(who: any): { Player }
 	if who == "ALL" then
 		return Players:GetPlayers()
 	end
+	local n = type(who) == "string" and tonumber(who:match("^RANDOM:(%d+)$"))
+	if n then
+		local pool = Players:GetPlayers()
+		for i = #pool, 2, -1 do
+			local j = math.random(1, i)
+			pool[i], pool[j] = pool[j], pool[i]
+		end
+		local out = {}
+		for i = 1, math.min(math.clamp(n, 1, 50), #pool) do
+			out[i] = pool[i]
+		end
+		return out
+	end
 	local target = Players:GetPlayerByUserId(tonumber(who) or 0)
 	return target and { target } or {}
 end
@@ -164,6 +177,12 @@ actions.Give = function(player: Player, who: any, data: any)
 	end
 	if who == "ALL" then
 		announce(player, ("%s gave everyone %s!"):format(player.DisplayName, label), Color3.fromRGB(255, 215, 60))
+	elseif type(who) == "string" and who:match("^RANDOM:") then
+		local names = {}
+		for _, t in ipairs(targets) do
+			table.insert(names, t.DisplayName)
+		end
+		announce(player, ("🎲 %s won %s!"):format(table.concat(names, ", "), label), Color3.fromRGB(255, 215, 60))
 	end
 	return true
 end

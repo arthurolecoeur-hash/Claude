@@ -104,7 +104,6 @@ local function showAnnouncement(data)
 	card.Parent = announceHolder
 	UI.corner(card, 14)
 	UI.stroke(card, 3, color)
-	UI.gradient(card, Color3.fromRGB(255, 255, 255), Color3.fromRGB(150, 150, 150))
 	local bar = Instance.new("Frame")
 	bar.Size = UDim2.new(0, 10, 1, 0)
 	bar.BackgroundColor3 = color
@@ -270,9 +269,7 @@ local function setOpen(open: boolean)
 	isOpen = open
 	if open then
 		panel.Visible = true
-		panel.GroupTransparency = 1
 		panelScale.Scale = fitScale * 0.8
-		UI.tween(panel, 0.2, { GroupTransparency = 0 })
 		UI.tween(panelScale, 0.35, { Scale = fitScale }, Enum.EasingStyle.Back)
 		UISounds.Play("Open")
 		UI.PushModal("AdminPanel", function()
@@ -281,7 +278,6 @@ local function setOpen(open: boolean)
 	else
 		UISounds.Play("Swoosh")
 		UI.PopModal("AdminPanel")
-		UI.tween(panel, 0.15, { GroupTransparency = 1 })
 		UI.tween(panelScale, 0.15, { Scale = fitScale * 0.85 }).Completed:Connect(function()
 			if not isOpen then
 				panel.Visible = false
@@ -315,11 +311,20 @@ local function scrolling(parent: Instance, pos: UDim2, size: UDim2)
 end
 
 local function sectionTitle(parent: Instance, str: string, y: number)
-	local l = UI.text(parent, str, 18, Color3.fromRGB(255, 190, 190), UI.FONT_TITLE)
-	l.Position = UDim2.fromOffset(0, y)
-	l.Size = UDim2.new(1, 0, 0, 22)
-	l.TextXAlignment = Enum.TextXAlignment.Left
-	return l
+	local pill = Instance.new("Frame")
+	pill.Position = UDim2.fromOffset(0, y)
+	pill.Size = UDim2.fromOffset(240, 22)
+	pill.BackgroundColor3 = WHITE
+	pill.ZIndex = 5
+	pill.Parent = parent
+	UI.round(pill)
+	UI.stroke(pill, 2, BLACK)
+	UI.gradient(pill, Color3.fromRGB(255, 225, 110), Color3.fromRGB(230, 150, 20))
+	local l = UI.text(pill, str, 16, WHITE, UI.FONT_TITLE, 2)
+	l.Size = UDim2.new(1, -12, 1, -2)
+	l.Position = UDim2.fromOffset(6, 1)
+	l.ZIndex = 6
+	return pill
 end
 
 --== Onglet WEATHER ==--
@@ -425,7 +430,7 @@ end
 local function buildGivePage(page: Frame)
 	local target: any = player.UserId
 	local category = "BaseSkin"
-	local targetButtons = {}
+	local targetButtons: { [any]: any } = {}
 
 	sectionTitle(page, "🎯 TARGET", 0)
 	local targets = Instance.new("ScrollingFrame")
@@ -440,6 +445,16 @@ local function buildGivePage(page: Frame)
 	targets.ZIndex = 5
 	targets.Parent = page
 	UI.list(targets, Enum.FillDirection.Horizontal, 8, Enum.HorizontalAlignment.Left, Enum.VerticalAlignment.Center)
+
+	-- RANDOM : donne a N joueurs tires au hasard (re-cliquer change N).
+	local RANDOM_COUNTS = { 1, 2, 3, 5, 10 }
+	local randomIndex = 1
+	local function refreshRandomLabel()
+		local b = targetButtons["RANDOM"]
+		if b then
+			b.Label.Text = ("🎲 RANDOM x%d"):format(RANDOM_COUNTS[randomIndex])
+		end
+	end
 
 	local function refreshTargets()
 		for who, b in pairs(targetButtons) do
@@ -473,6 +488,11 @@ local function buildGivePage(page: Frame)
 		end
 		targetButtons[who] = b
 		b.Activated:Connect(function()
+			if who == "RANDOM" and target == "RANDOM" then
+				randomIndex = randomIndex % #RANDOM_COUNTS + 1
+				refreshRandomLabel()
+				UI.pop(b.Label, 0, 0.6)
+			end
 			target = who
 			UISounds.Play("Tab")
 			refreshTargets()
@@ -485,10 +505,12 @@ local function buildGivePage(page: Frame)
 		end
 		table.clear(targetButtons)
 		addTarget("ALL", "🌍 EVERYONE", 0)
+		addTarget("RANDOM", "", -1)
+		refreshRandomLabel()
 		for i, p in ipairs(Players:GetPlayers()) do
 			addTarget(p.UserId, p == player and "ME" or p.DisplayName, p == player and 1 or i + 1, p.UserId)
 		end
-		if target ~= "ALL" and not Players:GetPlayerByUserId(target) then
+		if type(target) == "number" and not Players:GetPlayerByUserId(target) then
 			target = player.UserId
 		end
 		refreshTargets()
@@ -564,8 +586,19 @@ local function buildGivePage(page: Frame)
 
 	local customBox, customRow
 	local function give(arg: any, from: GuiObject?)
-		local ok = remote:InvokeServer("Give", target, { kind = category, arg = arg })
-		local who = target == "ALL" and "EVERYONE" or (target == player.UserId and "YOU" or ((Players:GetPlayerByUserId(target) or {}).DisplayName or "?"):upper())
+		local sendTo = target == "RANDOM" and ("RANDOM:" .. RANDOM_COUNTS[randomIndex]) or target
+		local ok = remote:InvokeServer("Give", sendTo, { kind = category, arg = arg })
+		local who
+		if target == "ALL" then
+			who = "EVERYONE"
+		elseif target == "RANDOM" then
+			who = ("%d RANDOM PLAYER%s"):format(RANDOM_COUNTS[randomIndex], RANDOM_COUNTS[randomIndex] > 1 and "S" or "")
+		elseif target == player.UserId then
+			who = "YOU"
+		else
+			local p = Players:GetPlayerByUserId(target)
+			who = p and p.DisplayName:upper() or "?"
+		end
 		feedback(ok, ok and ("GIVEN TO " .. who .. "!") or nil, from)
 	end
 
@@ -762,7 +795,7 @@ local function buildPanel()
 		setOpen(not isOpen)
 	end)
 
-	panel = Instance.new("CanvasGroup")
+	panel = Instance.new("Frame")
 	panel.Name = "AdminPanel"
 	panel.AnchorPoint = Vector2.new(0.5, 0.5)
 	panel.Position = UDim2.fromScale(0.5, 0.5)
@@ -772,8 +805,9 @@ local function buildPanel()
 	panel.Parent = gui
 	UI.corner(panel, 18)
 	UI.stroke(panel, 5, BLACK)
-	UI.gradient(panel, Color3.fromRGB(78, 20, 30), Color3.fromRGB(20, 6, 10))
-	UI.studs(panel, 44, 0.9, 18)
+	panel.Active = true
+	UI.gradient(panel, Color3.fromRGB(110, 28, 40), Color3.fromRGB(45, 10, 18))
+	UI.studs(panel, 40, 0.9, 18, WHITE)
 	panelScale = Instance.new("UIScale")
 	panelScale.Parent = panel
 
@@ -784,7 +818,7 @@ local function buildPanel()
 	header.Parent = panel
 	UI.corner(header, 18)
 	UI.gradient(header, Color3.fromRGB(255, 70, 80), Color3.fromRGB(160, 10, 25))
-	UI.studs(header, 30, 0.82, 18)
+	UI.studs(header, 30, 0.72, 18)
 	local hb = Instance.new("Frame")
 	hb.AnchorPoint = Vector2.new(0, 1)
 	hb.Position = UDim2.fromScale(0, 1)
@@ -794,10 +828,10 @@ local function buildPanel()
 	hb.ZIndex = 4
 	hb.Parent = header
 
-	local title = UI.text(header, "🛡 ADMIN PANEL", 40, WHITE, UI.FONT_TITLE, 4)
-	title.Position = UDim2.fromOffset(20, 10)
-	title.Size = UDim2.new(1, -110, 0, 50)
-	title.TextXAlignment = Enum.TextXAlignment.Left
+	local title = UI.text(header, "🛡 ADMIN PANEL 🛡", 42, WHITE, UI.FONT_TITLE, 4)
+	title.AnchorPoint = Vector2.new(0.5, 0.5)
+	title.Position = UDim2.fromScale(0.5, 0.5)
+	title.Size = UDim2.new(1, -150, 0, 52)
 	title.ZIndex = 6
 	UI.gradient(title, Color3.fromRGB(255, 240, 150), GOLD)
 	UI.shine(header, 3)

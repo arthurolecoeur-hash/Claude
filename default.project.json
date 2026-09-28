@@ -15,6 +15,9 @@
       "UIKit": {
         "$path": "src/ReplicatedStorage/UIKit.luau"
       },
+      "WeatherShared": {
+        "$path": "src/ReplicatedStorage/WeatherShared.luau"
+      },
       "Shared": {
         "$path": "src/shared"
       }
@@ -54,6 +57,12 @@
         },
         "PickupService": {
           "$path": "src/ServerScriptService/Generators/PickupService.luau"
+        }
+      },
+      "Leaderboards": {
+        "$className": "Folder",
+        "LeaderboardService": {
+          "$path": "src/ServerScriptService/Leaderboards/LeaderboardService.server.luau"
         }
       },
       "Money": {
@@ -174,6 +183,9 @@
         },
         "Weather": {
           "$className": "Folder",
+          "WeatherClient": {
+            "$path": "src/StarterPlayerScripts/Weather/WeatherClient.client.luau"
+          },
           "WeatherFX": {
             "$path": "src/StarterPlayerScripts/Weather/WeatherFX.luau"
           }
