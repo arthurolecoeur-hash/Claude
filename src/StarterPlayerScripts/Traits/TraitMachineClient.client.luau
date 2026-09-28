@@ -94,6 +94,27 @@ local function recolor(b: GuiObject, color: Color3)
 	end
 end
 
+-- Icone d'un trait (image si dispo, sinon emoji).
+local function traitIcon(parent: Instance, t, z: number?): GuiObject
+	local img = TraitShared.Image(t)
+	if img ~= "" then
+		local i = Instance.new("ImageLabel")
+		i.Name = "TraitIcon"
+		i.BackgroundTransparency = 1
+		i.ScaleType = Enum.ScaleType.Fit
+		i.Image = img
+		i.ZIndex = z or ((parent:IsA("GuiObject") and parent.ZIndex or 1) + 1)
+		i.Parent = parent
+		return i
+	end
+	local l = UI.text(parent, t.emoji, 60, WHITE, FONT, 3)
+	l.Name = "TraitIcon"
+	if z then
+		l.ZIndex = z
+	end
+	return l
+end
+
 --== ScreenGui ==--
 local gui = Instance.new("ScreenGui")
 gui.Name = "TraitMachineGui"
@@ -226,7 +247,7 @@ stopButton.Position = UDim2.fromOffset(0, 80)
 stopButton.Size = UDim2.fromOffset(200, 34)
 local function refreshStopAt()
 	local t = TraitShared.TRAITS[stopAtRank]
-	stopButton.Label.Text = ("STOP AT: %s %s+"):format(t.emoji, string.upper(t.name))
+	stopButton.Label.Text = ("STOP AT: %s+"):format(string.upper(t.name))
 	stopButton.Label.TextColor3 = t.color:Lerp(WHITE, 0.3)
 end
 refreshStopAt()
@@ -297,9 +318,9 @@ for i, t in ipairs(TraitShared.TRAITS) do
 	local row = frame(oddsList, { LayoutOrder = i, Size = UDim2.new(1, 0, 0, 62), BackgroundColor3 = Color3.fromRGB(16, 10, 26), BackgroundTransparency = 0.25 })
 	UI.corner(row, 10)
 	UI.stroke(row, 2.5, t.color:Lerp(BLACK, 0.3))
-	local icon = UI.text(row, t.emoji, 32, WHITE, FONT, 2)
-	icon.Position = UDim2.fromOffset(6, 4)
-	icon.Size = UDim2.fromOffset(44, 40)
+	local icon = traitIcon(row, t)
+	icon.Position = UDim2.fromOffset(4, 5)
+	icon.Size = UDim2.fromOffset(46, 46)
 	local name = UI.text(row, ("%s <font color=\"#%s\">%s</font>"):format(string.upper(t.name), t.color:ToHex(), TraitShared.FormatMult(t.mult)), 20, WHITE, FONT_TITLE, 2)
 	name.Position = UDim2.fromOffset(54, 6)
 	name.Size = UDim2.new(1, -150, 0, 24)
@@ -465,6 +486,15 @@ bigBanner.Position = UDim2.fromScale(0.5, 0.3)
 bigBanner.Size = UDim2.fromOffset(900, 110)
 bigBanner.ZIndex = 210
 bigBanner.Visible = false
+local bannerIcon = Instance.new("ImageLabel")
+bannerIcon.BackgroundTransparency = 1
+bannerIcon.ScaleType = Enum.ScaleType.Fit
+bannerIcon.AnchorPoint = Vector2.new(0.5, 1)
+bannerIcon.Position = UDim2.new(0.5, 0, 0.3, -50)
+bannerIcon.Size = UDim2.fromOffset(150, 150)
+bannerIcon.ZIndex = 211
+bannerIcon.Visible = false
+bannerIcon.Parent = gui
 
 --== Etat ==--
 local isOpen = false
@@ -550,9 +580,17 @@ local function buildCard(parent: Instance, tool: Tool, z: number)
 	local traitPill = frame(card, { AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -48), Size = UDim2.new(1, -18, 0, 26), BackgroundColor3 = BLACK, BackgroundTransparency = 0.35, ZIndex = z + 2 })
 	UI.round(traitPill)
 	local traitText = UI.text(traitPill, "", 18, WHITE, FONT_TITLE, 2)
-	traitText.Size = UDim2.new(1, -8, 1, -4)
-	traitText.Position = UDim2.fromOffset(4, 2)
+	traitText.Size = UDim2.new(1, -34, 1, -4)
+	traitText.Position = UDim2.fromOffset(28, 2)
 	traitText.ZIndex = z + 3
+	local traitImg = Instance.new("ImageLabel")
+	traitImg.BackgroundTransparency = 1
+	traitImg.ScaleType = Enum.ScaleType.Fit
+	traitImg.AnchorPoint = Vector2.new(0, 0.5)
+	traitImg.Position = UDim2.new(0, 2, 0.5, 0)
+	traitImg.Size = UDim2.fromOffset(28, 28)
+	traitImg.ZIndex = z + 4
+	traitImg.Parent = traitPill
 
 	local inc = UI.text(card, "", 18, Color3.fromRGB(150, 255, 70), FONT_TITLE, 2)
 	inc.AnchorPoint = Vector2.new(0.5, 1)
@@ -569,11 +607,14 @@ local function buildCard(parent: Instance, tool: Tool, z: number)
 	local function refresh()
 		local t = TraitShared.GetTrait(tool)
 		if t then
-			traitText.Text = ("%s %s %s"):format(t.emoji, string.upper(t.name), TraitShared.FormatMult(t.mult))
+			traitImg.Image = TraitShared.Image(t)
+			traitImg.Visible = true
+			traitText.Text = ("%s %s"):format(string.upper(t.name), TraitShared.FormatMult(t.mult))
 			traitText.TextColor3 = t.color
 			cs.Color = t.color
 			traitPill.BackgroundColor3 = t.color:Lerp(BLACK, 0.75)
 		else
+			traitImg.Visible = false
 			traitText.Text = "NO TRAIT"
 			traitText.TextColor3 = GREY
 			cs.Color = rarity.color
@@ -603,10 +644,9 @@ local function randomTrait()
 end
 
 local function reelIcon(parent: Instance, t, index: number, z: number)
-	local l = UI.text(parent, t.emoji, 60, WHITE, FONT, 3)
+	local l = traitIcon(parent, t, z)
 	l.Position = UDim2.fromOffset(0, (index - 1) * ICON_H + 8)
 	l.Size = UDim2.new(1, 0, 0, ICON_H - 16)
-	l.ZIndex = z
 	return l
 end
 
@@ -1111,7 +1151,15 @@ local function celebrate(rolled)
 	flash.BackgroundColor3 = rolled.color
 	flash.BackgroundTransparency = 0.35
 	UI.tween(flash, 0.6, { BackgroundTransparency = 1 })
-	bigBanner.Text = ("%s %s! %s"):format(rolled.emoji, string.upper(rolled.name), TraitShared.FormatMult(rolled.mult))
+	bigBanner.Text = ("%s! %s"):format(string.upper(rolled.name), TraitShared.FormatMult(rolled.mult))
+	bannerIcon.Image = TraitShared.Image(rolled)
+	bannerIcon.Visible = true
+	UI.pop(bannerIcon, 0, 0.1)
+	bannerIcon.Rotation = -20
+	UI.tween(bannerIcon, 0.6, { Rotation = 0 }, Enum.EasingStyle.Back)
+	task.delay(1.8, function()
+		UI.tween(UI.scaleOf(bannerIcon), 0.25, { Scale = 0 }, Enum.EasingStyle.Back, Enum.EasingDirection.In)
+	end)
 	bigBanner.TextColor3 = rolled.color
 	bigBanner.Visible = true
 	local s = UI.scaleOf(bigBanner)
@@ -1523,8 +1571,15 @@ task.spawn(function()
 			row.TextScaled = true
 			row.TextXAlignment = Enum.TextXAlignment.Left
 			row.TextColor3 = WHITE
-			row.Text = ("%s <font color=\"#%s\">%s</font>   1/%s"):format(tr.emoji, tr.color:ToHex(), TraitShared.FormatMult(tr.mult), NumberFormat.Format(tr.odds))
+			row.Text = ("<font color=\"#%s\">%s</font>   1/%s"):format(tr.color:ToHex(), TraitShared.FormatMult(tr.mult), NumberFormat.Format(tr.odds))
 			row.Parent = osg
+			local pad = Instance.new("UIPadding")
+			pad.PaddingLeft = UDim.new(0, 56)
+			pad.Parent = row
+			local ic = traitIcon(row, tr)
+			ic.AnchorPoint = Vector2.new(0, 0.5)
+			ic.Position = UDim2.new(0, -54, 0.5, 0)
+			ic.Size = UDim2.fromOffset(46, 46)
 			UI.stroke(row, 3, BLACK, true)
 		end
 	end
@@ -1548,12 +1603,8 @@ task.spawn(function()
 				strip.BackgroundTransparency = 1
 				strip.Size = UDim2.fromScale(1, 1)
 				strip.Parent = r
-				local l = Instance.new("TextLabel")
-				l.BackgroundTransparency = 1
+				local l = traitIcon(strip, TRAIT_ICONS[math.random(1, #TRAIT_ICONS)])
 				l.Size = UDim2.fromScale(1, 1)
-				l.TextScaled = true
-				l.Text = TRAIT_ICONS[math.random(1, #TRAIT_ICONS)].emoji
-				l.Parent = strip
 				strips[i] = { reel = r, strip = strip }
 			end
 		end
@@ -1573,13 +1624,9 @@ task.spawn(function()
 		end
 		local n = 10
 		for k = 1, n + 1 do
-			local l = Instance.new("TextLabel")
-			l.BackgroundTransparency = 1
-			l.Position = UDim2.new(0, 0, k - 1, 0)
-			l.Size = UDim2.fromScale(1, 1)
-			l.TextScaled = true
-			l.Text = k == n + 1 and final.emoji or randomTrait().emoji
-			l.Parent = s.strip
+			local l = traitIcon(s.strip, k == n + 1 and final or randomTrait())
+			l.Position = UDim2.new(0.1, 0, k - 1 + 0.1, 0)
+			l.Size = UDim2.fromScale(0.8, 0.8)
 		end
 		s.strip.Position = UDim2.fromScale(0, 0)
 		local tw = TweenService:Create(s.strip, TweenInfo.new(duration, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Position = UDim2.fromScale(0, -n) })

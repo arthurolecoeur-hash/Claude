@@ -671,7 +671,7 @@ local function showTip(cell: GuiObject, tool: Tool)
 	local trait = TraitShared.GetTrait(tool)
 	tipTrait.Visible = trait ~= nil
 	if trait then
-		tipTrait.Text = ("%s %s TRAIT • %s"):format(trait.emoji, string.upper(trait.name), TraitShared.FormatMult(trait.mult))
+		tipTrait.Text = ("%s TRAIT • %s"):format(string.upper(trait.name), TraitShared.FormatMult(trait.mult))
 		tipTrait.TextColor3 = trait.color
 	end
 	local level = handle and handle:GetAttribute("Level")
@@ -986,8 +986,15 @@ local function createCell(tool: Tool)
 	traitBadge.Name = "Trait"
 	traitBadge.AnchorPoint = Vector2.new(1, 0)
 	traitBadge.Position = UDim2.new(1, -3, 0, 2)
-	traitBadge.Size = UDim2.fromOffset(26, 22)
+	traitBadge.Size = UDim2.fromOffset(26, 26)
 	traitBadge.ZIndex = 8
+	local traitImg = Instance.new("ImageLabel")
+	traitImg.Name = "Icon"
+	traitImg.BackgroundTransparency = 1
+	traitImg.ScaleType = Enum.ScaleType.Fit
+	traitImg.Size = UDim2.fromScale(1, 1)
+	traitImg.ZIndex = 9
+	traitImg.Parent = traitBadge
 
 	local name = label(cell, Shared.GetDisplayName(tool), 12, C.white, FONT_BOLD)
 	name.Name = "ItemName"
@@ -1180,7 +1187,12 @@ refresh = function()
 		data.wasFav = fav
 
 		local trait = TraitShared.GetTrait(tool)
-		data.trait.Text = trait and trait.emoji or ""
+		local img = trait and TraitShared.Image(trait) or ""
+		data.trait.Text = (trait and img == "") and trait.emoji or ""
+		local icon = data.trait:FindFirstChild("Icon")
+		if icon and icon:IsA("ImageLabel") then
+			icon.Image = img
+		end
 		data.stroke.Color = trait and trait.color or data.accent:Lerp(C.white, 0.2)
 
 		if Shared.GetItemType(tool) == Shared.TYPE_LUCKY then

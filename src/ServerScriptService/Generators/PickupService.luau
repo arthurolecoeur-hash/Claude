@@ -280,8 +280,25 @@ local function buildStatsBillboard(parent: Instance, name: string, sourcePart: B
 	end
 
 	if trait then
-		local traitLabel = addLabel("TraitLabel", -1, ("%s %s %s"):format(trait.emoji, string.upper(trait.name), TraitShared.FormatMult(trait.mult)), trait.color, 1)
+		local img = TraitShared.Image(trait)
+		local traitLabel = addLabel("TraitLabel", -1, img ~= "" and ("%s %s"):format(string.upper(trait.name), TraitShared.FormatMult(trait.mult))
+			or ("%s %s %s"):format(trait.emoji, string.upper(trait.name), TraitShared.FormatMult(trait.mult)), trait.color, 1)
 		traitLabel.RichText = false
+		if img ~= "" then
+			-- Icone du trait a gauche du texte (la ligne garde sa place dans la liste).
+			local pad = Instance.new("UIPadding")
+			pad.PaddingLeft = UDim.new(0.14, 0)
+			pad.Parent = traitLabel
+			local icon = Instance.new("ImageLabel")
+			icon.Name = "TraitIcon"
+			icon.BackgroundTransparency = 1
+			icon.ScaleType = Enum.ScaleType.Fit
+			icon.Image = img
+			icon.AnchorPoint = Vector2.new(1, 0.5)
+			icon.Position = UDim2.new(0, 0, 0.5, 0)
+			icon.Size = UDim2.new(0.14, 0, 1.1, 0)
+			icon.Parent = traitLabel
+		end
 	end
 
 	if mutationKey then
