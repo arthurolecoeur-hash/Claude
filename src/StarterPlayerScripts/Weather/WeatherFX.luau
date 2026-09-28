@@ -11,6 +11,9 @@
 	            cubes de donnees, glitchs
 	  Rainbow : arc-en-ciel geant qui scintille, bulles, ondes arc-en-ciel,
 	            trainee arc-en-ciel sur le joueur, paillettes
+	  Admin   : intro plein ecran (flash, titre, glitch), portail geant
+	            rouge et or dans le ciel, lasers orbitaux, marteau du ban
+	            qui s'ecrase, eclairs, couronnes, pluie d'etincelles dorees
 	Tout est restaure a la fin. Sons : table SFX ci-dessous.
 ]]
 
@@ -1322,35 +1325,343 @@ local function adminBanner(sg)
 	end)
 end
 
+-- Intro plein ecran : flash rouge, titre qui s'ecrase, bandes de glitch.
+local function adminIntro(sg)
+	local flash = Instance.new("Frame")
+	flash.Size = UDim2.fromScale(1, 1)
+	flash.BackgroundColor3 = ADMIN_RED
+	flash.BorderSizePixel = 0
+	flash.ZIndex = 50
+	flash.Parent = sg
+	TweenService:Create(flash, TweenInfo.new(0.9, Enum.EasingStyle.Quad), { BackgroundTransparency = 1 }):Play()
+	Debris:AddItem(flash, 1)
+
+	for i = 1, 14 do
+		local bar = Instance.new("Frame")
+		bar.BorderSizePixel = 0
+		bar.BackgroundColor3 = i % 3 == 0 and ADMIN_GOLD or (i % 2 == 0 and Color3.new(1, 1, 1) or ADMIN_RED)
+		bar.BackgroundTransparency = 0.2
+		bar.Position = UDim2.new(math.random() * 0.6 - 0.2, 0, math.random(), 0)
+		bar.Size = UDim2.new(rand(0.3, 1), 0, 0, math.random(4, 22))
+		bar.ZIndex = 51
+		bar.Parent = sg
+		task.delay(rand(0.05, 0.9), function()
+			bar:Destroy()
+		end)
+	end
+
+	local title = Instance.new("TextLabel")
+	title.AnchorPoint = Vector2.new(0.5, 0.5)
+	title.Position = UDim2.fromScale(0.5, 0.4)
+	title.Size = UDim2.fromScale(0.8, 0.2)
+	title.BackgroundTransparency = 1
+	title.FontFace = Font.new("rbxasset://fonts/families/LuckiestGuy.json")
+	title.Text = "⚠ ADMIN ABUSE ⚠"
+	title.TextScaled = true
+	title.TextColor3 = Color3.new(1, 1, 1)
+	title.ZIndex = 60
+	title.Parent = sg
+	local g = Instance.new("UIGradient")
+	g.Rotation = 90
+	g.Color = ColorSequence.new(ADMIN_GOLD, ADMIN_RED)
+	g.Parent = title
+	local st = Instance.new("UIStroke")
+	st.Thickness = 6
+	st.Color = Color3.fromRGB(40, 0, 5)
+	st.Parent = title
+	local sc = Instance.new("UIScale")
+	sc.Scale = 4
+	sc.Parent = title
+	title.Rotation = -12
+	TweenService:Create(sc, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	TweenService:Create(title, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Rotation = 0 }):Play()
+	task.delay(0.33, function()
+		shake = math.max(shake, 2.2)
+		playSound("AdminBoom", nil, 0.8)
+	end)
+	task.delay(2.2, function()
+		TweenService:Create(sc, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Scale = 0.3 }):Play()
+		TweenService:Create(title, TweenInfo.new(0.3), { TextTransparency = 1 }):Play()
+		TweenService:Create(st, TweenInfo.new(0.3), { Transparency = 1 }):Play()
+		Debris:AddItem(title, 0.4)
+	end)
+
+	local cam = workspace.CurrentCamera
+	if cam then
+		local fov = cam.FieldOfView
+		cam.FieldOfView = fov + 18
+		TweenService:Create(cam, TweenInfo.new(0.8, Enum.EasingStyle.Back), { FieldOfView = fov }):Play()
+	end
+end
+
+-- Portail geant (anneau rouge et or) qui tourne dans le ciel au-dessus du joueur.
+local PORTAL_Y = 120
+local function adminPortal()
+	local ring = Instance.new("Model")
+	ring.Name = "AdminPortal"
+	local segs = 36
+	local radius = 70
+	local parts = {}
+	for i = 1, segs do
+		local a = i / segs * math.pi * 2
+		local seg = newPart({
+			Size = Vector3.new(3, 3, radius * 2 * math.pi / segs + 0.6), Material = Enum.Material.Neon,
+			Color = i % 2 == 0 and ADMIN_RED or ADMIN_GOLD, Parent = ring,
+		})
+		parts[i] = { part = seg, a = a }
+	end
+	local core = newPart({ Size = Vector3.new(1, 1, 1), Transparency = 1, Parent = ring })
+	emitter(core, {
+		Texture = "rbxasset://textures/particles/forcefield_vortex_main.dds", Rate = 3, Lifetime = NumberRange.new(3, 3),
+		Speed = NumberRange.new(0, 0), Orientation = Enum.ParticleOrientation.VelocityPerpendicular,
+		EmissionDirection = Enum.NormalId.Bottom, LockedToPart = true, LightEmission = 1,
+		Size = NumberSequence.new({ kp(0, 40), kp(1, 130) }), Transparency = NumberSequence.new({ kp(0, 0.4), kp(1, 1) }),
+		Rotation = NumberRange.new(0, 360), RotSpeed = NumberRange.new(-40, 40),
+		Color = ColorSequence.new(ADMIN_RED, Color3.fromRGB(120, 0, 15)),
+	})
+	emitter(core, {
+		Texture = TEX_SPARK, Rate = 40, Lifetime = NumberRange.new(3, 5), Speed = NumberRange.new(20, 40),
+		EmissionDirection = Enum.NormalId.Bottom, SpreadAngle = Vector2.new(40, 40), LightEmission = 1,
+		Size = NumberSequence.new({ kp(0, 2), kp(1, 0) }), Color = ColorSequence.new(ADMIN_GOLD, ADMIN_RED),
+	})
+	local light = Instance.new("PointLight")
+	light.Color = ADMIN_RED
+	light.Range = 60
+	light.Brightness = 4
+	light.Parent = core
+	ring.Parent = state.folder
+	local t0 = os.clock()
+	step(function()
+		local f = focus()
+		local t = os.clock() - t0
+		local center = Vector3.new(f.X, f.Y + PORTAL_Y, f.Z)
+		local tilt = CFrame.new(center) * CFrame.Angles(0, t * 0.25, 0)
+		core.CFrame = CFrame.new(center)
+		local pulse = 1 + math.sin(t * 2) * 0.04
+		for _, p in ipairs(parts) do
+			local a = p.a
+			local pos = tilt * Vector3.new(math.cos(a) * radius * pulse, math.sin(t * 1.5 + a * 3) * 2, math.sin(a) * radius * pulse)
+			local tangent = tilt:VectorToWorldSpace(Vector3.new(-math.sin(a), 0, math.cos(a)))
+			p.part.CFrame = CFrame.lookAt(pos, pos + tangent)
+		end
+	end)
+end
+
+-- Laser orbital : colonne rouge qui tombe du portail et frappe le sol.
+local function adminLaser()
+	local f = focus()
+	local a = math.random() * math.pi * 2
+	local r = rand(15, 90)
+	local x, z = f.X + math.cos(a) * r, f.Z + math.sin(a) * r
+	local ground = groundAt(x, z, f.Y + 300) or Vector3.new(x, f.Y - 3, z)
+	local top = Vector3.new(x, f.Y + PORTAL_Y, z)
+	local h = top.Y - ground.Y
+	local mid = (top + ground) / 2
+
+	local warn = groundRing(ground, ADMIN_RED, 14, 0.9, 0.2)
+	warn.Transparency = 0.4
+	task.wait(0.55)
+	if not state then
+		return
+	end
+	local core = newPart({
+		Shape = Enum.PartType.Cylinder, Size = Vector3.new(h, 1, 1), Material = Enum.Material.Neon,
+		Color = Color3.fromRGB(255, 235, 235), CFrame = CFrame.new(mid) * CFrame.Angles(0, 0, math.rad(90)), Parent = state.folder,
+	})
+	local outer = newPart({
+		Shape = Enum.PartType.Cylinder, Size = Vector3.new(h, 1, 1), Material = Enum.Material.Neon,
+		Color = ADMIN_RED, Transparency = 0.35, CFrame = core.CFrame, Parent = state.folder,
+	})
+	TweenService:Create(core, TweenInfo.new(0.12, Enum.EasingStyle.Quad), { Size = Vector3.new(h, 3.5, 3.5) }):Play()
+	TweenService:Create(outer, TweenInfo.new(0.12, Enum.EasingStyle.Quad), { Size = Vector3.new(h, 8, 8) }):Play()
+	task.delay(0.45, function()
+		TweenService:Create(core, TweenInfo.new(0.35), { Size = Vector3.new(h, 0.1, 0.1), Transparency = 1 }):Play()
+		TweenService:Create(outer, TweenInfo.new(0.35), { Size = Vector3.new(h, 0.1, 0.1), Transparency = 1 }):Play()
+	end)
+	Debris:AddItem(core, 0.9)
+	Debris:AddItem(outer, 0.9)
+
+	groundRing(ground, ADMIN_RED, 46, 0.8, 0.5)
+	groundRing(ground, ADMIN_GOLD, 26, 0.55, 0.35)
+	groundRing(ground, Color3.new(1, 1, 1), 12, 0.35, 0.3)
+	local scorch = newPart({
+		Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.12, 10, 10), Material = Enum.Material.Neon,
+		Color = ADMIN_RED, CFrame = CFrame.new(ground + Vector3.new(0, 0.07, 0)) * CFrame.Angles(0, 0, math.rad(90)), Parent = state.folder,
+	})
+	TweenService:Create(scorch, TweenInfo.new(3, Enum.EasingStyle.Sine), { Color = Color3.fromRGB(40, 10, 12), Transparency = 1 }):Play()
+	Debris:AddItem(scorch, 3.2)
+	local holder = newPart({ Size = Vector3.one, Transparency = 1, CFrame = CFrame.new(ground), Parent = state.folder })
+	emitter(holder, {
+		Texture = TEX_SPARK, Rate = 0, Speed = NumberRange.new(30, 60), SpreadAngle = Vector2.new(85, 85),
+		EmissionDirection = Enum.NormalId.Top, Lifetime = NumberRange.new(0.5, 1), Acceleration = Vector3.new(0, -80, 0),
+		Size = NumberSequence.new(1.4, 0), LightEmission = 1, Drag = 2, Color = ColorSequence.new(ADMIN_GOLD, ADMIN_RED),
+	}):Emit(50)
+	emitter(holder, {
+		Texture = TEX_SMOKE, Rate = 0, Speed = NumberRange.new(6, 14), SpreadAngle = Vector2.new(70, 70),
+		EmissionDirection = Enum.NormalId.Top, Lifetime = NumberRange.new(1.5, 2.5), Drag = 1.5,
+		Size = NumberSequence.new({ kp(0, 4), kp(1, 12) }), Transparency = NumberSequence.new({ kp(0, 0.3), kp(1, 1) }),
+		Color = ColorSequence.new(Color3.fromRGB(120, 20, 30), Color3.fromRGB(30, 10, 12)),
+	}):Emit(12)
+	local light = Instance.new("PointLight")
+	light.Color = ADMIN_RED
+	light.Range = 60
+	light.Brightness = 10
+	light.Parent = holder
+	TweenService:Create(light, TweenInfo.new(0.8), { Brightness = 0 }):Play()
+	Debris:AddItem(holder, 3)
+	soundAt("AdminBoom", ground, rand(0.9, 1.15))
+	soundAt("AdminZap", ground, rand(0.7, 0.9))
+	local cam = workspace.CurrentCamera
+	local d = cam and (cam.CFrame.Position - ground).Magnitude or 999
+	if d < 110 then
+		shake = math.max(shake, (1 - d / 110) * 2)
+	end
+end
+
+-- Marteau du ban geant qui tombe du ciel.
+local function banHammer()
+	local f = focus()
+	local a = math.random() * math.pi * 2
+	local r = rand(25, 70)
+	local x, z = f.X + math.cos(a) * r, f.Z + math.sin(a) * r
+	local ground = groundAt(x, z, f.Y + 300) or Vector3.new(x, f.Y - 3, z)
+	local model = Instance.new("Model")
+	model.Name = "BanHammer"
+	local yaw = CFrame.Angles(0, math.random() * math.pi * 2, 0)
+	local base = CFrame.new(ground) * yaw
+	newPart({ Size = Vector3.new(2.2, 26, 2.2), Material = Enum.Material.Wood, Color = Color3.fromRGB(110, 60, 30), CFrame = base * CFrame.new(0, 13 + 7, 0), Parent = model })
+	newPart({ Size = Vector3.new(2.8, 2, 2.8), Material = Enum.Material.Neon, Color = ADMIN_GOLD, CFrame = base * CFrame.new(0, 30, 0), Parent = model })
+	newPart({ Size = Vector3.new(2.8, 1.2, 2.8), Material = Enum.Material.Neon, Color = ADMIN_GOLD, CFrame = base * CFrame.new(0, 8, 0), Parent = model })
+	local head = newPart({ Size = Vector3.new(18, 9, 9), Material = Enum.Material.Metal, Color = Color3.fromRGB(200, 25, 40), CFrame = base * CFrame.new(0, 3.5 + 32, 0), Parent = model })
+	newPart({ Size = Vector3.new(19, 1.4, 9.6), Material = Enum.Material.Neon, Color = ADMIN_GOLD, CFrame = base * CFrame.new(0, 35.5 + 3.2, 0), Parent = model })
+	newPart({ Size = Vector3.new(19, 1.4, 9.6), Material = Enum.Material.Neon, Color = ADMIN_GOLD, CFrame = base * CFrame.new(0, 35.5 - 3.2, 0), Parent = model })
+	local bb = Instance.new("BillboardGui")
+	bb.Size = UDim2.fromScale(14, 4)
+	bb.StudsOffset = Vector3.new(0, 7, 0)
+	bb.LightInfluence = 0
+	bb.AlwaysOnTop = true
+	bb.Parent = head
+	local label = Instance.new("TextLabel")
+	label.BackgroundTransparency = 1
+	label.Size = UDim2.fromScale(1, 1)
+	label.FontFace = Font.new("rbxasset://fonts/families/LuckiestGuy.json")
+	label.Text = "BAN HAMMER"
+	label.TextScaled = true
+	label.TextColor3 = ADMIN_GOLD
+	label.Parent = bb
+	local ls = Instance.new("UIStroke")
+	ls.Thickness = 4
+	ls.Parent = label
+	addTrail(head, 9, 0.35, ColorSequence.new(ADMIN_GOLD, ADMIN_RED))
+	model.Parent = state.folder
+
+	-- Le marteau tombe en tournant vers le sol (pivot au bout du manche).
+	local fall = 160
+	local start = base * CFrame.new(0, fall, 0) * CFrame.Angles(math.rad(-80), 0, 0)
+	local offsets = {}
+	for _, p in ipairs(model:GetChildren()) do
+		if p:IsA("BasePart") then
+			offsets[p] = base:ToObjectSpace(p.CFrame)
+			p.CFrame = start * offsets[p]
+		end
+	end
+	soundAt("MeteorWhoosh", ground + Vector3.new(0, 60, 0), 0.7)
+	local value = Instance.new("NumberValue")
+	value.Changed:Connect(function(v)
+		local cf = base * CFrame.new(0, fall * (1 - v), 0) * CFrame.Angles(math.rad(-80 * (1 - v) + 90 * v), 0, 0)
+		for p, off in pairs(offsets) do
+			p.CFrame = cf * off
+		end
+	end)
+	local tw = TweenService:Create(value, TweenInfo.new(0.75, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Value = 1 })
+	tw:Play()
+	tw.Completed:Wait()
+	value:Destroy()
+	if not state then
+		return
+	end
+	local hit = head.Position - Vector3.new(0, head.Size.Z / 2, 0)
+	local impactPos = Vector3.new(hit.X, ground.Y, hit.Z)
+	groundRing(impactPos, ADMIN_RED, 70, 0.9, 0.6)
+	groundRing(impactPos, ADMIN_GOLD, 40, 0.6, 0.4)
+	for _ = 1, 8 do
+		debrisRock(impactPos, 4)
+	end
+	soundAt("AdminBoom", impactPos, 0.7)
+	soundAt("MeteorImpact", impactPos, 0.8)
+	label.Text = "BANNED!"
+	label.TextColor3 = ADMIN_RED
+	local cam = workspace.CurrentCamera
+	local d = cam and (cam.CFrame.Position - impactPos).Magnitude or 999
+	if d < 140 then
+		shake = math.max(shake, (1 - d / 140) * 3)
+	end
+	task.delay(1.4, function()
+		for _, p in ipairs(model:GetDescendants()) do
+			if p:IsA("BasePart") then
+				TweenService:Create(p, TweenInfo.new(0.8), { Transparency = 1 }):Play()
+			elseif p:IsA("Trail") then
+				p.Enabled = false
+			end
+		end
+		bb.Enabled = false
+		Debris:AddItem(model, 1)
+	end)
+end
+
 builders.Admin = function()
 	local atm = Lighting:FindFirstChildOfClass("Atmosphere")
-	setProp(Lighting, { ClockTime = 17.8, OutdoorAmbient = Color3.fromRGB(150, 110, 115), Ambient = Color3.fromRGB(120, 90, 95) }, 3)
-	setProp(atm, { Color = Color3.fromRGB(255, 120, 125), Decay = Color3.fromRGB(110, 20, 30), Density = 0.24, Haze = 0.7, Glare = 0.3 }, 3)
-	setProp(getCC(), { TintColor = Color3.fromRGB(255, 232, 232), Contrast = 0.12, Saturation = 0.1, Brightness = 0 }, 3)
-	setProp(getBloom(), { Intensity = 0.8, Threshold = 0.85 }, 3)
-	setProp(getClouds(), { Color = Color3.fromRGB(80, 10, 18), Cover = 0.8 }, 3)
+	setProp(Lighting, { ClockTime = 18.3, OutdoorAmbient = Color3.fromRGB(160, 100, 105), Ambient = Color3.fromRGB(125, 85, 90) }, 3)
+	setProp(atm, { Color = Color3.fromRGB(255, 110, 115), Decay = Color3.fromRGB(120, 15, 30), Density = 0.28, Haze = 1.2, Glare = 0.4 }, 3)
+	setProp(getCC(), { TintColor = Color3.fromRGB(255, 226, 226), Contrast = 0.16, Saturation = 0.18, Brightness = 0 }, 3)
+	setProp(getBloom(), { Intensity = 1, Threshold = 0.8, Size = 30 }, 3)
+	setProp(getClouds(), { Color = Color3.fromRGB(90, 8, 20), Cover = 0.85, Density = 0.6 }, 3)
 	playSound("AdminStart")
 	ambient("AdminAmbient")
 	shake = 1.5
-	adminBanner(screenGui("WeatherAdmin", 5))
+	local sg = screenGui("WeatherAdmin", 5)
+	adminIntro(sg)
+	task.delay(1.2, function()
+		if state and state.key == "Admin" then
+			adminBanner(sg)
+		end
+	end)
+	adminPortal()
 	followEmitter(Vector3.new(200, 1, 200), Vector3.new(0, 55, 0), {
-		Texture = TEX_SPARK, Rate = 80, Lifetime = NumberRange.new(4, 6), Speed = NumberRange.new(6, 12),
+		Texture = TEX_SPARK, Rate = 90, Lifetime = NumberRange.new(4, 6), Speed = NumberRange.new(6, 12),
 		EmissionDirection = Enum.NormalId.Bottom, SpreadAngle = Vector2.new(15, 15),
-		Size = NumberSequence.new({ kp(0, 0.7), kp(1, 0.2) }), LightEmission = 1,
+		Size = NumberSequence.new({ kp(0, 0.8), kp(1, 0.2) }), LightEmission = 1,
 		Color = ColorSequence.new(ADMIN_GOLD, ADMIN_RED), Rotation = NumberRange.new(0, 360), RotSpeed = NumberRange.new(-120, 120),
 	})
 	followEmitter(Vector3.new(160, 1, 160), Vector3.new(0, -3, 0), {
-		Texture = TEX_FIRE, Rate = 30, Lifetime = NumberRange.new(2, 3.5), Speed = NumberRange.new(2, 5),
+		Texture = TEX_FIRE, Rate = 35, Lifetime = NumberRange.new(2, 3.5), Speed = NumberRange.new(2, 5),
 		EmissionDirection = Enum.NormalId.Top, SpreadAngle = Vector2.new(20, 20), LightEmission = 1,
-		Size = NumberSequence.new({ kp(0, 0.5), kp(1, 0) }), Acceleration = Vector3.new(0, 3, 0),
+		Size = NumberSequence.new({ kp(0, 0.6), kp(1, 0) }), Acceleration = Vector3.new(0, 3, 0),
 		Color = ColorSequence.new(Color3.fromRGB(255, 80, 80), Color3.fromRGB(150, 0, 15)),
 	})
+	followEmitter(Vector3.new(120, 1, 120), Vector3.new(0, 40, 0), {
+		Texture = "rbxasset://textures/particles/fire_sparks_main.dds", Rate = 25, Lifetime = NumberRange.new(3, 5),
+		Speed = NumberRange.new(10, 18), EmissionDirection = Enum.NormalId.Bottom, SpreadAngle = Vector2.new(10, 10),
+		Size = NumberSequence.new({ kp(0, 1.2), kp(1, 0.4) }), LightEmission = 1,
+		Color = ColorSequence.new(ADMIN_GOLD), Rotation = NumberRange.new(0, 360), RotSpeed = NumberRange.new(-200, 200),
+	})
 	loop(function()
-		return rand(0.5, 1.3)
+		return rand(0.6, 1.4)
 	end, adminBolt)
 	loop(function()
 		return rand(0.2, 0.45)
 	end, adminCrown)
+	task.delay(2.5, function()
+		if not state or state.key ~= "Admin" then
+			return
+		end
+		loop(function()
+			return rand(2.5, 5)
+		end, adminLaser)
+		loop(function()
+			return rand(9, 15)
+		end, banHammer)
+	end)
 end
 
 --== API ==--

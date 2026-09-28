@@ -48,7 +48,7 @@ local MUTATION_COLORS = {
 	Lava = ColorSequence.new(Color3.fromRGB(255, 200, 60), Color3.fromRGB(255, 60, 0)),
 	Galaxy = ColorSequence.new(Color3.fromRGB(230, 180, 255), Color3.fromRGB(110, 40, 255)),
 	Hacker = ColorSequence.new(Color3.fromRGB(120, 255, 120), Color3.fromRGB(0, 180, 40)),
-	Admin = ColorSequence.new(Color3.fromRGB(90, 90, 95), Color3.fromRGB(0, 0, 0)),
+	Admin = ColorSequence.new(Color3.fromRGB(255, 215, 90), Color3.fromRGB(255, 30, 45)),
 	Rainbow = ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 60, 60)),
 		ColorSequenceKeypoint.new(0.2, Color3.fromRGB(255, 180, 40)),

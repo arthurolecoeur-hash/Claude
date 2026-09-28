@@ -31,7 +31,7 @@ MutationLabel.STYLES = {
 		ColorSequenceKeypoint.new(0.8, Color3.fromRGB(170, 50, 255)),
 		ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 40, 40)),
 	}), rotation = 0, stroke = Color3.fromRGB(40, 20, 60) },
-	Admin   = { base = Color3.fromRGB(30, 30, 34), color = seq(Color3.fromRGB(110, 110, 118), Color3.fromRGB(40, 40, 45), Color3.fromRGB(5, 5, 6)), rotation = 90, stroke = Color3.fromRGB(235, 235, 240) },
+	Admin   = { base = Color3.fromRGB(255, 35, 50), color = seq(Color3.fromRGB(255, 225, 110), Color3.fromRGB(255, 45, 60), Color3.fromRGB(150, 0, 20)), rotation = 90, stroke = Color3.fromRGB(45, 0, 8) },
 }
 
 -- Renvoie (cleMutation ou nil, nom sans prefixe).

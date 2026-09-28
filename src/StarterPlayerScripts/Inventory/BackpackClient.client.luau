@@ -50,7 +50,7 @@ local C = {
 local MUTATION_COLORS = {
 	Gold = Color3.fromRGB(255, 205, 40), Diamond = Color3.fromRGB(80, 210, 255), Ruby = Color3.fromRGB(255, 50, 90),
 	Lava = Color3.fromRGB(255, 110, 20), Galaxy = Color3.fromRGB(170, 100, 255), Hacker = Color3.fromRGB(40, 240, 90),
-	Rainbow = Color3.fromRGB(255, 120, 220), Admin = Color3.fromRGB(80, 80, 88),
+	Rainbow = Color3.fromRGB(255, 120, 220), Admin = Color3.fromRGB(255, 45, 60),
 }
 
 local FONT_TITLE = Font.new("rbxasset://fonts/families/LuckiestGuy.json")

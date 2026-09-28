@@ -51,7 +51,7 @@ local MUTATION_COLORS = {
 	Galaxy  = Color3.fromRGB(140, 70, 255),
 	Hacker  = Color3.fromRGB(0, 235, 80),
 	Rainbow = Color3.fromRGB(255, 255, 255),
-	Admin   = Color3.fromRGB(35, 35, 40),
+	Admin   = Color3.fromRGB(255, 40, 55),
 }
 
 -- Couleurs vives des cartes de l'onglet Normal (par rarete).
@@ -108,7 +108,7 @@ local MUTATION_STYLES = {
 	Galaxy  = { color = seq(Color3.fromRGB(200, 140, 255), Color3.fromRGB(120, 50, 240), Color3.fromRGB(25, 10, 90)), rotation = 60, shine = true },
 	Hacker  = { color = seq(Color3.fromRGB(70, 255, 120), Color3.fromRGB(0, 200, 60), Color3.fromRGB(0, 60, 25)), rotation = 90, shine = true },
 	Rainbow = { color = RAINBOW, rotation = 45, shine = true, animated = true },
-	Admin   = { color = seq(Color3.fromRGB(95, 95, 105), Color3.fromRGB(35, 35, 40), Color3.fromRGB(5, 5, 6)), rotation = 90, shine = true },
+	Admin   = { color = seq(Color3.fromRGB(255, 225, 110), Color3.fromRGB(255, 45, 60), Color3.fromRGB(150, 0, 20)), rotation = 90, shine = true },
 }
 
 local function raritySeq(c: Color3)
