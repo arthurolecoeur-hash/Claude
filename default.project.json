@@ -181,6 +181,9 @@
             "$path": "src/StarterPlayerScripts/Traits/TraitMachineClient.client.luau"
           }
         },
+        "UIJuice": {
+          "$path": "src/StarterPlayerScripts/UIJuice.client.luau"
+        },
         "Weather": {
           "$className": "Folder",
           "WeatherClient": {
