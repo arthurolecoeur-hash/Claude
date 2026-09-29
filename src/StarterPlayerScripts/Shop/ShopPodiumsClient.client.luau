@@ -216,7 +216,7 @@ local function setupStrawberry(podium: Model)
 		t.Parent = bb
 		table.insert(orbit, { part = holder, label = t, phase = i / 8 * math.pi * 2, radius = 4.2 + (i % 2) * 1.2, height = 2 + (i % 4) * 1.3 })
 	end
-	local beam = podium:FindFirstChild("LightBeam", true)
+	local beam: Instance? = podium:FindFirstChild("LightBeam", true)
 	local base = block and block:GetPivot()
 	local t0 = os.clock()
 	RunService.RenderStepped:Connect(function()
@@ -238,6 +238,10 @@ local function setupStrawberry(podium: Model)
 			o.part.CFrame = CFrame.new(center + Vector3.new(math.cos(a) * o.radius, o.height + math.sin(t * 2 + o.phase) * 0.6, math.sin(a) * o.radius))
 			o.label.TextTransparency = 0.1 + (math.sin(t * 3 + o.phase) + 1) * 0.2
 			o.label.Rotation = math.sin(t * 2 + o.phase) * 15
+		end
+		if not beam and math.floor(t * 2) % 4 == 0 then
+			-- Le decor peut arriver plus tard (streaming).
+			beam = podium:FindFirstChild("LightBeam", true)
 		end
 		if beam and beam:IsA("Beam") then
 			local k = 0.3 + (math.sin(t * 2.2) + 1) * 0.08

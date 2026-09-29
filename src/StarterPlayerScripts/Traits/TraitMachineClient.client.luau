@@ -1326,7 +1326,8 @@ local function toggleAuto()
 						showToast("ALL MAX TRAIT! AUTO STOPPED", GOLD)
 						break
 					end
-					if cash() < lastCost then
+					local cost = tonumber(remote:InvokeServer("GetCost", selected)) or lastCost
+					if cash() < cost then
 						showToast("NOT ENOUGH CASH! AUTO STOPPED", C.red)
 						break
 					end

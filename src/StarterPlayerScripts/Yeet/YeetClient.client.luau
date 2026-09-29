@@ -951,11 +951,15 @@ local function setNoob(d, cf: CFrame, flail: number, scale: number, t: number)
 	local s = d.scale
 	local cfs = d.cframes
 	table.clear(cfs)
+	local headC = cf * CFrame.new(0, 1.65 * s, 0) * CFrame.Angles(math.sin(t * 7) * 0.12 * flail, 0, math.sin(t * 11) * 0.15 * flail)
 	for i, part in ipairs(d.list) do
 		local name = part.Name
 		local c = cf
+		local headOffset = part:GetAttribute("HeadOffset")
 		if name == "Head" then
-			c = cf * CFrame.new(0, 1.65 * s, 0) * CFrame.Angles(math.sin(t * 7) * 0.12 * flail, 0, math.sin(t * 11) * 0.15 * flail)
+			c = headC
+		elseif typeof(headOffset) == "Vector3" then
+			c = headC * CFrame.new(headOffset * s)
 		else
 			local L = LIMBS[name]
 			if L then

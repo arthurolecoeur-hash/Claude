@@ -252,7 +252,7 @@ end
 	Noob en blocs, style studs, bras en l'air (il hurle en volant).
 	Face avant = -Z du modele. PrimaryPart = Torso.
 	skinKey : skin de Mastery (couleurs + chapeau), nil = noob classique.
-	Le chapeau est soude a la tete (hors de la liste des parts animees).
+	Les parts du chapeau portent l'attribut HeadOffset (suivent la tete).
 ]]
 local function skinOf(skinKey: any)
 	local ok, MasteryShared = pcall(function()
@@ -322,13 +322,9 @@ function YeetShared.BuildNoob(skinKey: any?): Model
 			table.insert(pieces, { Vector3.new(1.42, 1.1, 0.35), Vector3.new(0, 1.85, 0.62) })
 		end
 		for i, pc in ipairs(pieces) do
-			local p = part("Hat" .. i, pc[1], pc[2], hat.color, head)
-			p.Anchored = false
-			p.Massless = true
-			local w = Instance.new("WeldConstraint")
-			w.Part0 = head
-			w.Part1 = p
-			w.Parent = p
+			local p = part("Hat" .. i, pc[1], pc[2], hat.color)
+			-- Position relative a la tete (lue par YeetClient pour suivre l'animation).
+			p:SetAttribute("HeadOffset", pc[2] - Vector3.new(0, 1.65, 0))
 		end
 	end
 

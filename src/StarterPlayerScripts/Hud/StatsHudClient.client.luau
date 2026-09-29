@@ -57,6 +57,19 @@ card.BackgroundTransparency = 1
 card.Parent = gui
 local cardScale = Instance.new("UIScale")
 cardScale.Parent = card
+
+-- Telephone : le joystick tactile est en bas a gauche -> HUD en haut a gauche.
+local function placeCard()
+	if UI.IsTouch() then
+		card.AnchorPoint = Vector2.new(0, 0)
+		card.Position = UDim2.new(0, 10, 0, 64)
+	else
+		card.AnchorPoint = Vector2.new(0, 1)
+		card.Position = UDim2.new(0, 10, 1, -10)
+	end
+end
+placeCard()
+game:GetService("UserInputService").LastInputTypeChanged:Connect(placeCard)
 UI.bindFit(1280, 720, function(s)
 	cardScale.Scale = math.clamp(s, 0.72, 1)
 end, 0, 0)
@@ -229,9 +242,19 @@ local function bindCounter(label: TextLabel, fmt: (number) -> string, onGain: ((
 	end
 end
 
+-- Le cash monte chaque seconde (generateurs) : on regroupe les gains pour
+-- ne pas faire pleuvoir les "+$" en continu.
+local pendingCash, cashFlushAt = 0, 0
 local setCash = bindCounter(cashValue, NumberFormat.FormatPrice, function(d)
-	pop(cashIcon)
-	floatGain(cashRow, "+" .. NumberFormat.FormatPrice(d), Color3.fromRGB(120, 255, 110))
+	pendingCash += d
+	local now = os.clock()
+	if now < cashFlushAt then
+		return
+	end
+	cashFlushAt = now + 1.6
+	pop(cashIcon, 1.1)
+	floatGain(cashRow, "+" .. NumberFormat.FormatPrice(math.floor(pendingCash + 0.5)), Color3.fromRGB(120, 255, 110))
+	pendingCash = 0
 end)
 local setForce = bindCounter(forceValue, NumberFormat.Format, function()
 	pop(forceIcon, 1.12)
